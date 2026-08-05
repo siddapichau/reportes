@@ -29,8 +29,7 @@
             --text-main: #333333;
             --text-muted: #666666;
             --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.05);
-            --brand-yellow: #FFF159; /* Amarelo Padrão ML */
-            --text-on-yellow: #2D3277; /* Azul Padrão ML para leitura */
+            --brand-yellow: #FFB000;
         }
         [data-theme="dark"] {
             --bg-header: #FFF159;
@@ -39,8 +38,7 @@
             --text-main: #E2E8F0;
             --text-muted: #94A3B8;
             --shadow-card: 0 4px 6px rgba(0, 0, 0, 0.3);
-            --brand-yellow: #FFF159;
-            --text-on-yellow: #2D3277;
+            --brand-yellow: #FFB000;
         }
 
         html, body { width: 100%; min-height: 100%; background: transparent !important; }
@@ -50,7 +48,7 @@
 
         /* CABEÇALHO PRINCIPAL */
         .header { padding: 8px 20px; flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 20px; background-color: var(--bg-header) !important; border: none; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .header-title-wrapper { flex: 1; text-align: center; color: #2D3277 !important; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; font-size: 1.3rem; }
+        .header-title-wrapper { flex: 1; text-align: center; color: #2D3277 !important; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; font-size: 1.3rem; margin-left: 20px;}
         .ml-logo { height: 32px; width: auto; object-fit: contain; }
 
         .header-controls { display: flex; align-items: center; gap: 12px; }
@@ -81,7 +79,7 @@
         .dashboard-grid { display: grid; grid-template-columns: 1fr 1.2fr 1fr; grid-template-rows: 1fr 1fr; gap: 15px; flex: 1; min-height: 0; margin-top: 10px;}
         .chart-card { display: flex; flex-direction: column; border-radius: 8px; overflow: hidden; }
         
-        .chart-title { background: var(--brand-yellow); color: var(--text-on-yellow); padding: 8px 10px; font-size: 0.85rem; font-weight: 900; text-transform: uppercase; text-align: center; letter-spacing: 0.5px; margin: 0;}
+        .chart-title { background: var(--brand-yellow); color: #111; padding: 8px 10px; font-size: 0.85rem; font-weight: 900; text-transform: uppercase; text-align: center; letter-spacing: 0.5px; margin: 0;}
         .chart-wrapper { flex: 1; min-height: 0; width: 100%; position: relative; padding: 10px; box-sizing: border-box;}
         
         /* TABELA PERFIL */
@@ -90,14 +88,14 @@
         .perfil-table th, .perfil-table td { padding: 10px; text-align: right; border-bottom: 1px solid var(--border-card); color: var(--text-main); }
         .perfil-table th:first-child, .perfil-table td:first-child { text-align: left; font-weight: 800; }
         .perfil-table th { color: #111; font-weight: 900; text-transform: uppercase; font-size: 0.75rem; }
-        .perfil-table .highlight-bg { background: var(--brand-yellow); color: var(--text-on-yellow); font-weight: 900; }
+        .perfil-table .highlight-bg { background: var(--brand-yellow); color: #111; font-weight: 900; }
 
         /* TABELA INFERIOR (DETALHES) */
         .data-table-wrapper { flex: 1; overflow-y: auto; overflow-x: auto; background: var(--bg-card);}
         table.data-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; text-align: center; }
-        .data-table thead { background: var(--brand-yellow); color: var(--text-on-yellow); position: sticky; top: 0; z-index: 1; font-weight: 900; text-transform: uppercase;}
+        .data-table thead { background: var(--brand-yellow); color: #111; position: sticky; top: 0; z-index: 1; font-weight: 900; text-transform: uppercase;}
         .data-table th, .data-table td { padding: 8px 10px; border-bottom: 1px solid var(--border-card); color: var(--text-main); white-space: nowrap; }
-        .data-table tbody tr:hover { background-color: rgba(255, 241, 89, 0.15); }
+        .data-table tbody tr:hover { background-color: rgba(255, 176, 0, 0.15); }
         
         .data-table .col-correta { color: var(--text-main); font-weight: 600; }
         .data-table .col-amais { background: #4DD0E1; color: #000; font-weight: 900; border-right: 1px solid var(--bg-card); border-left: 1px solid var(--bg-card);}
@@ -592,28 +590,32 @@
                 
                 let tempoKey = Object.keys(r).find(k => k.toLowerCase().includes('tempo de aud') || k.toLowerCase().includes('minutos'));
                 if(tempoKey && r[tempoKey]) {
-                    let match = r[tempoKey].toString().match(/\d+/);
+                    let match = r[tempoKey].toString().replace(',', '.').match(/\d+(\.\d+)?/);
                     if(match) {
-                        totalMinutos += parseInt(match[0]);
+                        totalMinutos += parseFloat(match[0]);
                         qtdTempos++;
                     }
                 }
 
                 let cicloKey = Object.keys(r).find(k => k.toLowerCase() === 'ciclo');
-                let ciclo = cicloKey ? r[cicloKey].trim().replace(/[^A-Za-z0-9]/g, '') : '';
+                let ciclo = cicloKey && r[cicloKey] ? r[cicloKey].trim().replace(/[^A-Za-z0-9]/g, '') : '';
                 if(ciclo) {
                     if(!mapCiclo[ciclo]) mapCiclo[ciclo] = { aduanas: 0, f: 0, a: 0 };
                     mapCiclo[ciclo].aduanas++;
                     mapCiclo[ciclo].f += f; mapCiclo[ciclo].a += a;
                 }
 
-                let repKey = Object.keys(r).find(k => k.toLowerCase().includes('rep de aduana') || k.toLowerCase() === "rep's" || k.toLowerCase() === "rep");
-                let rep = repKey ? r[repKey].trim() : 'Desconhecido';
+                // Agrupador do Gráfico Reps: Identifica corretamente usando rep's, rep de aduana, rep
+                let repKey = Object.keys(r).find(k => k.trim().toLowerCase() === "rep's" || k.trim().toLowerCase() === "rep");
+                if(!repKey) repKey = Object.keys(r).find(k => k.trim().toLowerCase().includes('rep de aduana'));
+                let repRaw = repKey && r[repKey] ? r[repKey] : 'Desconhecido';
+                let rep = repRaw.split('\n')[0].trim();
+                
                 if(!mapReps[rep]) mapReps[rep] = 0;
-                mapReps[rep]++;
+                mapReps[rep]++; // Conta Rotas
 
                 let transpKey = Object.keys(r).find(k => k.toLowerCase().includes('transportadora'));
-                let transp = transpKey ? r[transpKey].trim() : 'Outros';
+                let transp = transpKey && r[transpKey] ? r[transpKey].trim() : 'Outros';
                 if(!mapTransp[transp]) mapTransp[transp] = {f:0, a:0};
                 mapTransp[transp].f += f; mapTransp[transp].a += a;
             });
@@ -632,14 +634,17 @@
             sortedResumo.forEach(r => {
                 let rotaKey = Object.keys(r).find(k => k.toLowerCase() === 'rota' || k.toLowerCase().includes('rota e ve'));
                 let transpKey = Object.keys(r).find(k => k.toLowerCase().includes('transportadora'));
-                let repKey = Object.keys(r).find(k => k.toLowerCase().includes('rep de aduana') || k.toLowerCase() === "rep's" || k.toLowerCase() === "rep");
+                let repKey = Object.keys(r).find(k => k.trim().toLowerCase() === "rep's" || k.trim().toLowerCase() === "rep");
+                if(!repKey) repKey = Object.keys(r).find(k => k.trim().toLowerCase().includes('rep de aduana'));
+
                 let cKey = Object.keys(r).find(k => k.toLowerCase().includes('corretas'));
                 let aKey = Object.keys(r).find(k => k.toLowerCase().includes('a mais'));
                 let fKey = Object.keys(r).find(k => k.toLowerCase().includes('faltantes'));
 
                 let rota = rotaKey ? r[rotaKey].split('|')[0].trim() : '-';
                 let transp = transpKey ? r[transpKey] : '-';
-                let rep = repKey ? r[repKey].split(' ').slice(0,3).join(' ') : '-';
+                let repRaw = repKey && r[repKey] ? r[repKey] : '-';
+                let rep = repRaw.split('\n')[0].split(' ').slice(0,3).join(' ');
                 let c = parseInt(cKey ? r[cKey] : 0)||0;
                 let a = parseInt(aKey ? r[aKey] : 0)||0;
                 let f = parseInt(fKey ? r[fKey] : 0)||0;
@@ -676,7 +681,7 @@
 
                 let perf = perfKey ? r[perfKey].trim().toUpperCase() : '';
                 let est = estKey ? r[estKey].trim().toLowerCase() : '';
-                let ciclo = cicloKey ? r[cicloKey].trim().replace(/[^A-Za-z0-9]/g, '') : '';
+                let ciclo = cicloKey && r[cicloKey] ? r[cicloKey].trim().replace(/[^A-Za-z0-9]/g, '') : '';
                 
                 if(mapPerfil[perf]) {
                     if(est.includes('faltante')) mapPerfil[perf].f++;
@@ -714,7 +719,7 @@
                 chart: { type: 'bar', height: '100%', stacked: false, background: 'transparent', toolbar: {show:false} },
                 colors: ['#FFB000', '#E74C3C', '#4A90E2'],
                 plotOptions: { bar: { horizontal: false, columnWidth: '55%', dataLabels: {position: 'top'} } },
-                dataLabels: { enabled: true, offsetY: -20, style: { fontSize: '11px', colors: [textColor] } },
+                dataLabels: { enabled: true, offsetY: -20, style: { fontSize: '11px', colors: [textColor] }, dropShadow: {enabled:false} },
                 xaxis: { categories: ciclos, labels: { style: { colors: textColor, fontWeight: 900, fontSize: '11px' } } },
                 yaxis: { labels: { style: { colors: textColor } } },
                 legend: { position: 'top', labels: { colors: textColor }, itemMargin: {horizontal: 5, vertical: 0} },
@@ -722,7 +727,7 @@
             });
             chartInstances.ciclo.render();
 
-            // 2. TOTAL PERFIL x CICLO
+            // 2. TOTAL PERFIL x CICLO (Garante categorias no Eixo e Valor Fora da Barra)
             let pcCiclos = Object.keys(mapPerfilCiclo);
             let srVol = pcCiclos.map(c => mapPerfilCiclo[c].VOLUMOSO);
             let srEst = pcCiclos.map(c => mapPerfilCiclo[c].ESTEIRA);
@@ -732,15 +737,15 @@
                 chart: { type: 'bar', height: '100%', stacked: false, background: 'transparent', toolbar: {show:false} },
                 colors: ['#FFB000', '#000000'],
                 plotOptions: { bar: { horizontal: true, dataLabels: {position: 'top'} } },
-                dataLabels: { enabled: true, textAnchor: 'start', offsetX: 5, style: { fontSize: '12px', colors: [textColor] } },
-                xaxis: { labels: { style: { colors: textColor, fontSize: '10px' } } },
-                yaxis: { categories: pcCiclos, labels: { style: { colors: textColor, fontWeight: 900, fontSize: '11px' } } },
+                dataLabels: { enabled: true, textAnchor: 'start', offsetX: 10, style: { fontSize: '11px', colors: [textColor] }, dropShadow: {enabled:false} },
+                xaxis: { categories: pcCiclos, labels: { style: { colors: textColor, fontSize: '10px' } } },
+                yaxis: { labels: { style: { colors: textColor, fontWeight: 900, fontSize: '11px' } } },
                 legend: { position: 'top', labels: { colors: textColor }, markers: { radius: 0 } },
                 grid: { padding: { right: 35 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.perfil.render();
 
-            // 3. REPS (Top 6)
+            // 3. REPS (Top 6) (Garante Categorias Nomes e Valor Fora da Barra)
             let arrReps = Object.keys(mapReps).map(r => ({rep: r, v: mapReps[r]})).sort((a,b) => b.v - a.v).slice(0,6);
             
             chartInstances.reps = new ApexCharts(document.querySelector("#chart-reps"), {
@@ -748,14 +753,14 @@
                 chart: { type: 'bar', height: '100%', background: 'transparent', toolbar: {show:false} },
                 colors: ['#FFB000'],
                 plotOptions: { bar: { horizontal: true, dataLabels: {position: 'top'} } },
-                dataLabels: { enabled: true, textAnchor: 'start', offsetX: 5, style: { fontSize: '11px', colors: [textColor] } },
-                xaxis: { labels: { style: { colors: textColor, fontSize: '10px' } } },
-                yaxis: { categories: arrReps.map(x=>x.rep), labels: { style: { colors: textColor, fontWeight: 800, fontSize:'10px' } } },
+                dataLabels: { enabled: true, textAnchor: 'start', offsetX: 10, style: { fontSize: '11px', colors: [textColor] }, dropShadow: {enabled:false} },
+                xaxis: { categories: arrReps.map(x=> x.rep.split(' ').slice(0,2).join(' ')), labels: { style: { colors: textColor, fontSize: '10px' } } },
+                yaxis: { labels: { style: { colors: textColor, fontWeight: 800, fontSize: '10px' } } },
                 grid: { padding: { right: 35 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.reps.render();
 
-            // 4. TRANSPORTADORAS (Top 6)
+            // 4. TRANSPORTADORAS (Top 6) (Garante Categorias no Eixo)
             let arrT = Object.keys(mapTransp).map(t => ({t:t, f:mapTransp[t].f, a:mapTransp[t].a})).sort((a,b) => (b.f+b.a) - (a.f+a.a)).slice(0,6);
             
             chartInstances.transp = new ApexCharts(document.querySelector("#chart-transp"), {
@@ -763,9 +768,9 @@
                 chart: { type: 'bar', height: '100%', stacked: true, background: 'transparent', toolbar: {show:false} },
                 colors: ['#E74C3C', '#4A90E2'],
                 plotOptions: { bar: { horizontal: true } },
-                dataLabels: { enabled: true, style: { fontSize: '11px', colors: ['#fff'] } },
-                xaxis: { labels: { style: { colors: textColor, fontSize: '10px' } } },
-                yaxis: { categories: arrT.map(x=>x.t.slice(0,20)), labels: { style: { colors: textColor, fontWeight: 800, fontSize:'10px' } } },
+                dataLabels: { enabled: true, style: { fontSize: '11px', colors: ['#fff'] }, dropShadow: {enabled:false} },
+                xaxis: { categories: arrT.map(x=>x.t.slice(0,20)), labels: { style: { colors: textColor, fontSize: '10px' } } },
+                yaxis: { labels: { style: { colors: textColor, fontWeight: 800, fontSize: '10px' } } },
                 legend: { position: 'top', labels: { colors: textColor }, markers: { radius: 0 } },
                 grid: { borderColor: gridColor, strokeDashArray: 3 }
             });
