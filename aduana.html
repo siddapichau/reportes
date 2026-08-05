@@ -67,7 +67,7 @@
         
         .kpi-box { padding: 10px 20px; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; min-width: 120px; text-shadow: 0 1px 2px rgba(0,0,0,0.2); box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1); }
         .kpi-box.black { background-color: #000000; border: 2px solid #333; }
-        .kpi-box.gray { background-color: #607D8B; } /* Cor do Tempo Médio */
+        .kpi-box.gray { background-color: #607D8B; } 
         .kpi-box.green { background-color: #5AB065; }
         .kpi-box.red { background-color: #E74C3C; }
         .kpi-box.blue { background-color: #4A90E2; }
@@ -163,10 +163,6 @@
                 <div class="kpi-title">ROTAS</div>
                 <div class="kpi-value" id="kpi-rotas">0</div>
             </div>
-            <div class="kpi-box gray">
-                <div class="kpi-title">TEMPO MÉDIO</div>
-                <div class="kpi-value" id="kpi-tempo">0<span style="font-size:0.5em">m</span></div>
-            </div>
             <div class="kpi-box green">
                 <div class="kpi-title">CORRETAS</div>
                 <div class="kpi-value" id="kpi-corretas">0</div>
@@ -178,6 +174,10 @@
             <div class="kpi-box blue">
                 <div class="kpi-title">A MAIS</div>
                 <div class="kpi-value" id="kpi-amais">0</div>
+            </div>
+            <div class="kpi-box gray">
+                <div class="kpi-title">TEMPO MÉDIO</div>
+                <div class="kpi-value" id="kpi-tempo">0<span style="font-size:0.5em">m</span></div>
             </div>
         </div>
     </div>
@@ -362,6 +362,13 @@
         function populateFilters() {
             let datesSet = new Set([...Object.keys(globalDbResumo), ...Object.keys(globalDbPacotes)]);
             let dates = Array.from(datesSet).map(k => k.replace(/-/g, '/'));
+            
+            // ORDENAÇÃO CRONOLÓGICA (Mais Atual para o Mais Antigo)
+            dates.sort((a, b) => {
+                let pa = a.split('/'); let pb = b.split('/');
+                return new Date(pb[2], pb[1]-1, pb[0]) - new Date(pa[2], pa[1]-1, pa[0]);
+            });
+
             let months = new Set(), weeks = new Set(), days = new Set();
             
             dates.forEach(d => {
@@ -377,7 +384,8 @@
             const fillSelect = (id, setVal, defaultText) => {
                 let sel = document.getElementById(id);
                 sel.innerHTML = `<option value="">${defaultText}</option>`;
-                Array.from(setVal).sort((a,b) => b.localeCompare(a)).forEach(v => { sel.innerHTML += `<option value="${v}">${v}</option>`; });
+                // O loop abaixo respeita a ordem de inserção do Set (que já está ordenado nas datas e descendo)
+                Array.from(setVal).forEach(v => { sel.innerHTML += `<option value="${v}">${v}</option>`; });
             };
 
             fillSelect('filter-month', months, 'Mês (Todos)');
@@ -433,7 +441,7 @@
             if(target) {
                 dSel.value = dataHoje;
             } else if (dSel.options.length > 1) {
-                dSel.value = dSel.options[1].value;
+                dSel.value = dSel.options[1].value; // Puxa o dia mais recente da lista
             }
             applyFilter('day');
         }
@@ -446,7 +454,6 @@
             let resumoRaw = null;
             let pacotesRaw = null;
 
-            // Extrai as informações de todos os arquivos upados de uma vez
             for(let file of files) {
                 let res = await parseCSV(file);
                 if (res.data.length > 0) {
@@ -482,7 +489,6 @@
 
             let promises = [];
 
-            // Processamento do Resumo R
             if (resumoRaw) {
                 if (isFirstUploadR) {
                     let newDb = {};
@@ -516,7 +522,6 @@
                 }
             }
 
-            // Processamento dos Pacotes
             if (pacotesRaw) {
                 if (isFirstUploadP) {
                     let newDb = {};
@@ -565,7 +570,7 @@
         // --- RENDERIZAÇÃO E PROCESSAMENTO GERAL ---
         function render() {
             // ================== PROCESSA HISTÓRICO R ==================
-            let rotas = flatResumo.length; // Carrega 100% de linhas sem corte
+            let rotas = flatResumo.length;
             let corretas = 0, faltantes = 0, amais = 0;
             let totalMinutos = 0, qtdTempos = 0;
             
@@ -584,7 +589,6 @@
                 
                 corretas += c; faltantes += f; amais += a;
                 
-                // Média de Tempo
                 let tempoKey = Object.keys(r).find(k => k.toLowerCase().includes('tempo de aud') || k.toLowerCase().includes('minutos'));
                 if(tempoKey && r[tempoKey]) {
                     let match = r[tempoKey].toString().match(/\d+/);
@@ -613,7 +617,6 @@
                 mapTransp[transp].f += f; mapTransp[transp].a += a;
             });
 
-            // Geração Tabela Rodapé
             let sortedResumo = [...flatResumo].sort((a,b) => {
                 let fKeyA = Object.keys(a).find(k => k.toLowerCase().includes('faltantes'));
                 let aKeyA = Object.keys(a).find(k => k.toLowerCase().includes('a mais'));
@@ -653,7 +656,6 @@
                 </tr>`;
             });
 
-            // Atualiza KPIs Principais
             let mediaTempo = qtdTempos > 0 ? Math.round(totalMinutos / qtdTempos) : 0;
             document.getElementById('kpi-rotas').innerText = rotas;
             document.getElementById('kpi-tempo').innerHTML = `${mediaTempo}<span style="font-size:0.5em">m</span>`;
@@ -661,7 +663,6 @@
             document.getElementById('kpi-faltantes').innerText = faltantes;
             document.getElementById('kpi-amais').innerText = amais;
             document.getElementById('tbody-rotas').innerHTML = tbR || '<tr><td colspan="6" style="padding: 20px;">Nenhum dado selecionado.</td></tr>';
-
 
             // ================== PROCESSA HISTÓRICO DE PACOTES ==================
             let mapPerfil = { 'VOLUMOSO': {f:0, a:0}, 'ESTEIRA': {f:0, a:0} };
@@ -712,8 +713,8 @@
                 chart: { type: 'bar', height: '100%', stacked: false, background: 'transparent', toolbar: {show:false} },
                 colors: ['#FFB000', '#E74C3C', '#4A90E2'],
                 plotOptions: { bar: { horizontal: false, columnWidth: '55%', dataLabels: {position: 'top'} } },
-                dataLabels: { enabled: true, offsetY: -20, style: { fontSize: '9px', colors: [textColor] } },
-                xaxis: { categories: ciclos, labels: { style: { colors: textColor, fontWeight: 900 } } },
+                dataLabels: { enabled: true, offsetY: -20, style: { fontSize: '11px', colors: [textColor] } },
+                xaxis: { categories: ciclos, labels: { style: { colors: textColor, fontWeight: 900, fontSize: '11px' } } },
                 yaxis: { labels: { style: { colors: textColor } } },
                 legend: { position: 'top', labels: { colors: textColor }, itemMargin: {horizontal: 5, vertical: 0} },
                 grid: { borderColor: gridColor, strokeDashArray: 3 }
@@ -730,9 +731,9 @@
                 chart: { type: 'bar', height: '100%', stacked: false, background: 'transparent', toolbar: {show:false} },
                 colors: ['#FFB000', '#000000'],
                 plotOptions: { bar: { horizontal: true, dataLabels: {position: 'right'} } },
-                dataLabels: { enabled: true, offsetX: 15, style: { fontSize: '9px', colors: [textColor] } },
-                xaxis: { labels: { style: { colors: textColor } } },
-                yaxis: { categories: pcCiclos, labels: { style: { colors: textColor, fontWeight: 900 } } },
+                dataLabels: { enabled: true, offsetX: 5, style: { fontSize: '12px', colors: [textColor] } },
+                xaxis: { labels: { style: { colors: textColor, fontSize: '10px' } } },
+                yaxis: { categories: pcCiclos, labels: { style: { colors: textColor, fontWeight: 900, fontSize: '11px' } } },
                 legend: { position: 'top', labels: { colors: textColor }, markers: { radius: 0 } },
                 grid: { borderColor: gridColor, strokeDashArray: 3 }
             });
@@ -746,9 +747,9 @@
                 chart: { type: 'bar', height: '100%', background: 'transparent', toolbar: {show:false} },
                 colors: ['#FFB000'],
                 plotOptions: { bar: { horizontal: true, dataLabels: {position: 'right'} } },
-                dataLabels: { enabled: true, offsetX: 5, style: { fontSize: '9px', colors: [textColor] } },
-                xaxis: { labels: { style: { colors: textColor } } },
-                yaxis: { categories: arrReps.map(x=>x.rep), labels: { style: { colors: textColor, fontWeight: 800, fontSize:'9px' } } },
+                dataLabels: { enabled: true, offsetX: 5, style: { fontSize: '11px', colors: [textColor] } },
+                xaxis: { labels: { style: { colors: textColor, fontSize: '10px' } } },
+                yaxis: { categories: arrReps.map(x=>x.rep), labels: { style: { colors: textColor, fontWeight: 800, fontSize:'10px' } } },
                 grid: { borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.reps.render();
@@ -761,9 +762,9 @@
                 chart: { type: 'bar', height: '100%', stacked: true, background: 'transparent', toolbar: {show:false} },
                 colors: ['#E74C3C', '#4A90E2'],
                 plotOptions: { bar: { horizontal: true } },
-                dataLabels: { enabled: true, style: { fontSize: '9px', colors: ['#fff'] } },
-                xaxis: { labels: { style: { colors: textColor } } },
-                yaxis: { categories: arrT.map(x=>x.t.slice(0,20)), labels: { style: { colors: textColor, fontWeight: 800, fontSize:'9px' } } },
+                dataLabels: { enabled: true, style: { fontSize: '11px', colors: ['#fff'] } },
+                xaxis: { labels: { style: { colors: textColor, fontSize: '10px' } } },
+                yaxis: { categories: arrT.map(x=>x.t.slice(0,20)), labels: { style: { colors: textColor, fontWeight: 800, fontSize:'10px' } } },
                 legend: { position: 'top', labels: { colors: textColor }, markers: { radius: 0 } },
                 grid: { borderColor: gridColor, strokeDashArray: 3 }
             });
