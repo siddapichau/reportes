@@ -23,30 +23,20 @@
 
     <style>
         :root {
-            --bg-header: rgba(15, 23, 42, 0.6);
-            --bg-card: rgba(15, 23, 42, 0.5);
+            --bg-header: #FFF159;
+            --bg-card: rgba(255, 255, 255, 0.9);
+            --border-card: rgba(0, 0, 0, 0.1);
+            --text-main: #333333;
+            --text-muted: #666666;
+            --shadow-card: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+        [data-theme="dark"] {
+            --bg-header: #FFF159;
+            --bg-card: rgba(15, 23, 42, 0.7);
             --border-card: rgba(255, 255, 255, 0.1);
             --text-main: #e2e8f0;
             --text-muted: #94a3b8;
-            --text-title: #ffffff;
-            --shadow-card: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --accent-blue: #3483FA;
-            --accent-green: #00A650;
-            --accent-red: #FF5252;
-            --accent-warn: #FFB000;
-        }
-        [data-theme="light"] {
-            --bg-header: rgba(255, 255, 255, 0.9);
-            --bg-card: rgba(255, 255, 255, 0.7);
-            --border-card: rgba(0, 0, 0, 0.1);
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --text-title: #0f172a;
-            --shadow-card: 0 4px 10px rgba(0, 0, 0, 0.05);
-            --accent-blue: #3483FA;
-            --accent-green: #00A650;
-            --accent-red: #FF5252;
-            --accent-warn: #B48B00;
+            --shadow-card: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
 
         html, body { width: 100%; min-height: 100%; background: transparent !important; }
@@ -54,61 +44,64 @@
 
         .glass-panel { background-color: var(--bg-card); backdrop-filter: blur(12px); border: 1px solid var(--border-card); border-radius: 10px; box-shadow: var(--shadow-card); transition: 0.3s; }
 
-        /* CABEÇALHO */
-        .header { padding: 8px 20px; flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 20px; background-color: #FFB000 !important; border: none; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .header-title-wrapper { flex: 1; text-align: center; color: #000 !important; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; font-size: 1.3rem; }
+        /* CABEÇALHO AMARELO PADRÃO */
+        .header { padding: 8px 20px; flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 20px; background-color: var(--bg-header) !important; border: none; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .header-title-wrapper { flex: 1; text-align: center; color: #2D3277 !important; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; font-size: 1.3rem; }
         .ml-logo { height: 32px; width: auto; object-fit: contain; }
 
         .header-controls { display: flex; align-items: center; gap: 12px; }
-        .btn-icon { background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(0, 0, 0, 0.1); color: #2D3277; width: 38px; height: 38px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; }
-        .btn-icon:hover { background: rgba(255, 255, 255, 0.9); transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .btn-icon { background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(0, 0, 0, 0.1); color: #2D3277; width: 38px; height: 38px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; }
+        .btn-icon:hover { background: #fff; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
 
         /* FILTROS */
         .filter-bar { display: flex; gap: 10px; padding: 10px 20px; align-items: center; flex: 0 0 auto; justify-content: flex-end; border-radius: 10px;}
         .filter-label { font-size: 0.8rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; }
         .filter-select { padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border-card); background: transparent; color: var(--text-main); font-weight: 600; font-size: 0.85rem; outline: none; cursor: pointer; }
-        .btn-limpar { padding: 6px 12px; background: var(--accent-blue); color: #fff; border: none; border-radius: 6px; font-weight: 800; cursor: pointer; transition: 0.3s; font-size: 0.8rem; text-transform: uppercase; }
+        .btn-limpar { padding: 6px 12px; background: #3483FA; color: #fff; border: none; border-radius: 6px; font-weight: 800; cursor: pointer; transition: 0.3s; font-size: 0.8rem; text-transform: uppercase; }
 
         /* KPI BAR */
-        .kpi-row { display: flex; gap: 15px; flex: 0 0 auto; justify-content: center; margin-top: 5px;}
-        .kpi-box { padding: 12px 25px; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; min-width: 140px; text-shadow: 0 1px 2px rgba(0,0,0,0.3); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .kpi-row { display: flex; gap: 15px; flex: 0 0 auto; justify-content: center; margin-top: 5px; background: #FFB000; padding: 10px; border-radius: 10px; width: fit-content; margin-left: auto; margin-right: auto;}
+        .kpi-box { padding: 12px 25px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; min-width: 130px; text-shadow: 0 1px 2px rgba(0,0,0,0.3); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         .kpi-box.black { background-color: #000000; border: 2px solid #333; }
         .kpi-box.green { background-color: #55B867; }
         .kpi-box.red { background-color: #F15454; }
         .kpi-box.blue { background-color: #4A90E2; }
         
-        .kpi-title { font-size: 0.8rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; opacity: 0.9;}
-        .kpi-value { font-size: 2rem; font-weight: 900; line-height: 1;}
+        .kpi-title { font-size: 0.8rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; opacity: 0.9; color: #fff;}
+        .kpi-value { font-size: 2.2rem; font-weight: 900; line-height: 1;}
 
         /* LAYOUT GERAL */
-        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr 1.2fr; grid-template-rows: 1fr 1fr; gap: 10px; flex: 1; min-height: 0; margin-top: 5px;}
-        .chart-card { display: flex; flex-direction: column; padding: 10px; border-radius: 8px; overflow: hidden; position: relative;}
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1.2fr 1fr; grid-template-rows: 1fr 1fr; gap: 15px; flex: 1; min-height: 0; margin-top: 5px;}
+        .chart-card { display: flex; flex-direction: column; padding: 10px; border-radius: 8px; overflow: hidden; position: relative; border: 2px solid transparent;}
+        .chart-card.blue-border { border-color: #4A90E2; }
+        .chart-card.green-border { border-color: #55B867; }
+        
         .chart-title { background: #FFB000; color: #000; padding: 6px; font-size: 0.85rem; font-weight: 900; text-transform: uppercase; text-align: center; border-radius: 4px; margin-bottom: 5px; letter-spacing: 0.5px;}
         .chart-wrapper { flex: 1; min-height: 0; width: 100%; position: relative; }
         
-        /* TABELA PERFIL */
+        /* TABELA PERFIL (VERDE) */
         .perfil-table-wrapper { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .perfil-table { width: 90%; border-collapse: collapse; font-size: 0.85rem; }
+        .perfil-table { width: 90%; border-collapse: collapse; font-size: 0.9rem; }
         .perfil-table th, .perfil-table td { padding: 8px; text-align: right; border-bottom: 1px solid var(--border-card); color: var(--text-main); }
         .perfil-table th:first-child, .perfil-table td:first-child { text-align: left; font-weight: 800; }
-        .perfil-table th { color: var(--text-muted); font-weight: 900; text-transform: uppercase; font-size: 0.75rem; }
+        .perfil-table th { color: var(--text-muted); font-weight: 900; text-transform: uppercase; font-size: 0.8rem; }
         .perfil-table .highlight-bg { background: #FFB000; color: #000; font-weight: 900; }
 
-        /* TABELA INFERIOR */
+        /* TABELA INFERIOR (AZUL) */
         .data-table-wrapper { flex: 1; overflow-y: auto; overflow-x: auto; border-radius: 6px; }
         table.data-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; text-align: center; }
         .data-table thead { background: #FFB000; color: #000; position: sticky; top: 0; z-index: 1; font-weight: 900; text-transform: uppercase;}
-        .data-table th, .data-table td { padding: 6px 8px; border-bottom: 1px solid rgba(0,0,0,0.1); color: var(--text-main); white-space: nowrap; }
+        .data-table th, .data-table td { padding: 8px 10px; border-bottom: 1px solid rgba(0,0,0,0.1); color: var(--text-main); white-space: nowrap; }
         .data-table tbody tr:hover { background-color: rgba(255, 176, 0, 0.15); }
         
-        /* Cores especificas da Tabela conforme Looker */
         .data-table .col-correta { color: var(--text-main); font-weight: 600; }
         .data-table .col-amais { background: #71C9CE; color: #000; font-weight: 900; border-left: 1px solid #fff; border-right: 1px solid #fff;}
         .data-table .col-faltante { background: #E74C3C; color: #000; font-weight: 900; }
         
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--border-card); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 3px; }
+        [data-theme="dark"] ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); }
         
         .exporting .header-controls, .exporting .filter-bar { display: none !important; }
     </style>
@@ -118,7 +111,7 @@
     <div class="header glass-panel">
         <div style="display:flex; align-items:center; gap: 10px;">
             <img src="https://upload.wikimedia.org/wikipedia/pt/0/04/Logotipo_MercadoLivre.png" alt="Mercado Livre" class="ml-logo">
-            <span style="font-weight: 900; font-size: 0.85rem; color: #000; background: rgba(255,255,255,0.7); padding: 4px 8px; border-radius: 4px;">>> ADUANAS RESUMO</span>
+            <span style="font-weight: 900; font-size: 0.9rem; color: #2D3277; background: rgba(255,255,255,0.7); padding: 4px 8px; border-radius: 4px;">>> ADUANAS RESUMO</span>
         </div>
         
         <div class="header-title-wrapper" id="main-title">
@@ -129,14 +122,14 @@
             <button class="btn-icon" onclick="baixarImagem()" title="Exportar Imagem">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
             </button>
-            <label class="btn-icon" id="btnUpload" style="display:none;" title="Subir CSV Histórico">
+            <label class="btn-icon" id="btnUpload" style="display:none;" title="Subir Histórico R ou Pacotes">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
                 <input type="file" id="csvFileInput" accept=".csv" style="display: none;" />
             </label>
         </div>
     </div>
 
-    <!-- Barra de Filtros com Lógica Hierárquica -->
+    <!-- Barra de Filtros -->
     <div class="filter-bar glass-panel">
         <span class="filter-label">Filtros:</span>
         <select id="filter-month" class="filter-select" onchange="applyFilter('month')"><option value="">Mês (Todos)</option></select>
@@ -145,7 +138,8 @@
         <button class="btn-limpar" onclick="resetFilter()">Hoje</button>
     </div>
 
-    <div class="kpi-row">
+    <div class="kpi-row blue-border">
+        <div class="kpi-title" style="position: absolute; margin-top: -25px; margin-left: -5px; color: #000; font-size: 0.7rem;">(Histórico R)</div>
         <div class="kpi-box black">
             <div class="kpi-title">ROTAS</div>
             <div class="kpi-value" id="kpi-rotas">0</div>
@@ -166,12 +160,12 @@
 
     <div class="dashboard-grid">
         <!-- Linha 1 -->
-        <div class="chart-card glass-panel">
+        <div class="chart-card glass-panel blue-border">
             <div class="chart-title">TOTAL x CICLO</div>
             <div id="chart-ciclo" class="chart-wrapper"></div>
         </div>
-        <div class="chart-card glass-panel">
-            <div class="chart-title" style="margin-bottom: 15px;">TOTAL x PERFIL PACOTES</div>
+        <div class="chart-card glass-panel green-border">
+            <div class="chart-title" style="margin-bottom: 25px;">TOTAL x PERFIL PACOTES</div>
             <div class="perfil-table-wrapper">
                 <table class="perfil-table">
                     <thead>
@@ -185,27 +179,27 @@
                 </table>
             </div>
         </div>
-        <div class="chart-card glass-panel">
+        <div class="chart-card glass-panel green-border">
             <div class="chart-title">TOTAL PERFIL x CICLO</div>
             <div id="chart-perfil-ciclo" class="chart-wrapper"></div>
         </div>
 
         <!-- Linha 2 -->
-        <div class="chart-card glass-panel">
+        <div class="chart-card glass-panel blue-border">
             <div class="chart-title">REP's x Total Aduanas</div>
             <div id="chart-reps" class="chart-wrapper"></div>
         </div>
-        <div class="chart-card glass-panel">
+        <div class="chart-card glass-panel blue-border">
             <div class="chart-title">TRANSPORTADORAS</div>
             <div id="chart-transp" class="chart-wrapper"></div>
         </div>
-        <div class="chart-card glass-panel" style="padding:0; overflow:hidden;">
+        <div class="chart-card glass-panel blue-border" style="padding:0; overflow:hidden;">
             <div class="data-table-wrapper">
                 <table class="data-table">
                     <thead>
                         <tr>
                             <th>Rota</th><th>Transportadora...</th><th>Rep's</th>
-                            <th>Corretas</th><th>A mais ❷</th><th>Faltante ❶</th>
+                            <th>Corretas</th><th>A mais ❷</th><th>Falta... ❶</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-rotas">
@@ -218,9 +212,13 @@
 
     <script>
         const FIREBASE_URL = "https://reportes-bdb0a-default-rtdb.firebaseio.com/";
-        const FIREBASE_NODE = "poka_aduanas_historico";
-        let globalDbData = {};
-        let flatData = [];
+        const NODE_RESUMO = "poka_aduanas_resumo";
+        const NODE_PACOTES = "poka_aduanas_pacotes";
+        
+        let globalDbResumo = {};
+        let globalDbPacotes = {};
+        let flatResumo = [];
+        let flatPacotes = [];
         let chartInstances = {};
 
         // Permissões
@@ -236,20 +234,19 @@
         window.addEventListener('message', (e) => { 
             if (e.data.type === 'THEME_CHANGED') { 
                 document.body.setAttribute('data-theme', e.data.theme); 
-                if(flatData.length > 0) render();
+                if(flatResumo.length > 0 || flatPacotes.length > 0) render();
             } 
         });
 
-        // Utilitários de Data
+        function padDate(dStr) {
+            let p = (dStr||'').split('/');
+            if(p.length !== 3) return dStr;
+            return `${p[0].padStart(2,'0')}/${p[1].padStart(2,'0')}/${p[2]}`;
+        }
+
         function formatarDataHoje() {
             const h = new Date();
             return `${String(h.getDate()).padStart(2,'0')}/${String(h.getMonth()+1).padStart(2,'0')}/${h.getFullYear()}`;
-        }
-
-        function parseDateBR(dateStr) {
-            let parts = (dateStr||'').trim().split(' ')[0].split('/');
-            if(parts.length !== 3) return null;
-            return new Date(parts[2], parts[1]-1, parts[0]);
         }
 
         function getISOWeek(d) {
@@ -260,35 +257,32 @@
             return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
         }
 
-        // Lógica de Corretas Determinística (Simulando Looker)
-        function getCorretasFalsas(rotaStr) {
-            let hash = 0;
-            for(let i=0; i<rotaStr.length; i++) hash = rotaStr.charCodeAt(i) + ((hash << 5) - hash);
-            return (Math.abs(hash) % 80) + 50; 
-        }
-
         window.onload = function() { loadDataFromFirebase(); };
 
         function loadDataFromFirebase() {
-            fetch(`${FIREBASE_URL}${FIREBASE_NODE}.json`)
-                .then(res => res.json())
-                .then(db => {
-                    globalDbData = db || {};
-                    populateFilters();
-                    resetFilter();
-                }).catch(e => console.log("Offline / BD Vazio", e));
+            Promise.all([
+                fetch(`${FIREBASE_URL}${NODE_RESUMO}.json`).then(r => r.json()),
+                fetch(`${FIREBASE_URL}${NODE_PACOTES}.json`).then(r => r.json())
+            ]).then(([dbR, dbP]) => {
+                globalDbResumo = dbR || {};
+                globalDbPacotes = dbP || {};
+                populateFilters();
+                resetFilter();
+            }).catch(e => console.log("Offline / BD Vazio", e));
         }
 
         function populateFilters() {
-            let dates = Object.keys(globalDbData).map(k => k.replace(/-/g, '/'));
+            let datesSet = new Set([...Object.keys(globalDbResumo), ...Object.keys(globalDbPacotes)]);
+            let dates = Array.from(datesSet).map(k => k.replace(/-/g, '/'));
             let months = new Set(), weeks = new Set(), days = new Set();
             
             dates.forEach(d => {
-                let p = parseDateBR(d);
-                if(p) {
+                let p = d.split('/');
+                if(p.length === 3) {
                     days.add(d);
-                    months.add(String(p.getMonth()+1).padStart(2,'0') + '/' + p.getFullYear());
-                    weeks.add('Semana ' + String(getISOWeek(p)).padStart(2,'0') + ' (' + p.getFullYear() + ')');
+                    let dateObj = new Date(p[2], p[1]-1, p[0]);
+                    months.add(String(dateObj.getMonth()+1).padStart(2,'0') + '/' + dateObj.getFullYear());
+                    weeks.add('Semana ' + String(getISOWeek(dateObj)).padStart(2,'0') + ' (' + dateObj.getFullYear() + ')');
                 }
             });
 
@@ -310,21 +304,23 @@
             let wSel = document.getElementById('filter-week');
             let dSel = document.getElementById('filter-day');
 
-            // Limpa hierarquia para evitar sobreposição confusa
             if(source === 'month') { wSel.value = ''; dSel.value = ''; }
             if(source === 'week') { mSel.value = ''; dSel.value = ''; }
             if(source === 'day') { mSel.value = ''; wSel.value = ''; }
 
             let m = mSel.value, w = wSel.value, d = dSel.value;
-            flatData = [];
+            flatResumo = []; flatPacotes = [];
 
-            Object.keys(globalDbData).forEach(key => {
+            let allKeys = new Set([...Object.keys(globalDbResumo), ...Object.keys(globalDbPacotes)]);
+
+            allKeys.forEach(key => {
                 let dateStr = key.replace(/-/g, '/');
-                let p = parseDateBR(dateStr);
-                if(!p) return;
+                let p = dateStr.split('/');
+                if(p.length !== 3) return;
 
-                let mStr = String(p.getMonth()+1).padStart(2,'0') + '/' + p.getFullYear();
-                let wStr = 'Semana ' + String(getISOWeek(p)).padStart(2,'0') + ' (' + p.getFullYear() + ')';
+                let dateObj = new Date(p[2], p[1]-1, p[0]);
+                let mStr = String(dateObj.getMonth()+1).padStart(2,'0') + '/' + dateObj.getFullYear();
+                let wStr = 'Semana ' + String(getISOWeek(dateObj)).padStart(2,'0') + ' (' + dateObj.getFullYear() + ')';
 
                 let match = true;
                 if(m && mStr !== m) match = false;
@@ -332,7 +328,8 @@
                 if(d && dateStr !== d) match = false;
 
                 if(match) {
-                    flatData = flatData.concat(globalDbData[key]);
+                    if(globalDbResumo[key]) flatResumo = flatResumo.concat(globalDbResumo[key]);
+                    if(globalDbPacotes[key]) flatPacotes = flatPacotes.concat(globalDbPacotes[key]);
                 }
             });
 
@@ -350,23 +347,38 @@
             if(target) {
                 dSel.value = dataHoje;
             } else if (dSel.options.length > 1) {
-                dSel.value = dSel.options[1].value; // Pega o dia mais recente se hoje não existir
+                dSel.value = dSel.options[1].value;
             }
             applyFilter('day');
         }
 
-        // --- SISTEMA DE UPLOAD BASEADO EM DATA ---
+        // --- SISTEMA DE UPLOAD INTELIGENTE (Detecta tipo de arquivo) ---
         document.getElementById('csvFileInput').addEventListener('change', function(e) {
             const file = e.target.files[0]; if(!file) return;
             Papa.parse(file, { header: true, skipEmptyLines: true, complete: async function(res) {
                 if(res.data.length > 0) {
-                    let isFirstUpload = Object.keys(globalDbData).length === 0;
+                    let cols = res.meta.fields.map(c => c.toLowerCase());
+                    let type = '';
+                    let dbToUse = null, nodeToUse = '';
+                    
+                    if(cols.includes('corretas') && (cols.includes('minutos') || cols.includes("rep's"))) {
+                        type = 'Histórico R (Resumo)'; dbToUse = globalDbResumo; nodeToUse = NODE_RESUMO;
+                    } else if((cols.includes('dimensão') || cols.includes('dimensao')) && cols.includes('estado')) {
+                        type = 'Histórico de Pacotes'; dbToUse = globalDbPacotes; nodeToUse = NODE_PACOTES;
+                    }
+
+                    if(!type) {
+                        alert("Arquivo CSV não reconhecido. Certifique-se que subiu 'Historico R' ou 'Historico de pcts'.");
+                        e.target.value = ''; return;
+                    }
+
+                    let isFirstUpload = Object.keys(dbToUse).length === 0;
                     
                     if (isFirstUpload) {
-                        alert("Primeiro upload detectado. Criando estruturação por data no banco...");
+                        alert(`Primeiro upload detectado para ${type}. Criando estrutura por data no banco...`);
                         let newDb = {};
                         res.data.forEach(row => {
-                            let d = (row['Data auditoria'] || row['Data'] || '').trim().split(' ')[0];
+                            let d = padDate((row['Data auditoria'] || row['Data'] || '').trim().split(' ')[0]);
                             if(d) {
                                 let key = d.replace(/\//g, '-');
                                 if(!newDb[key]) newDb[key] = [];
@@ -376,25 +388,24 @@
                             }
                         });
                         
-                        await fetch(`${FIREBASE_URL}${FIREBASE_NODE}.json`, {
+                        await fetch(`${FIREBASE_URL}${nodeToUse}.json`, {
                             method: 'PUT',
                             headers: {'Content-Type': 'application/json'},
                             body: JSON.stringify(newDb)
                         });
-                        alert('Histórico Geral criado com sucesso!');
+                        alert(`${type} Geral criado com sucesso!`);
                         loadDataFromFirebase();
                     } else {
-                        // Upload de Dias Posteriores
                         let dataHoje = formatarDataHoje();
-                        let chosenDate = prompt("Qual a Data dos dados que deseja puxar desta planilha? (DD/MM/YYYY)", dataHoje);
+                        let chosenDate = prompt(`Detectado CSV de ${type}.\nQual a Data dos dados que deseja puxar desta planilha? (DD/MM/YYYY)`, dataHoje);
                         
                         if(!chosenDate) { e.target.value = ''; return; }
                         
-                        let chosenDateKey = chosenDate.replace(/\//g, '-');
+                        let chosenDateKey = padDate(chosenDate).replace(/\//g, '-');
                         let rowsForDate = [];
                         
                         res.data.forEach(row => {
-                            let d = (row['Data auditoria'] || row['Data'] || '').trim().split(' ')[0];
+                            let d = padDate((row['Data auditoria'] || row['Data'] || '').trim().split(' ')[0]);
                             if(d === chosenDate) {
                                 let limpo = {};
                                 for(let k in row) limpo[k.replace(/[\.\#\$\/\[\]]/g,'_')] = row[k];
@@ -408,13 +419,12 @@
                             return;
                         }
                         
-                        // Atualiza o nó da data
-                        await fetch(`${FIREBASE_URL}${FIREBASE_NODE}/${chosenDateKey}.json`, {
+                        await fetch(`${FIREBASE_URL}${nodeToUse}/${chosenDateKey}.json`, {
                             method: 'PUT', 
                             headers: {'Content-Type': 'application/json'},
                             body: JSON.stringify(rowsForDate)
                         });
-                        alert(`Upload do dia ${chosenDate} concluído! (${rowsForDate.length} pacotes).`);
+                        alert(`Upload de ${type} do dia ${chosenDate} concluído! (${rowsForDate.length} linhas).`);
                         loadDataFromFirebase();
                     }
                 }
@@ -422,98 +432,95 @@
             e.target.value = '';
         });
 
-        // --- RENDERIZAÇÃO GRÁFICOS E KPIs ---
+        // --- RENDERIZAÇÃO MESCLADA (Azul e Verde) ---
         function render() {
-            let rotasSet = new Set();
-            let faltantes = 0, a_mais = 0;
-            let sumCorretas = 0;
+            // BLUE SECTION (flatResumo)
+            let rotas = flatResumo.length;
+            let corretas = 0, faltantes = 0, amais = 0;
             
             let mapCiclo = {};
-            let mapPerfilCiclo = {};
-            let mapPerfil = { 'VOLUMOSO': {f:0, a:0}, 'ESTEIRA': {f:0, a:0} };
             let mapReps = {};
             let mapTransp = {};
-            let mapRotasTab = {};
 
-            flatData.forEach(r => {
-                let rota = (r['Rota'] || r['ID da rota'] || '').trim();
-                let estado = (r['Estado'] || '').trim();
+            flatResumo.forEach(r => {
+                let f = parseFloat(r['Faltantes']) || 0;
+                let a = parseFloat(r['A mais']) || 0;
+                let c = parseFloat(r['Corretas']) || 0;
+                
+                corretas += c; faltantes += f; amais += a;
+                
                 let ciclo = (r['Ciclo'] || '').trim().replace(/[^A-Za-z0-9]/g, '');
-                let perfil = (r['Dimensão'] || 'SACA').trim().toUpperCase();
-                let rep = (r['Rep auditoria'] || 'Desconhecido').trim();
-                let placa = (r['Placa'] || 'Sem Placa').trim();
-
-                if(!rota) return;
-                
-                rotasSet.add(rota);
-                
-                if(estado.toLowerCase().includes('faltante')) faltantes++;
-                if(estado.toLowerCase().includes('a mais')) a_mais++;
-
-                // Mapeamento Ciclos
-                if(!mapCiclo[ciclo]) mapCiclo[ciclo] = { rotas: new Set(), f:0, a:0 };
-                mapCiclo[ciclo].rotas.add(rota);
-                if(estado.toLowerCase().includes('faltante')) mapCiclo[ciclo].f++;
-                if(estado.toLowerCase().includes('a mais')) mapCiclo[ciclo].a++;
-
-                // Perfil x Ciclo
-                if(!mapPerfilCiclo[ciclo]) mapPerfilCiclo[ciclo] = { VOLUMOSO:0, ESTEIRA:0 };
-                if(mapPerfilCiclo[ciclo][perfil] !== undefined) mapPerfilCiclo[ciclo][perfil]++;
-
-                // Tabela Perfil
-                if(mapPerfil[perfil]) {
-                    if(estado.toLowerCase().includes('faltante')) mapPerfil[perfil].f++;
-                    if(estado.toLowerCase().includes('a mais')) mapPerfil[perfil].a++;
+                if(ciclo) {
+                    if(!mapCiclo[ciclo]) mapCiclo[ciclo] = { aduanas: 0, f: 0, a: 0 };
+                    mapCiclo[ciclo].aduanas++;
+                    mapCiclo[ciclo].f += f; mapCiclo[ciclo].a += a;
                 }
 
-                // Reps (Contagem Exceções tratadas)
+                let rep = (r["Rep's"] || r["Rep de aduana"] || 'Desconhecido').trim();
                 if(!mapReps[rep]) mapReps[rep] = 0;
                 mapReps[rep]++;
 
-                // Transportadora
-                if(!mapTransp[placa]) mapTransp[placa] = {f:0, a:0};
-                if(estado.toLowerCase().includes('faltante')) mapTransp[placa].f++;
-                if(estado.toLowerCase().includes('a mais')) mapTransp[placa].a++;
-
-                // Tabela Final (Rodapé)
-                if(!mapRotasTab[rota]) mapRotasTab[rota] = { transp: placa, rep: new Set(), f:0, a:0 };
-                mapRotasTab[rota].rep.add(rep.split(' ').slice(0,3).join(' ')); // Truncar Nome
-                if(estado.toLowerCase().includes('faltante')) mapRotasTab[rota].f++;
-                if(estado.toLowerCase().includes('a mais')) mapRotasTab[rota].a++;
+                let transp = (r['Transportadora'] || 'Outros').trim();
+                if(!mapTransp[transp]) mapTransp[transp] = {f:0, a:0};
+                mapTransp[transp].f += f; mapTransp[transp].a += a;
             });
 
-            let qRotas = rotasSet.size;
-
-            // Tabela Final HTML + Sum de Corretas
-            let tbR = '';
-            let arrRotas = Object.keys(mapRotasTab).sort((a,b) => (mapRotasTab[b].f + mapRotasTab[b].a) - (mapRotasTab[a].f + mapRotasTab[a].a));
+            // Tabela Rodapé (Histórico R)
+            let sortedResumo = [...flatResumo].sort((a,b) => {
+                let tA = (parseFloat(a['Faltantes'])||0) + (parseFloat(a['A mais'])||0);
+                let tB = (parseFloat(b['Faltantes'])||0) + (parseFloat(b['A mais'])||0);
+                return tB - tA;
+            });
             
-            arrRotas.forEach(rota => {
-                let item = mapRotasTab[rota];
-                let vCorr = getCorretasFalsas(rota) - item.f; 
-                sumCorretas += vCorr;
+            let tbR = '';
+            sortedResumo.forEach(r => {
+                let rota = (r['Rota'] || r['Rota e ve_culo'] || '-').split('|')[0].trim();
+                let transp = r['Transportadora'] || '-';
+                let rep = (r["Rep's"] || r["Rep de aduana"] || '-').split(' ').slice(0,3).join(' ');
+                let c = parseFloat(r['Corretas'])||0;
+                let a = parseFloat(r['A mais'])||0;
+                let f = parseFloat(r['Faltantes'])||0;
                 
-                let bgAmais = item.a > 0 ? 'col-amais' : '';
-                let bgFalta = item.f > 0 ? 'col-faltante' : '';
+                let bgAmais = a > 0 ? 'col-amais' : '';
+                let bgFalta = f > 0 ? 'col-faltante' : '';
                 
                 tbR += `<tr>
-                    <td style="font-weight:800; border-right: 1px solid rgba(0,0,0,0.1);">${rota.split('|')[0].trim()}</td>
-                    <td>${item.transp}</td>
-                    <td style="font-size:0.7rem; color:var(--text-muted);">${Array.from(item.rep).join(', ')}</td>
-                    <td class="col-correta" style="border-left: 1px solid rgba(0,0,0,0.1);">${vCorr}</td>
-                    <td class="${bgAmais}">${item.a}</td>
-                    <td class="${bgFalta}">${item.f}</td>
+                    <td style="font-weight:800; border-right: 1px solid rgba(0,0,0,0.1);">${rota}</td>
+                    <td>${transp}</td>
+                    <td style="font-size:0.75rem; color:var(--text-muted);">${rep}</td>
+                    <td class="col-correta" style="border-left: 1px solid rgba(0,0,0,0.1);">${c}</td>
+                    <td class="${bgAmais}">${a}</td>
+                    <td class="${bgFalta}">${f}</td>
                 </tr>`;
             });
 
-            document.getElementById('kpi-rotas').innerText = qRotas;
-            document.getElementById('kpi-corretas').innerText = sumCorretas.toLocaleString('pt-BR');
+            document.getElementById('kpi-rotas').innerText = rotas;
+            document.getElementById('kpi-corretas').innerText = corretas.toLocaleString('pt-BR');
             document.getElementById('kpi-faltantes').innerText = faltantes;
-            document.getElementById('kpi-amais').innerText = a_mais;
-
+            document.getElementById('kpi-amais').innerText = amais;
             document.getElementById('tbody-rotas').innerHTML = tbR || '<tr><td colspan="6" style="padding: 20px;">Nenhum dado selecionado.</td></tr>';
 
-            // Tabela Perfil HTML
+
+            // GREEN SECTION (flatPacotes)
+            let mapPerfil = { 'VOLUMOSO': {f:0, a:0}, 'ESTEIRA': {f:0, a:0} };
+            let mapPerfilCiclo = {};
+
+            flatPacotes.forEach(r => {
+                let perf = (r['Dimensão'] || r['Dimens_o'] || '').trim().toUpperCase();
+                let est = (r['Estado'] || '').trim().toLowerCase();
+                let ciclo = (r['Ciclo'] || '').trim().replace(/[^A-Za-z0-9]/g, '');
+                
+                if(mapPerfil[perf]) {
+                    if(est.includes('faltante')) mapPerfil[perf].f++;
+                    if(est.includes('a mais')) mapPerfil[perf].a++;
+                }
+
+                if(ciclo && (perf === 'VOLUMOSO' || perf === 'ESTEIRA')) {
+                    if(!mapPerfilCiclo[ciclo]) mapPerfilCiclo[ciclo] = { VOLUMOSO: 0, ESTEIRA: 0 };
+                    mapPerfilCiclo[ciclo][perf]++;
+                }
+            });
+
             document.getElementById('tbody-perfil').innerHTML = `
                 <tr><td>VOLUMOSO</td><td>${mapPerfil['VOLUMOSO'].f}</td><td>${mapPerfil['VOLUMOSO'].a}</td></tr>
                 <tr><td>ESTEIRA</td><td>${mapPerfil['ESTEIRA'].f}</td><td>${mapPerfil['ESTEIRA'].a}</td></tr>
@@ -530,16 +537,12 @@
 
             // 1. TOTAL x CICLO
             let ciclos = Object.keys(mapCiclo);
-            let srAd = ciclos.map(c => mapCiclo[c].rotas.size);
+            let srAd = ciclos.map(c => mapCiclo[c].aduanas);
             let srF = ciclos.map(c => mapCiclo[c].f);
             let srA = ciclos.map(c => mapCiclo[c].a);
             
             chartInstances.ciclo = new ApexCharts(document.querySelector("#chart-ciclo"), {
-                series: [
-                    {name: 'Aduanas', data: srAd},
-                    {name: 'Faltantes', data: srF},
-                    {name: 'A mais', data: srA}
-                ],
+                series: [{name: 'Aduanas', data: srAd}, {name: 'Faltantes', data: srF}, {name: 'A mais', data: srA}],
                 chart: { type: 'bar', height: '100%', stacked: false, background: 'transparent', toolbar: {show:false} },
                 colors: ['#FFB000', '#F15454', '#4A90E2'],
                 plotOptions: { bar: { horizontal: false, columnWidth: '55%', dataLabels: {position: 'top'} } },
@@ -569,8 +572,8 @@
             });
             chartInstances.perfil.render();
 
-            // 3. REPS (Top 5)
-            let arrReps = Object.keys(mapReps).map(r => ({rep: r, v: mapReps[r]})).sort((a,b) => b.v - a.v).slice(0,5);
+            // 3. REPS (Top 6)
+            let arrReps = Object.keys(mapReps).map(r => ({rep: r, v: mapReps[r]})).sort((a,b) => b.v - a.v).slice(0,6);
             
             chartInstances.reps = new ApexCharts(document.querySelector("#chart-reps"), {
                 series: [{name: 'Rota', data: arrReps.map(x=>x.v)}],
@@ -588,10 +591,7 @@
             let arrT = Object.keys(mapTransp).map(t => ({t:t, f:mapTransp[t].f, a:mapTransp[t].a})).sort((a,b) => (b.f+b.a) - (a.f+a.a)).slice(0,6);
             
             chartInstances.transp = new ApexCharts(document.querySelector("#chart-transp"), {
-                series: [
-                    {name: 'Faltantes', data: arrT.map(x=>x.f)},
-                    {name: 'A mais', data: arrT.map(x=>x.a)}
-                ],
+                series: [{name: 'Faltantes', data: arrT.map(x=>x.f)}, {name: 'A mais', data: arrT.map(x=>x.a)}],
                 chart: { type: 'bar', height: '100%', stacked: true, background: 'transparent', toolbar: {show:false} },
                 colors: ['#F15454', '#4A90E2'],
                 plotOptions: { bar: { horizontal: true } },
@@ -607,7 +607,7 @@
         function baixarImagem() {
             document.body.classList.add('exporting');
             setTimeout(() => {
-                const bgCor = document.body.getAttribute('data-theme') === 'light' ? '#f8fafc' : '#0f172a';
+                const bgCor = document.body.getAttribute('data-theme') === 'light' ? '#ffffff' : '#0f172a';
                 html2canvas(document.body, { scale: 2, backgroundColor: bgCor }).then(canvas => {
                     document.body.classList.remove('exporting');
                     const link = document.createElement('a');
