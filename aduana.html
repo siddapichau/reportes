@@ -29,7 +29,8 @@
             --text-main: #333333;
             --text-muted: #666666;
             --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.05);
-            --brand-yellow: #FFB000;
+            --brand-yellow: #FFF159; /* Amarelo Padrão ML */
+            --text-on-yellow: #2D3277; /* Azul Padrão ML para leitura */
         }
         [data-theme="dark"] {
             --bg-header: #FFF159;
@@ -38,7 +39,8 @@
             --text-main: #E2E8F0;
             --text-muted: #94A3B8;
             --shadow-card: 0 4px 6px rgba(0, 0, 0, 0.3);
-            --brand-yellow: #FFB000;
+            --brand-yellow: #FFF159;
+            --text-on-yellow: #2D3277;
         }
 
         html, body { width: 100%; min-height: 100%; background: transparent !important; }
@@ -79,7 +81,7 @@
         .dashboard-grid { display: grid; grid-template-columns: 1fr 1.2fr 1fr; grid-template-rows: 1fr 1fr; gap: 15px; flex: 1; min-height: 0; margin-top: 10px;}
         .chart-card { display: flex; flex-direction: column; border-radius: 8px; overflow: hidden; }
         
-        .chart-title { background: var(--brand-yellow); color: #111; padding: 8px 10px; font-size: 0.85rem; font-weight: 900; text-transform: uppercase; text-align: center; letter-spacing: 0.5px; margin: 0;}
+        .chart-title { background: var(--brand-yellow); color: var(--text-on-yellow); padding: 8px 10px; font-size: 0.85rem; font-weight: 900; text-transform: uppercase; text-align: center; letter-spacing: 0.5px; margin: 0;}
         .chart-wrapper { flex: 1; min-height: 0; width: 100%; position: relative; padding: 10px; box-sizing: border-box;}
         
         /* TABELA PERFIL */
@@ -88,14 +90,14 @@
         .perfil-table th, .perfil-table td { padding: 10px; text-align: right; border-bottom: 1px solid var(--border-card); color: var(--text-main); }
         .perfil-table th:first-child, .perfil-table td:first-child { text-align: left; font-weight: 800; }
         .perfil-table th { color: #111; font-weight: 900; text-transform: uppercase; font-size: 0.75rem; }
-        .perfil-table .highlight-bg { background: var(--brand-yellow); color: #111; font-weight: 900; }
+        .perfil-table .highlight-bg { background: var(--brand-yellow); color: var(--text-on-yellow); font-weight: 900; }
 
         /* TABELA INFERIOR (DETALHES) */
         .data-table-wrapper { flex: 1; overflow-y: auto; overflow-x: auto; background: var(--bg-card);}
         table.data-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; text-align: center; }
-        .data-table thead { background: var(--brand-yellow); color: #111; position: sticky; top: 0; z-index: 1; font-weight: 900; text-transform: uppercase;}
+        .data-table thead { background: var(--brand-yellow); color: var(--text-on-yellow); position: sticky; top: 0; z-index: 1; font-weight: 900; text-transform: uppercase;}
         .data-table th, .data-table td { padding: 8px 10px; border-bottom: 1px solid var(--border-card); color: var(--text-main); white-space: nowrap; }
-        .data-table tbody tr:hover { background-color: rgba(255, 176, 0, 0.15); }
+        .data-table tbody tr:hover { background-color: rgba(255, 241, 89, 0.15); }
         
         .data-table .col-correta { color: var(--text-main); font-weight: 600; }
         .data-table .col-amais { background: #4DD0E1; color: #000; font-weight: 900; border-right: 1px solid var(--bg-card); border-left: 1px solid var(--bg-card);}
@@ -384,7 +386,6 @@
             const fillSelect = (id, setVal, defaultText) => {
                 let sel = document.getElementById(id);
                 sel.innerHTML = `<option value="">${defaultText}</option>`;
-                // O loop abaixo respeita a ordem de inserção do Set (que já está ordenado nas datas e descendo)
                 Array.from(setVal).forEach(v => { sel.innerHTML += `<option value="${v}">${v}</option>`; });
             };
 
@@ -717,7 +718,7 @@
                 xaxis: { categories: ciclos, labels: { style: { colors: textColor, fontWeight: 900, fontSize: '11px' } } },
                 yaxis: { labels: { style: { colors: textColor } } },
                 legend: { position: 'top', labels: { colors: textColor }, itemMargin: {horizontal: 5, vertical: 0} },
-                grid: { borderColor: gridColor, strokeDashArray: 3 }
+                grid: { padding: { top: 25 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.ciclo.render();
 
@@ -730,12 +731,12 @@
                 series: [{name: 'VOLUMOSO', data: srVol}, {name: 'ESTEIRA', data: srEst}],
                 chart: { type: 'bar', height: '100%', stacked: false, background: 'transparent', toolbar: {show:false} },
                 colors: ['#FFB000', '#000000'],
-                plotOptions: { bar: { horizontal: true, dataLabels: {position: 'right'} } },
-                dataLabels: { enabled: true, offsetX: 5, style: { fontSize: '12px', colors: [textColor] } },
+                plotOptions: { bar: { horizontal: true, dataLabels: {position: 'top'} } },
+                dataLabels: { enabled: true, textAnchor: 'start', offsetX: 5, style: { fontSize: '12px', colors: [textColor] } },
                 xaxis: { labels: { style: { colors: textColor, fontSize: '10px' } } },
                 yaxis: { categories: pcCiclos, labels: { style: { colors: textColor, fontWeight: 900, fontSize: '11px' } } },
                 legend: { position: 'top', labels: { colors: textColor }, markers: { radius: 0 } },
-                grid: { borderColor: gridColor, strokeDashArray: 3 }
+                grid: { padding: { right: 35 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.perfil.render();
 
@@ -746,11 +747,11 @@
                 series: [{name: 'Rota', data: arrReps.map(x=>x.v)}],
                 chart: { type: 'bar', height: '100%', background: 'transparent', toolbar: {show:false} },
                 colors: ['#FFB000'],
-                plotOptions: { bar: { horizontal: true, dataLabels: {position: 'right'} } },
-                dataLabels: { enabled: true, offsetX: 5, style: { fontSize: '11px', colors: [textColor] } },
+                plotOptions: { bar: { horizontal: true, dataLabels: {position: 'top'} } },
+                dataLabels: { enabled: true, textAnchor: 'start', offsetX: 5, style: { fontSize: '11px', colors: [textColor] } },
                 xaxis: { labels: { style: { colors: textColor, fontSize: '10px' } } },
                 yaxis: { categories: arrReps.map(x=>x.rep), labels: { style: { colors: textColor, fontWeight: 800, fontSize:'10px' } } },
-                grid: { borderColor: gridColor, strokeDashArray: 3 }
+                grid: { padding: { right: 35 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.reps.render();
 
