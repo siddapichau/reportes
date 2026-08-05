@@ -48,7 +48,7 @@
 
         /* CABEÇALHO PRINCIPAL */
         .header { padding: 8px 20px; flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 20px; background-color: var(--bg-header) !important; border: none; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .header-title-wrapper { flex: 1; text-align: center; color: #2D3277 !important; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; font-size: 1.2rem; margin-left: 20px;}
+        .header-title-wrapper { flex: 1; text-align: center; color: #2D3277 !important; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; font-size: 1.3rem; }
         .ml-logo { height: 32px; width: auto; object-fit: contain; }
 
         .header-controls { display: flex; align-items: center; gap: 12px; }
@@ -67,6 +67,7 @@
         
         .kpi-box { padding: 10px 20px; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; min-width: 120px; text-shadow: 0 1px 2px rgba(0,0,0,0.2); box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1); }
         .kpi-box.black { background-color: #000000; border: 2px solid #333; }
+        .kpi-box.gray { background-color: #607D8B; } /* Cor do Tempo Médio */
         .kpi-box.green { background-color: #5AB065; }
         .kpi-box.red { background-color: #E74C3C; }
         .kpi-box.blue { background-color: #4A90E2; }
@@ -94,7 +95,7 @@
         table.data-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; text-align: center; }
         .data-table thead { background: var(--brand-yellow); color: #111; position: sticky; top: 0; z-index: 1; font-weight: 900; text-transform: uppercase;}
         .data-table th, .data-table td { padding: 8px 10px; border-bottom: 1px solid var(--border-card); color: var(--text-main); white-space: nowrap; }
-        .data-table tbody tr:hover { background-color: rgba(255, 176, 0, 0.1); }
+        .data-table tbody tr:hover { background-color: rgba(255, 176, 0, 0.15); }
         
         .data-table .col-correta { color: var(--text-main); font-weight: 600; }
         .data-table .col-amais { background: #4DD0E1; color: #000; font-weight: 900; border-right: 1px solid var(--bg-card); border-left: 1px solid var(--bg-card);}
@@ -161,6 +162,10 @@
             <div class="kpi-box black">
                 <div class="kpi-title">ROTAS</div>
                 <div class="kpi-value" id="kpi-rotas">0</div>
+            </div>
+            <div class="kpi-box gray">
+                <div class="kpi-title">TEMPO MÉDIO</div>
+                <div class="kpi-value" id="kpi-tempo">0<span style="font-size:0.5em">m</span></div>
             </div>
             <div class="kpi-box green">
                 <div class="kpi-title">CORRETAS</div>
@@ -441,12 +446,12 @@
             let resumoRaw = null;
             let pacotesRaw = null;
 
-            // Extrai as informações de todos os arquivos upados
+            // Extrai as informações de todos os arquivos upados de uma vez
             for(let file of files) {
                 let res = await parseCSV(file);
                 if (res.data.length > 0) {
                     let cols = res.meta.fields.map(c => c.toLowerCase());
-                    if(cols.includes('corretas') && (cols.includes('minutos') || cols.includes("rep's") || cols.includes("rep de aduana"))) {
+                    if(cols.includes('corretas') || cols.includes("rep's") || cols.includes("rep de aduana") || cols.includes("tempo de aud")) {
                         resumoRaw = res.data;
                     } else if((cols.includes('dimensão') || cols.includes('dimensao')) && cols.includes('estado')) {
                         pacotesRaw = res.data;
@@ -468,7 +473,7 @@
             if (requiresDate) {
                 chosenDate = await showModal({
                     title: 'Sincronizar Dados',
-                    message: `Identificamos ${files.length} planilha(s) para subir.<br>De qual data deseja extrair e atualizar os dados?`,
+                    message: `Identificamos planilha(s) válidas.<br>De qual data deseja extrair e atualizar os dados?`,
                     type: 'prompt',
                     defaultValue: formatarDataHoje()
                 });
@@ -482,7 +487,8 @@
                 if (isFirstUploadR) {
                     let newDb = {};
                     resumoRaw.forEach(row => {
-                        let d = padDate((row['Data auditoria'] || row['Data'] || '').trim().split(' ')[0]);
+                        let dKey = Object.keys(row).find(k => k.toLowerCase().includes('data'));
+                        let d = padDate((row[dKey] || '').trim().split(' ')[0]);
                         if(d) {
                             let key = d.replace(/\//g, '-');
                             if(!newDb[key]) newDb[key] = [];
@@ -496,7 +502,8 @@
                     let chosenDateKey = padDate(chosenDate).replace(/\//g, '-');
                     let rowsForDate = [];
                     resumoRaw.forEach(row => {
-                        let d = padDate((row['Data auditoria'] || row['Data'] || '').trim().split(' ')[0]);
+                        let dKey = Object.keys(row).find(k => k.toLowerCase().includes('data'));
+                        let d = padDate((row[dKey] || '').trim().split(' ')[0]);
                         if(d === chosenDate) {
                             let limpo = {};
                             for(let k in row) limpo[k.replace(/[\.\#\$\/\[\]]/g,'_')] = row[k];
@@ -514,7 +521,8 @@
                 if (isFirstUploadP) {
                     let newDb = {};
                     pacotesRaw.forEach(row => {
-                        let d = padDate((row['Data auditoria'] || row['Data'] || '').trim().split(' ')[0]);
+                        let dKey = Object.keys(row).find(k => k.toLowerCase().includes('data'));
+                        let d = padDate((row[dKey] || '').trim().split(' ')[0]);
                         if(d) {
                             let key = d.replace(/\//g, '-');
                             if(!newDb[key]) newDb[key] = [];
@@ -528,7 +536,8 @@
                     let chosenDateKey = padDate(chosenDate).replace(/\//g, '-');
                     let rowsForDate = [];
                     pacotesRaw.forEach(row => {
-                        let d = padDate((row['Data auditoria'] || row['Data'] || '').trim().split(' ')[0]);
+                        let dKey = Object.keys(row).find(k => k.toLowerCase().includes('data'));
+                        let d = padDate((row[dKey] || '').trim().split(' ')[0]);
                         if(d === chosenDate) {
                             let limpo = {};
                             for(let k in row) limpo[k.replace(/[\.\#\$\/\[\]]/g,'_')] = row[k];
@@ -556,51 +565,80 @@
         // --- RENDERIZAÇÃO E PROCESSAMENTO GERAL ---
         function render() {
             // ================== PROCESSA HISTÓRICO R ==================
-            let rotas = flatResumo.length;
+            let rotas = flatResumo.length; // Carrega 100% de linhas sem corte
             let corretas = 0, faltantes = 0, amais = 0;
+            let totalMinutos = 0, qtdTempos = 0;
             
             let mapCiclo = {};
             let mapReps = {};
             let mapTransp = {};
 
             flatResumo.forEach(r => {
-                let f = parseInt(r['Faltantes']) || 0;
-                let a = parseInt(r['A mais']) || 0;
-                let c = parseInt(r['Corretas']) || 0;
+                let fKey = Object.keys(r).find(k => k.toLowerCase().includes('faltantes'));
+                let aKey = Object.keys(r).find(k => k.toLowerCase().includes('a mais'));
+                let cKey = Object.keys(r).find(k => k.toLowerCase().includes('corretas'));
+                
+                let f = parseInt(fKey ? r[fKey] : 0) || 0;
+                let a = parseInt(aKey ? r[aKey] : 0) || 0;
+                let c = parseInt(cKey ? r[cKey] : 0) || 0;
                 
                 corretas += c; faltantes += f; amais += a;
                 
-                let ciclo = (r['Ciclo'] || '').trim().replace(/[^A-Za-z0-9]/g, '');
+                // Média de Tempo
+                let tempoKey = Object.keys(r).find(k => k.toLowerCase().includes('tempo de aud') || k.toLowerCase().includes('minutos'));
+                if(tempoKey && r[tempoKey]) {
+                    let match = r[tempoKey].toString().match(/\d+/);
+                    if(match) {
+                        totalMinutos += parseInt(match[0]);
+                        qtdTempos++;
+                    }
+                }
+
+                let cicloKey = Object.keys(r).find(k => k.toLowerCase() === 'ciclo');
+                let ciclo = cicloKey ? r[cicloKey].trim().replace(/[^A-Za-z0-9]/g, '') : '';
                 if(ciclo) {
                     if(!mapCiclo[ciclo]) mapCiclo[ciclo] = { aduanas: 0, f: 0, a: 0 };
                     mapCiclo[ciclo].aduanas++;
                     mapCiclo[ciclo].f += f; mapCiclo[ciclo].a += a;
                 }
 
-                let rep = (r["Rep's"] || r["Rep de aduana"] || r["Rep"] || 'Desconhecido').trim();
+                let repKey = Object.keys(r).find(k => k.toLowerCase().includes('rep de aduana') || k.toLowerCase() === "rep's" || k.toLowerCase() === "rep");
+                let rep = repKey ? r[repKey].trim() : 'Desconhecido';
                 if(!mapReps[rep]) mapReps[rep] = 0;
                 mapReps[rep]++;
 
-                let transp = (r['Transportadora'] || 'Outros').trim();
+                let transpKey = Object.keys(r).find(k => k.toLowerCase().includes('transportadora'));
+                let transp = transpKey ? r[transpKey].trim() : 'Outros';
                 if(!mapTransp[transp]) mapTransp[transp] = {f:0, a:0};
                 mapTransp[transp].f += f; mapTransp[transp].a += a;
             });
 
             // Geração Tabela Rodapé
             let sortedResumo = [...flatResumo].sort((a,b) => {
-                let tA = (parseInt(a['Faltantes'])||0) + (parseInt(a['A mais'])||0);
-                let tB = (parseInt(b['Faltantes'])||0) + (parseInt(b['A mais'])||0);
+                let fKeyA = Object.keys(a).find(k => k.toLowerCase().includes('faltantes'));
+                let aKeyA = Object.keys(a).find(k => k.toLowerCase().includes('a mais'));
+                let fKeyB = Object.keys(b).find(k => k.toLowerCase().includes('faltantes'));
+                let aKeyB = Object.keys(b).find(k => k.toLowerCase().includes('a mais'));
+                let tA = (parseInt(fKeyA ? a[fKeyA] : 0)||0) + (parseInt(aKeyA ? a[aKeyA] : 0)||0);
+                let tB = (parseInt(fKeyB ? b[fKeyB] : 0)||0) + (parseInt(aKeyB ? b[aKeyB] : 0)||0);
                 return tB - tA;
             });
             
             let tbR = '';
             sortedResumo.forEach(r => {
-                let rota = (r['Rota'] || r['Rota e ve_culo'] || '-').split('|')[0].trim();
-                let transp = r['Transportadora'] || '-';
-                let rep = (r["Rep's"] || r["Rep de aduana"] || r["Rep"] || '-').split(' ').slice(0,3).join(' ');
-                let c = parseInt(r['Corretas'])||0;
-                let a = parseInt(r['A mais'])||0;
-                let f = parseInt(r['Faltantes'])||0;
+                let rotaKey = Object.keys(r).find(k => k.toLowerCase() === 'rota' || k.toLowerCase().includes('rota e ve'));
+                let transpKey = Object.keys(r).find(k => k.toLowerCase().includes('transportadora'));
+                let repKey = Object.keys(r).find(k => k.toLowerCase().includes('rep de aduana') || k.toLowerCase() === "rep's" || k.toLowerCase() === "rep");
+                let cKey = Object.keys(r).find(k => k.toLowerCase().includes('corretas'));
+                let aKey = Object.keys(r).find(k => k.toLowerCase().includes('a mais'));
+                let fKey = Object.keys(r).find(k => k.toLowerCase().includes('faltantes'));
+
+                let rota = rotaKey ? r[rotaKey].split('|')[0].trim() : '-';
+                let transp = transpKey ? r[transpKey] : '-';
+                let rep = repKey ? r[repKey].split(' ').slice(0,3).join(' ') : '-';
+                let c = parseInt(cKey ? r[cKey] : 0)||0;
+                let a = parseInt(aKey ? r[aKey] : 0)||0;
+                let f = parseInt(fKey ? r[fKey] : 0)||0;
                 
                 let bgAmais = a > 0 ? 'col-amais' : '';
                 let bgFalta = f > 0 ? 'col-faltante' : '';
@@ -615,8 +653,10 @@
                 </tr>`;
             });
 
-            // Atualiza KPIs
+            // Atualiza KPIs Principais
+            let mediaTempo = qtdTempos > 0 ? Math.round(totalMinutos / qtdTempos) : 0;
             document.getElementById('kpi-rotas').innerText = rotas;
+            document.getElementById('kpi-tempo').innerHTML = `${mediaTempo}<span style="font-size:0.5em">m</span>`;
             document.getElementById('kpi-corretas').innerText = corretas.toLocaleString('pt-BR');
             document.getElementById('kpi-faltantes').innerText = faltantes;
             document.getElementById('kpi-amais').innerText = amais;
@@ -628,9 +668,13 @@
             let mapPerfilCiclo = {};
 
             flatPacotes.forEach(r => {
-                let perf = (r['Dimensão'] || r['Dimens_o'] || '').trim().toUpperCase();
-                let est = (r['Estado'] || '').trim().toLowerCase();
-                let ciclo = (r['Ciclo'] || '').trim().replace(/[^A-Za-z0-9]/g, '');
+                let perfKey = Object.keys(r).find(k => k.toLowerCase().includes('dimens'));
+                let estKey = Object.keys(r).find(k => k.toLowerCase() === 'estado');
+                let cicloKey = Object.keys(r).find(k => k.toLowerCase() === 'ciclo');
+
+                let perf = perfKey ? r[perfKey].trim().toUpperCase() : '';
+                let est = estKey ? r[estKey].trim().toLowerCase() : '';
+                let ciclo = cicloKey ? r[cicloKey].trim().replace(/[^A-Za-z0-9]/g, '') : '';
                 
                 if(mapPerfil[perf]) {
                     if(est.includes('faltante')) mapPerfil[perf].f++;
