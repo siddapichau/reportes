@@ -29,8 +29,9 @@
             --text-main: #333333;
             --text-muted: #666666;
             --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.05);
-            --brand-yellow: #FFF159; /* AMARELO PADRÃO MERCADO LIVRE */
-            --text-on-yellow: #2D3277; /* Azul Marinho ML para contraste no amarelo */
+            --brand-yellow: #FFF159; /* Amarelo Padrão ML - Topos */
+            --bar-yellow: #FFB000; /* Laranja/Amarelo Escuro - Velas */
+            --text-on-yellow: #2D3277; /* Azul Padrão ML */
         }
         [data-theme="dark"] {
             --bg-header: #FFF159;
@@ -40,21 +41,23 @@
             --text-muted: #94A3B8;
             --shadow-card: 0 4px 6px rgba(0, 0, 0, 0.3);
             --brand-yellow: #FFF159;
+            --bar-yellow: #FFB000;
             --text-on-yellow: #2D3277;
         }
 
-        html, body { width: 100%; min-height: 100%; background: transparent !important; }
-        body { padding: 10px; display: flex; flex-direction: column; gap: 10px; height: 100vh; overflow: hidden; font-family: 'Inter', sans-serif; font-size: 0.95rem; }
+        /* PERMITE ROLAGEM GERAL DA PÁGINA PARA OS GRÁFICOS NÃO FICAREM ESPREMIDOS */
+        html, body { width: 100%; min-height: 100vh; background: transparent !important; }
+        body { padding: 10px; display: flex; flex-direction: column; gap: 10px; overflow-x: hidden; overflow-y: auto; font-family: 'Inter', sans-serif; font-size: 0.95rem; }
 
         .glass-panel { background-color: var(--bg-card); border: 1px solid var(--border-card); border-radius: 8px; box-shadow: var(--shadow-card); transition: 0.3s; }
 
         /* CABEÇALHO PRINCIPAL */
         .header { padding: 8px 20px; flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 20px; background-color: var(--bg-header) !important; border: none; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .header-title-wrapper { flex: 1; text-align: center; color: var(--text-on-yellow) !important; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; font-size: 1.3rem; }
+        .header-title-wrapper { flex: 1; text-align: center; color: #2D3277 !important; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; font-size: 1.3rem; margin-left: 20px;}
         .ml-logo { height: 32px; width: auto; object-fit: contain; }
 
         .header-controls { display: flex; align-items: center; gap: 12px; }
-        .btn-icon { background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(0, 0, 0, 0.1); color: var(--text-on-yellow); width: 36px; height: 36px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; }
+        .btn-icon { background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(0, 0, 0, 0.1); color: #2D3277; width: 36px; height: 36px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; }
         .btn-icon:hover { background: #fff; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
 
         /* FILTROS */
@@ -78,14 +81,14 @@
         .kpi-value { font-size: 2.2rem; font-weight: 900; line-height: 1;}
 
         /* LAYOUT GERAL (GRÁFICOS) */
-        .dashboard-grid { display: grid; grid-template-columns: 1fr 1.2fr 1fr; grid-template-rows: 1fr 1fr; gap: 15px; flex: 1; min-height: 0; margin-top: 10px;}
-        .chart-card { display: flex; flex-direction: column; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-card); }
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 15px; flex: 1; margin-top: 10px;}
+        .chart-card { display: flex; flex-direction: column; border-radius: 8px; overflow: hidden; min-height: 330px; } /* Min-height destrava o aperto dos gráficos */
         
         .chart-title { background: var(--brand-yellow); color: var(--text-on-yellow); padding: 8px 10px; font-size: 0.85rem; font-weight: 900; text-transform: uppercase; text-align: center; letter-spacing: 0.5px; margin: 0; border-bottom: 1px solid var(--border-card);}
-        .chart-wrapper { flex: 1; min-height: 0; width: 100%; position: relative; padding: 10px; box-sizing: border-box;}
+        .chart-wrapper { flex: 1; min-height: 0; width: 100%; position: relative; padding: 10px; box-sizing: border-box; overflow: hidden;}
         
         /* TABELA PERFIL */
-        .perfil-table-wrapper { flex: 1; display: flex; flex-direction: column; padding: 15px; align-items: center; justify-content: center; overflow: auto;}
+        .perfil-table-wrapper { flex: 1; display: flex; flex-direction: column; padding: 15px; align-items: center; justify-content: center;}
         .perfil-table { width: 100%; max-width: 400px; border-collapse: collapse; font-size: 0.85rem; }
         .perfil-table th, .perfil-table td { padding: 10px; text-align: right; border-bottom: 1px solid var(--border-card); color: var(--text-main); }
         .perfil-table th:first-child, .perfil-table td:first-child { text-align: left; font-weight: 800; }
@@ -93,7 +96,7 @@
         .perfil-table .highlight-bg { background: var(--brand-yellow); color: var(--text-on-yellow); font-weight: 900; border-radius: 4px; }
 
         /* TABELA INFERIOR (DETALHES) */
-        .data-table-wrapper { flex: 1; overflow-y: auto; overflow-x: auto; background: var(--bg-card);}
+        .data-table-wrapper { flex: 1; overflow-y: auto; overflow-x: auto; background: var(--bg-card); max-height: 300px; }
         table.data-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; text-align: center; }
         .data-table thead { background: var(--brand-yellow); color: var(--text-on-yellow); position: sticky; top: 0; z-index: 1; font-weight: 900; text-transform: uppercase;}
         .data-table th, .data-table td { padding: 8px 10px; border-bottom: 1px solid var(--border-card); color: var(--text-main); white-space: nowrap; }
@@ -710,7 +713,7 @@
             
             Object.keys(chartInstances).forEach(k => { if(chartInstances[k]) chartInstances[k].destroy(); });
 
-            // 1. TOTAL x CICLO
+            // 1. TOTAL x CICLO (Cores Corrigidas e Ajuste de Eixo)
             let ciclos = Object.keys(mapCiclo);
             let srAd = ciclos.map(c => mapCiclo[c].aduanas);
             let srF = ciclos.map(c => mapCiclo[c].f);
@@ -719,18 +722,17 @@
             chartInstances.ciclo = new ApexCharts(document.querySelector("#chart-ciclo"), {
                 series: [{name: 'Aduanas', data: srAd}, {name: 'Faltantes', data: srF}, {name: 'A mais', data: srA}],
                 chart: { type: 'bar', height: '100%', stacked: false, background: 'transparent', toolbar: {show:false} },
-                colors: ['#FFF159', '#E74C3C', '#4A90E2'], // AMARELO ML
+                colors: ['var(--bar-yellow)', '#E74C3C', '#4A90E2'],
                 plotOptions: { bar: { horizontal: false, columnWidth: '60%', dataLabels: {position: 'top'} } },
                 dataLabels: { enabled: true, offsetY: -25, style: { fontSize: '11px', colors: [textColor] }, dropShadow: {enabled:false} },
-                xaxis: { type: 'category', categories: ciclos, labels: { style: { colors: textColor, fontWeight: 900, fontSize: '11px' } } },
+                xaxis: { categories: ciclos, labels: { style: { colors: textColor, fontWeight: 900, fontSize: '11px' } } },
                 yaxis: { labels: { style: { colors: textColor } } },
                 legend: { position: 'top', labels: { colors: textColor }, itemMargin: {horizontal: 5, vertical: 0} },
-                grid: { padding: { top: 30 }, borderColor: gridColor, strokeDashArray: 3 },
-                stroke: { show: true, width: 1, colors: ['var(--border-card)'] }
+                grid: { padding: { top: 30 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.ciclo.render();
 
-            // 2. TOTAL PERFIL x CICLO (Horizontal: yaxis controla as categorias)
+            // 2. TOTAL PERFIL x CICLO (Cores Corrigidas, Valores na Frente da Vela e Nomes no Eixo Y)
             let pcCiclos = Object.keys(mapPerfilCiclo);
             let srVol = pcCiclos.map(c => mapPerfilCiclo[c].VOLUMOSO);
             let srEst = pcCiclos.map(c => mapPerfilCiclo[c].ESTEIRA);
@@ -738,34 +740,38 @@
             chartInstances.perfil = new ApexCharts(document.querySelector("#chart-perfil-ciclo"), {
                 series: [{name: 'VOLUMOSO', data: srVol}, {name: 'ESTEIRA', data: srEst}],
                 chart: { type: 'bar', height: '100%', stacked: false, background: 'transparent', toolbar: {show:false} },
-                colors: ['#FFF159', '#000000'], // AMARELO ML
+                colors: ['var(--bar-yellow)', '#000000'],
                 plotOptions: { bar: { horizontal: true, dataLabels: {position: 'top'} } },
                 dataLabels: { enabled: true, textAnchor: 'start', offsetX: 10, style: { fontSize: '12px', colors: [textColor] }, dropShadow: {enabled:false} },
                 xaxis: { labels: { style: { colors: textColor, fontSize: '10px' } } },
                 yaxis: { categories: pcCiclos, labels: { style: { colors: textColor, fontWeight: 900, fontSize: '11px' } } },
                 legend: { position: 'top', labels: { colors: textColor }, markers: { radius: 0 } },
-                grid: { padding: { right: 35 }, borderColor: gridColor, strokeDashArray: 3 },
-                stroke: { show: true, width: 1, colors: ['var(--border-card)'] }
+                grid: { padding: { right: 35 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.perfil.render();
 
-            // 3. REPS (Top 6) (Horizontal: yaxis controla as categorias)
+            // 3. REPS (Top 6) (Cores Corrigidas, Valores na Frente da Vela e Nomes no Eixo Y)
             let arrReps = Object.keys(mapReps).map(r => ({rep: r, v: mapReps[r]})).sort((a,b) => b.v - a.v).slice(0,6);
             
+            let repCategories = arrReps.map(x => {
+                let parts = x.rep.split(' ');
+                if(parts.length > 2) return [parts.slice(0,2).join(' '), parts.slice(2,4).join(' ')];
+                return x.rep;
+            });
+
             chartInstances.reps = new ApexCharts(document.querySelector("#chart-reps"), {
                 series: [{name: 'Rota', data: arrReps.map(x=>x.v)}],
                 chart: { type: 'bar', height: '100%', background: 'transparent', toolbar: {show:false} },
-                colors: ['#FFF159'], // AMARELO ML
+                colors: ['var(--bar-yellow)'],
                 plotOptions: { bar: { horizontal: true, dataLabels: {position: 'top'} } },
                 dataLabels: { enabled: true, textAnchor: 'start', offsetX: 10, style: { fontSize: '11px', colors: [textColor] }, dropShadow: {enabled:false} },
                 xaxis: { labels: { style: { colors: textColor, fontSize: '10px' } } },
-                yaxis: { categories: arrReps.map(x=> x.rep.split(' ').slice(0,2).join(' ')), labels: { style: { colors: textColor, fontWeight: 800, fontSize:'10px' } } },
-                grid: { padding: { right: 35 }, borderColor: gridColor, strokeDashArray: 3 },
-                stroke: { show: true, width: 1, colors: ['var(--border-card)'] }
+                yaxis: { categories: repCategories, labels: { style: { colors: textColor, fontWeight: 800, fontSize:'10px' } } },
+                grid: { padding: { right: 35 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.reps.render();
 
-            // 4. TRANSPORTADORAS (Top 6) (Horizontal: yaxis controla as categorias)
+            // 4. TRANSPORTADORAS (Top 6) (Valores na Frente e Nomes no Eixo Y)
             let arrT = Object.keys(mapTransp).map(t => ({t:t, f:mapTransp[t].f, a:mapTransp[t].a})).sort((a,b) => (b.f+b.a) - (a.f+a.a)).slice(0,6);
             
             chartInstances.transp = new ApexCharts(document.querySelector("#chart-transp"), {
