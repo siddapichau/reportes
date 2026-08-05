@@ -29,7 +29,7 @@
             --text-main: #333333;
             --text-muted: #666666;
             --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.05);
-            --brand-orange: #F5A623;
+            --brand-yellow: #FFB000;
         }
         [data-theme="dark"] {
             --bg-header: #FFF159;
@@ -38,7 +38,7 @@
             --text-main: #E2E8F0;
             --text-muted: #94A3B8;
             --shadow-card: 0 4px 6px rgba(0, 0, 0, 0.3);
-            --brand-orange: #F5A623;
+            --brand-yellow: #FFB000;
         }
 
         html, body { width: 100%; min-height: 100%; background: transparent !important; }
@@ -48,7 +48,7 @@
 
         /* CABEÇALHO PRINCIPAL */
         .header { padding: 8px 20px; flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 20px; background-color: var(--bg-header) !important; border: none; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .header-title-wrapper { flex: 1; text-align: center; color: #2D3277 !important; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; font-size: 1.2rem; }
+        .header-title-wrapper { flex: 1; text-align: center; color: #2D3277 !important; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; font-size: 1.2rem; margin-left: 20px;}
         .ml-logo { height: 32px; width: auto; object-fit: contain; }
 
         .header-controls { display: flex; align-items: center; gap: 12px; }
@@ -63,8 +63,7 @@
 
         /* KPI BAR */
         .kpi-container { text-align: center; margin-top: 5px; position: relative;}
-        .kpi-subtitle { font-size: 0.7rem; font-weight: 900; text-transform: uppercase; color: var(--text-muted); margin-bottom: 5px; }
-        .kpi-row { display: inline-flex; gap: 15px; background: var(--brand-orange); padding: 12px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .kpi-row { display: inline-flex; gap: 15px; background: var(--brand-yellow); padding: 12px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         
         .kpi-box { padding: 10px 20px; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; min-width: 120px; text-shadow: 0 1px 2px rgba(0,0,0,0.2); box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1); }
         .kpi-box.black { background-color: #000000; border: 2px solid #333; }
@@ -79,7 +78,7 @@
         .dashboard-grid { display: grid; grid-template-columns: 1fr 1.2fr 1fr; grid-template-rows: 1fr 1fr; gap: 15px; flex: 1; min-height: 0; margin-top: 10px;}
         .chart-card { display: flex; flex-direction: column; border-radius: 8px; overflow: hidden; }
         
-        .chart-title { background: var(--brand-orange); color: #111; padding: 8px 10px; font-size: 0.85rem; font-weight: 900; text-transform: uppercase; text-align: center; letter-spacing: 0.5px; margin: 0;}
+        .chart-title { background: var(--brand-yellow); color: #111; padding: 8px 10px; font-size: 0.85rem; font-weight: 900; text-transform: uppercase; text-align: center; letter-spacing: 0.5px; margin: 0;}
         .chart-wrapper { flex: 1; min-height: 0; width: 100%; position: relative; padding: 10px; box-sizing: border-box;}
         
         /* TABELA PERFIL */
@@ -88,14 +87,14 @@
         .perfil-table th, .perfil-table td { padding: 10px; text-align: right; border-bottom: 1px solid var(--border-card); color: var(--text-main); }
         .perfil-table th:first-child, .perfil-table td:first-child { text-align: left; font-weight: 800; }
         .perfil-table th { color: #111; font-weight: 900; text-transform: uppercase; font-size: 0.75rem; }
-        .perfil-table .highlight-bg { background: var(--brand-orange); color: #111; font-weight: 900; }
+        .perfil-table .highlight-bg { background: var(--brand-yellow); color: #111; font-weight: 900; }
 
         /* TABELA INFERIOR (DETALHES) */
         .data-table-wrapper { flex: 1; overflow-y: auto; overflow-x: auto; background: var(--bg-card);}
         table.data-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; text-align: center; }
-        .data-table thead { background: var(--brand-orange); color: #111; position: sticky; top: 0; z-index: 1; font-weight: 900; text-transform: uppercase;}
+        .data-table thead { background: var(--brand-yellow); color: #111; position: sticky; top: 0; z-index: 1; font-weight: 900; text-transform: uppercase;}
         .data-table th, .data-table td { padding: 8px 10px; border-bottom: 1px solid var(--border-card); color: var(--text-main); white-space: nowrap; }
-        .data-table tbody tr:hover { background-color: rgba(245, 166, 35, 0.1); }
+        .data-table tbody tr:hover { background-color: rgba(255, 176, 0, 0.1); }
         
         .data-table .col-correta { color: var(--text-main); font-weight: 600; }
         .data-table .col-amais { background: #4DD0E1; color: #000; font-weight: 900; border-right: 1px solid var(--bg-card); border-left: 1px solid var(--bg-card);}
@@ -130,7 +129,6 @@
     <div class="header glass-panel">
         <div style="display:flex; align-items:center; gap: 10px;">
             <img src="https://upload.wikimedia.org/wikipedia/pt/0/04/Logotipo_MercadoLivre.png" alt="Mercado Livre" class="ml-logo">
-            <span style="font-weight: 900; font-size: 0.8rem; color: #000; background: rgba(255,255,255,0.7); padding: 4px 8px; border-radius: 4px;">>> ADUANAS RESUMO</span>
         </div>
         
         <div class="header-title-wrapper" id="main-title">
@@ -141,9 +139,9 @@
             <button class="btn-icon" onclick="baixarImagem()" title="Exportar Imagem">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
             </button>
-            <label class="btn-icon" id="btnUpload" style="display:none;" title="Subir Histórico R ou Pacotes">
+            <label class="btn-icon" id="btnUpload" style="display:none;" title="Subir Histórico R e/ou Pacotes">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                <input type="file" id="csvFileInput" accept=".csv" style="display: none;" />
+                <input type="file" id="csvFileInput" accept=".csv" multiple style="display: none;" />
             </label>
         </div>
     </div>
@@ -159,7 +157,6 @@
 
     <!-- KPIs -->
     <div class="kpi-container">
-        <div class="kpi-subtitle">(HISTÓRICO R)</div>
         <div class="kpi-row">
             <div class="kpi-box black">
                 <div class="kpi-title">ROTAS</div>
@@ -192,8 +189,8 @@
             <div class="perfil-table-wrapper">
                 <table class="perfil-table">
                     <thead>
-                        <tr><th colspan="3" class="highlight-bg" style="text-align: right;">Estado / Total</th></tr>
-                        <tr><th>PERFIL</th><th>Faltante</th><th>A mais</th></tr>
+                        <tr><th colspan="3" class="highlight-bg" style="text-align: right;">ESTADO / TOTAL</th></tr>
+                        <tr><th>PERFIL</th><th>FALTANTE</th><th>A MAIS</th></tr>
                     </thead>
                     <tbody id="tbody-perfil">
                         <tr><td>VOLUMOSO</td><td>0</td><td>0</td></tr>
@@ -209,7 +206,7 @@
 
         <!-- Linha 2 -->
         <div class="chart-card glass-panel">
-            <div class="chart-title">REP's x Total Aduanas</div>
+            <div class="chart-title">REP's x TOTAL ADUANAS</div>
             <div id="chart-reps" class="chart-wrapper"></div>
         </div>
         <div class="chart-card glass-panel">
@@ -221,8 +218,8 @@
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Rota</th><th>Transportadora...</th><th>Rep's</th>
-                            <th>Corretas</th><th>A mais ❷</th><th>Falta... ❶</th>
+                            <th>ROTA</th><th>TRANSPORTADORA...</th><th>REP'S</th>
+                            <th>CORRETAS</th><th>A MAIS ❷</th><th>FALTA... ❶</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-rotas">
@@ -274,7 +271,7 @@
             if (e.data.type === 'THEME_CHANGED') { syncTheme(); } 
         });
 
-        // --- SISTEMA DE MODAL (Substitui Alert e Prompt) ---
+        // --- SISTEMA DE MODAL ---
         function showModal(options) {
             return new Promise((resolve) => {
                 const overlay = document.getElementById('customModal');
@@ -337,6 +334,10 @@
             let week1 = new Date(date.getFullYear(), 0, 4);
             return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
         }
+
+        const parseCSV = (file) => new Promise(resolve => {
+            Papa.parse(file, { header: true, skipEmptyLines: true, complete: resolve });
+        });
 
         // --- CARREGAMENTO INICIAL ---
         window.onload = function() { loadDataFromFirebase(); };
@@ -432,88 +433,123 @@
             applyFilter('day');
         }
 
-        // --- SISTEMA DE UPLOAD INTELIGENTE ---
-        document.getElementById('csvFileInput').addEventListener('change', function(e) {
-            const file = e.target.files[0]; if(!file) return;
-            Papa.parse(file, { header: true, skipEmptyLines: true, complete: async function(res) {
-                if(res.data.length > 0) {
+        // --- SISTEMA DE UPLOAD INTELIGENTE MÚLTIPLO ---
+        document.getElementById('csvFileInput').addEventListener('change', async function(e) {
+            const files = e.target.files;
+            if(!files || files.length === 0) return;
+
+            let resumoRaw = null;
+            let pacotesRaw = null;
+
+            // Extrai as informações de todos os arquivos upados
+            for(let file of files) {
+                let res = await parseCSV(file);
+                if (res.data.length > 0) {
                     let cols = res.meta.fields.map(c => c.toLowerCase());
-                    let type = '';
-                    let dbToUse = null, nodeToUse = '';
-                    
                     if(cols.includes('corretas') && (cols.includes('minutos') || cols.includes("rep's") || cols.includes("rep de aduana"))) {
-                        type = 'Histórico R (Resumo)'; dbToUse = globalDbResumo; nodeToUse = NODE_RESUMO;
+                        resumoRaw = res.data;
                     } else if((cols.includes('dimensão') || cols.includes('dimensao')) && cols.includes('estado')) {
-                        type = 'Histórico de Pacotes'; dbToUse = globalDbPacotes; nodeToUse = NODE_PACOTES;
-                    }
-
-                    if(!type) {
-                        await showModal({ title: 'Aviso', message: "Arquivo CSV não reconhecido. Certifique-se que subiu 'Historico R' ou 'Historico de pcts'." });
-                        e.target.value = ''; return;
-                    }
-
-                    let isFirstUpload = Object.keys(dbToUse).length === 0;
-                    
-                    if (isFirstUpload) {
-                        await showModal({ title: 'Configuração Inicial', message: `Primeiro upload detectado para <strong>${type}</strong>.<br>O sistema criará o banco de dados geral.`, confirmText: 'Continuar' });
-                        let newDb = {};
-                        res.data.forEach(row => {
-                            let d = padDate((row['Data auditoria'] || row['Data'] || '').trim().split(' ')[0]);
-                            if(d) {
-                                let key = d.replace(/\//g, '-');
-                                if(!newDb[key]) newDb[key] = [];
-                                let limpo = {};
-                                for(let k in row) limpo[k.replace(/[\.\#\$\/\[\]]/g,'_')] = row[k];
-                                newDb[key].push(limpo);
-                            }
-                        });
-                        
-                        await fetch(`${FIREBASE_URL}${nodeToUse}.json`, {
-                            method: 'PUT',
-                            headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify(newDb)
-                        });
-                        await showModal({ title: 'Sucesso', message: `Base de <strong>${type}</strong> criada com sucesso!` });
-                        loadDataFromFirebase();
-                    } else {
-                        let dataHoje = formatarDataHoje();
-                        let chosenDate = await showModal({ 
-                            title: 'Sincronizar Arquivo', 
-                            message: `Detectamos uma planilha de <strong>${type}</strong>.<br>De qual data deseja extrair e atualizar os dados?`,
-                            type: 'prompt',
-                            defaultValue: dataHoje
-                        });
-                        
-                        if(!chosenDate) { e.target.value = ''; return; }
-                        
-                        let chosenDateKey = padDate(chosenDate).replace(/\//g, '-');
-                        let rowsForDate = [];
-                        
-                        res.data.forEach(row => {
-                            let d = padDate((row['Data auditoria'] || row['Data'] || '').trim().split(' ')[0]);
-                            if(d === chosenDate) {
-                                let limpo = {};
-                                for(let k in row) limpo[k.replace(/[\.\#\$\/\[\]]/g,'_')] = row[k];
-                                rowsForDate.push(limpo);
-                            }
-                        });
-                        
-                        if(rowsForDate.length === 0) {
-                            await showModal({ title: 'Tabela Vazia', message: `Nenhum registro encontrado na planilha para o dia ${chosenDate}.` });
-                            e.target.value = '';
-                            return;
-                        }
-                        
-                        await fetch(`${FIREBASE_URL}${nodeToUse}/${chosenDateKey}.json`, {
-                            method: 'PUT', 
-                            headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify(rowsForDate)
-                        });
-                        await showModal({ title: 'Tudo Certo!', message: `O upload de <strong>${type}</strong> para o dia ${chosenDate} foi concluído!<br>(${rowsForDate.length} linhas adicionadas).` });
-                        loadDataFromFirebase();
+                        pacotesRaw = res.data;
                     }
                 }
-            }});
+            }
+
+            if(!resumoRaw && !pacotesRaw) {
+                await showModal({ title: 'Aviso', message: "Nenhum arquivo CSV válido reconhecido. Suba 'Histórico R' e/ou 'Histórico de pcts'." });
+                e.target.value = ''; return;
+            }
+
+            let isFirstUploadR = Object.keys(globalDbResumo).length === 0;
+            let isFirstUploadP = Object.keys(globalDbPacotes).length === 0;
+
+            let requiresDate = (resumoRaw && !isFirstUploadR) || (pacotesRaw && !isFirstUploadP);
+            let chosenDate = null;
+            
+            if (requiresDate) {
+                chosenDate = await showModal({
+                    title: 'Sincronizar Dados',
+                    message: `Identificamos ${files.length} planilha(s) para subir.<br>De qual data deseja extrair e atualizar os dados?`,
+                    type: 'prompt',
+                    defaultValue: formatarDataHoje()
+                });
+                if (!chosenDate) { e.target.value = ''; return; }
+            }
+
+            let promises = [];
+
+            // Processamento do Resumo R
+            if (resumoRaw) {
+                if (isFirstUploadR) {
+                    let newDb = {};
+                    resumoRaw.forEach(row => {
+                        let d = padDate((row['Data auditoria'] || row['Data'] || '').trim().split(' ')[0]);
+                        if(d) {
+                            let key = d.replace(/\//g, '-');
+                            if(!newDb[key]) newDb[key] = [];
+                            let limpo = {};
+                            for(let k in row) limpo[k.replace(/[\.\#\$\/\[\]]/g,'_')] = row[k];
+                            newDb[key].push(limpo);
+                        }
+                    });
+                    promises.push(fetch(`${FIREBASE_URL}${NODE_RESUMO}.json`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(newDb) }));
+                } else {
+                    let chosenDateKey = padDate(chosenDate).replace(/\//g, '-');
+                    let rowsForDate = [];
+                    resumoRaw.forEach(row => {
+                        let d = padDate((row['Data auditoria'] || row['Data'] || '').trim().split(' ')[0]);
+                        if(d === chosenDate) {
+                            let limpo = {};
+                            for(let k in row) limpo[k.replace(/[\.\#\$\/\[\]]/g,'_')] = row[k];
+                            rowsForDate.push(limpo);
+                        }
+                    });
+                    if(rowsForDate.length > 0) {
+                        promises.push(fetch(`${FIREBASE_URL}${NODE_RESUMO}/${chosenDateKey}.json`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(rowsForDate) }));
+                    }
+                }
+            }
+
+            // Processamento dos Pacotes
+            if (pacotesRaw) {
+                if (isFirstUploadP) {
+                    let newDb = {};
+                    pacotesRaw.forEach(row => {
+                        let d = padDate((row['Data auditoria'] || row['Data'] || '').trim().split(' ')[0]);
+                        if(d) {
+                            let key = d.replace(/\//g, '-');
+                            if(!newDb[key]) newDb[key] = [];
+                            let limpo = {};
+                            for(let k in row) limpo[k.replace(/[\.\#\$\/\[\]]/g,'_')] = row[k];
+                            newDb[key].push(limpo);
+                        }
+                    });
+                    promises.push(fetch(`${FIREBASE_URL}${NODE_PACOTES}.json`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(newDb) }));
+                } else {
+                    let chosenDateKey = padDate(chosenDate).replace(/\//g, '-');
+                    let rowsForDate = [];
+                    pacotesRaw.forEach(row => {
+                        let d = padDate((row['Data auditoria'] || row['Data'] || '').trim().split(' ')[0]);
+                        if(d === chosenDate) {
+                            let limpo = {};
+                            for(let k in row) limpo[k.replace(/[\.\#\$\/\[\]]/g,'_')] = row[k];
+                            rowsForDate.push(limpo);
+                        }
+                    });
+                    if(rowsForDate.length > 0) {
+                        promises.push(fetch(`${FIREBASE_URL}${NODE_PACOTES}/${chosenDateKey}.json`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(rowsForDate) }));
+                    }
+                }
+            }
+
+            if (promises.length > 0) {
+                await Promise.all(promises);
+                let msg = requiresDate ? `Os dados do dia ${chosenDate} foram atualizados com sucesso.` : `O Banco de Dados Histórico foi inicializado e populado com sucesso.`;
+                await showModal({ title: 'Sincronização Concluída!', message: msg });
+                loadDataFromFirebase();
+            } else {
+                await showModal({ title: 'Aviso', message: 'Nenhuma linha compatível com a data escolhida foi encontrada nas planilhas.' });
+            }
+            
             e.target.value = '';
         });
 
@@ -630,7 +666,7 @@
             chartInstances.ciclo = new ApexCharts(document.querySelector("#chart-ciclo"), {
                 series: [{name: 'Aduanas', data: srAd}, {name: 'Faltantes', data: srF}, {name: 'A mais', data: srA}],
                 chart: { type: 'bar', height: '100%', stacked: false, background: 'transparent', toolbar: {show:false} },
-                colors: ['#F5A623', '#E74C3C', '#4A90E2'],
+                colors: ['#FFB000', '#E74C3C', '#4A90E2'],
                 plotOptions: { bar: { horizontal: false, columnWidth: '55%', dataLabels: {position: 'top'} } },
                 dataLabels: { enabled: true, offsetY: -20, style: { fontSize: '9px', colors: [textColor] } },
                 xaxis: { categories: ciclos, labels: { style: { colors: textColor, fontWeight: 900 } } },
@@ -648,7 +684,7 @@
             chartInstances.perfil = new ApexCharts(document.querySelector("#chart-perfil-ciclo"), {
                 series: [{name: 'VOLUMOSO', data: srVol}, {name: 'ESTEIRA', data: srEst}],
                 chart: { type: 'bar', height: '100%', stacked: false, background: 'transparent', toolbar: {show:false} },
-                colors: ['#F5A623', '#000000'],
+                colors: ['#FFB000', '#000000'],
                 plotOptions: { bar: { horizontal: true, dataLabels: {position: 'right'} } },
                 dataLabels: { enabled: true, offsetX: 15, style: { fontSize: '9px', colors: [textColor] } },
                 xaxis: { labels: { style: { colors: textColor } } },
@@ -664,7 +700,7 @@
             chartInstances.reps = new ApexCharts(document.querySelector("#chart-reps"), {
                 series: [{name: 'Rota', data: arrReps.map(x=>x.v)}],
                 chart: { type: 'bar', height: '100%', background: 'transparent', toolbar: {show:false} },
-                colors: ['#F5A623'],
+                colors: ['#FFB000'],
                 plotOptions: { bar: { horizontal: true, dataLabels: {position: 'right'} } },
                 dataLabels: { enabled: true, offsetX: 5, style: { fontSize: '9px', colors: [textColor] } },
                 xaxis: { labels: { style: { colors: textColor } } },
