@@ -624,13 +624,15 @@
                 
                 if (lista.length > 0) {
                     // LOOP SEGURO PARA NÃO ESTOURAR A PILHA (CALL STACK)
+                    let batch = [];
                     for(let i=0; i<lista.length; i++) {
-                        BANCO_GLOBAL.push({ 
+                        batch.push({ 
                             ...lista[i], 
                             ValorNum: Number(lista[i].ValorNum || parseCurrency(lista[i].Valor)), 
                             OrigemDb: key 
                         });
                     }
+                    BANCO_GLOBAL = BANCO_GLOBAL.concat(batch); // Concat impede Maximum Call Stack Exceeded
                     contagens[key] = `${lista.length} u. <span style="font-size:0.65rem;">(${String(dataAt).split(',')[0]})</span>`;
                 } else { 
                     contagens[key] = 'Vazio'; 
