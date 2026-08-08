@@ -42,13 +42,10 @@
         /* BOTÕES DE IA ESTILO IMAGEM */
         .btn-ia-1 { border-color: #059669 !important; color: #059669 !important; }
         .btn-ia-1:hover { background: #059669 !important; color: #fff !important; }
-        
         .btn-ia-2 { border-color: #4d6bfe !important; color: #4d6bfe !important; }
         .btn-ia-2:hover { background: #4d6bfe !important; color: #fff !important; }
-        
         .btn-ia-3 { border-color: var(--accent-blue) !important; color: var(--accent-blue) !important; }
         .btn-ia-3:hover { background: var(--accent-blue) !important; color: #fff !important; }
-        
         .btn-ia-4 { border-color: #8b5cf6 !important; color: #8b5cf6 !important; }
         .btn-ia-4:hover { background: #8b5cf6 !important; color: #fff !important; }
         
@@ -86,6 +83,8 @@
         .badge-aging { color: #475569; border: 1px solid rgba(71,85,105,0.3); background: rgba(71,85,105,0.1); }
         .match-exact { border-left: 3px solid var(--accent-green) !important; background: rgba(0,166,80,0.02); }
         .match-partial { border-left: 3px solid var(--accent-warn) !important; }
+        
+        /* MODAIS E FORMS */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 9999; }
         .modal-overlay.active { display: flex; }
         .modal-content { background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 12px; width: 90%; max-width: 650px; padding: 20px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 15px 40px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto;}
@@ -93,10 +92,6 @@
         .modal-title { font-size: 1.1rem; font-weight: 900; color: var(--text-title); text-transform: uppercase; }
         .close-modal { background: transparent; border: none; color: var(--text-main); font-size: 1.6rem; cursor: pointer; font-weight: bold; }
         
-        .upload-area { border: 2px dashed var(--border-card); border-radius: 8px; padding: 30px; text-align: center; color: var(--text-muted); position: relative; cursor: pointer; transition: 0.3s; background: var(--bg-body); }
-        .upload-area:hover { border-color: var(--accent-blue); background: rgba(52,131,250,0.05); }
-        .upload-area input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
-
         .modal-grid { display: flex; flex-direction: column; gap: 15px; }
         .ia-admin-row { padding: 15px; border: 1px solid var(--border-card); border-radius: 8px; background: var(--bg-body); display: flex; flex-direction: column; gap: 10px; }
         .ia-input-group { display: flex; flex-direction: column; gap: 5px; }
@@ -150,15 +145,21 @@
                 <button class="btn-ia-busca" onclick="buscarComIANaBarra()" title="Analisar busca digitada com Inteligência Artificial">✨ IA</button>
             </div>
         </div>
-        <div class="nav-right" style="display:flex; gap:4px; flex-wrap:wrap; justify-content:flex-end;">
+        <div class="nav-right" style="display:flex; gap:4px; flex-wrap:wrap; justify-content:flex-end; align-items:center;">
             <button class="btn-header btn-ia-1" id="btn-ia-v1" onclick="abrirModalIA('v1')">🤖 IA 1</button>
             <button class="btn-header btn-ia-2" id="btn-ia-v2" onclick="abrirModalIA('v2')">🤖 IA 2</button>
             <button class="btn-header btn-ia-3" id="btn-ia-v3" onclick="abrirModalIA('v3')">🤖 IA 3</button>
             <button class="btn-header btn-ia-4" id="btn-ia-v4" onclick="abrirModalIA('v4')">🤖 IA 4</button>
             
             <button class="btn-header" style="border-color:#ccc;" id="btn-memoria" onclick="abrirModalMemoria()" title="Ver aprendizado da IA">🧠 Memória</button>
-            <button class="btn-header" style="border-color:#ccc;" id="btn-gerenciar" onclick="abrirModalGerenciador()" style="display:none; margin-left:10px;">📂 CSVs</button>
-            <button class="btn-header" id="btn-gerenciar-ia" onclick="abrirModalGerenciarIA()" style="display:none; margin-left:10px; background:#8b5cf6; color:#fff; border:none;">⚙️ IAs</button>
+            
+            <!-- UPLOAD DIRETO - SEM MODAL (Admin) -->
+            <label class="btn-header" id="btn-gerenciar" style="display:none; cursor:pointer; border-color:#ccc;" title="Subir CSVs Múltiplos (Devolucao, Q10, etc)">
+                📂 CSVs
+                <input type="file" accept=".csv" multiple style="display:none;" onchange="processarUploadSmart(this)">
+            </label>
+            
+            <button class="btn-header" id="btn-gerenciar-ia" onclick="abrirModalGerenciarIA()" style="display:none; background:#8b5cf6; color:#fff; border:none;">⚙️ IAs</button>
         </div>
     </div>
 
@@ -200,25 +201,11 @@
         </div>
     </div>
 
-    <!-- MODAL UPLOAD INTELIGENTE -->
-    <div class="modal-overlay" id="modal-gerenciador">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">📂 Upload Automático CSV</div>
-                <button class="close-modal" onclick="fecharModalGerenciador()">×</button>
-            </div>
-            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:5px; text-align:center;">
-                Arraste ou selecione uma ou mais planilhas ao mesmo tempo.<br>O sistema identificará a categoria pelo nome do arquivo.
-            </div>
-            
-            <div class="upload-area">
-                <input type="file" id="smart-csv-upload" accept=".csv" multiple onchange="processarUploadSmart(this)">
-                <div style="font-size: 2rem; margin-bottom:10px;">📄</div>
-                <div style="font-weight: 800; color: var(--text-main);">Clique aqui ou arraste arquivos CSV</div>
-                <div style="font-size: 0.75rem; margin-top:5px;">(Devolução, ID Data, Q10, Q15, OnHub, CFTV, Parados)</div>
-            </div>
-
-            <div id="upload-status-area" style="margin-top: 15px; font-size: 0.85rem; font-weight: 600;"></div>
+    <!-- MODAL DE STATUS DO UPLOAD DE CSVs -->
+    <div class="modal-overlay" id="modal-upload-status">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <div class="modal-title" style="color:var(--accent-blue); margin-bottom:10px;">📦 Sincronizando Planilhas...</div>
+            <div id="upload-status-log" style="font-size:0.85rem; color:var(--text-main); font-weight:600; line-height:1.6;"></div>
         </div>
     </div>
 
@@ -269,10 +256,11 @@
                 <div id="freeze-status" style="font-size:0.7rem; color:var(--text-muted); margin-top:3px;">❄️ Descongelado</div>
             </div>
 
+            <!-- TRAVA DE CLIQUE ABSOLUTO APLICADA AQUI -->
             <div class="ia-input-group">
                 <label>Foto da Bancada (Opcional)</label>
-                <div class="upload-wrapper" style="border:1px dashed var(--border-card); border-radius:8px; text-align:center;">
-                    <input type="file" accept="image/*" id="ia-foto" onchange="previewIAFile(this)" style="position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%;" />
+                <div style="position:relative; width:100%; border:1px dashed var(--border-card); border-radius:8px; text-align:center; overflow:hidden;">
+                    <input type="file" accept="image/*" id="ia-foto" onchange="previewIAFile(this)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:10;" />
                     <div style="padding:15px; color:var(--text-muted); font-weight:800;" id="btn-ia-file-label">📷 Clique para Anexar Foto do Item</div>
                 </div>
             </div>
@@ -305,7 +293,7 @@
                 <div class="modal-title" style="color:#8b5cf6;">🧠 Memória da IA (Aprendizado)</div>
                 <button class="close-modal" onclick="fecharModalMemoria()">×</button>
             </div>
-            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:5px;">Padrões que a IA está usando para melhorar suas buscas.</div>
+            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:5px;">Padrões que a IA está usando para entender links e descrições.</div>
             <div class="ia-box-resultado" id="memoria-resultado" style="margin-top:10px; border-color: #8b5cf6; max-height: 60vh; overflow-y: auto;">Carregando...</div>
         </div>
     </div>
@@ -382,8 +370,8 @@
     }
 
     window.onload = async () => { 
-        await carregarConfigIAs();
-        await carregarListaEncontrados(); 
+        try { await carregarConfigIAs(); } catch(e){}
+        try { await carregarListaEncontrados(); } catch(e){}
         carregarTodosBancos(); 
     };
 
@@ -399,7 +387,6 @@
             const res = await fetch(`${FIREBASE_URL}salvados_api_keys.json`);
             const data = await res.json();
             if(data) {
-                // Mescla os dados da nuvem mantendo nomes originais se vazio
                 Object.keys(IAs_CONFIG).forEach(id => {
                     if(data[id]) {
                         IAs_CONFIG[id].key = data[id].key || "";
@@ -500,11 +487,8 @@
     }
 
     // ============================================================
-    //  SMART UPLOAD DE CSV MÚLTIPLO
+    //  SMART UPLOAD DE CSV MÚLTIPLO (DIRETO NO MENU)
     // ============================================================
-    function abrirModalGerenciador() { document.getElementById('modal-gerenciador').classList.add('active'); }
-    function fecharModalGerenciador() { document.getElementById('modal-gerenciador').classList.remove('active'); }
-
     function identificarPlanilha(nome) {
         let n = nome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
         if(n.includes('devolu')) return 'devolucao';
@@ -533,7 +517,9 @@
         const files = Array.from(inputElement.files);
         if (files.length === 0) return;
 
-        const statusArea = document.getElementById('upload-status-area');
+        const modalStatus = document.getElementById('modal-upload-status');
+        const statusArea = document.getElementById('upload-status-log');
+        modalStatus.classList.add('active');
         statusArea.innerHTML = "Iniciando processamento...<br>";
 
         let atualizados = 0;
@@ -548,7 +534,7 @@
                 }
             }
 
-            statusArea.innerHTML += `⏳ Processando <b>${file.name}</b> para [${dbKey.toUpperCase()}]...<br>`;
+            statusArea.innerHTML += `⏳ Lendo <b>${file.name}</b> para [${dbKey.toUpperCase()}]...<br>`;
             
             const rawData = await lerArquivoCSV(file);
             const dadosLimpos = rawData.map(row => {
@@ -572,7 +558,7 @@
             try {
                 const payload = { atualizadoEm: new Date().toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'}), lista: dadosLimpos };
                 await fetch(`${FIREBASE_URL}${DB_NODES[dbKey]}.json`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-                statusArea.innerHTML += `<span style="color:#059669;">✅ Sucesso: ${file.name} (${dadosLimpos.length} itens salvos)</span><br>`;
+                statusArea.innerHTML += `<span style="color:#059669;">✅ Sucesso: ${file.name} salvos!</span><br>`;
                 atualizados++;
             } catch(e) {
                 statusArea.innerHTML += `<span style="color:#e11d48;">❌ Erro de nuvem: ${file.name}</span><br>`;
@@ -582,14 +568,41 @@
         if (atualizados > 0) {
             await registrarLogFirebase("Buscador Global", `Fez Smart Upload de ${atualizados} planilhas.`);
             carregarTodosBancos();
-            setTimeout(() => { fecharModalGerenciador(); statusArea.innerHTML = ''; inputElement.value = ''; }, 3000);
+            setTimeout(() => { modalStatus.classList.remove('active'); statusArea.innerHTML = ''; inputElement.value = ''; }, 3000);
         } else {
-            inputElement.value = '';
+            setTimeout(() => { modalStatus.classList.remove('active'); statusArea.innerHTML = ''; inputElement.value = ''; }, 3000);
         }
     }
 
     // ============================================================
-    //  ENCONTRADOS + SISTEMA DE APRENDIZADO
+    //  CARREGAR BANCOS (RESTAURADO PARA FUNCIONAMENTO 100%)
+    // ============================================================
+    async function carregarTodosBancos() {
+        BANCO_GLOBAL = [];
+        for (const [key, node] of Object.entries(DB_NODES)) {
+            try {
+                const res = await fetch(`${FIREBASE_URL}${node}.json`);
+                if (!res.ok) throw new Error();
+                const data = await res.json();
+                let lista = []; let dataAt = "Sem data";
+                if (data) {
+                    if (Array.isArray(data)) lista = data;
+                    else if (data.lista) { lista = Array.isArray(data.lista) ? data.lista : Object.values(data.lista); dataAt = data.atualizadoEm || "Sem data"; }
+                    else lista = Object.values(data);
+                }
+                const lbl = document.getElementById(`lbl-${key}`);
+                if (lista.length > 0) {
+                    BANCO_GLOBAL.push(...lista.map(i => ({ ...i, ValorNum: Number(i.ValorNum || parseCurrency(i.Valor)), OrigemDb: key })));
+                    if (lbl) lbl.innerHTML = `${lista.length} u. <span class="upload-date">(${String(dataAt).split(',')[0]})</span>`;
+                } else { if (lbl) lbl.innerText = 'Vazio'; }
+            } catch(e) { const lbl = document.getElementById(`lbl-${key}`); if (lbl) lbl.innerText = 'Erro ❌'; }
+        }
+        await atualizarIndicadorMemoria();
+        if (document.getElementById('search-input').value.trim()) executarSmartSearch();
+    }
+
+    // ============================================================
+    //  ENCONTRADOS + SISTEMA DE APRENDIZADO E MEMÓRIA
     // ============================================================
     function fecharModalMemoria() { document.getElementById('modal-memoria').classList.remove('active'); }
 
@@ -714,7 +727,7 @@
     }
 
     // ============================================================
-    //  UTILITÁRIOS DE IMAGEM E LINKS
+    //  UTILITÁRIOS DE IMAGEM E LINKS PARA A IA
     // ============================================================
     function fileToBase64(file) {
         return new Promise((resolve, reject) => { const r = new FileReader(); r.readAsDataURL(file); r.onload = () => resolve(r.result); r.onerror = reject; });
@@ -753,6 +766,7 @@
         const url = normalizarLink(link); if (!url) return '';
         try {
             const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 12000);
+            // r.jina.ai extrai todo o texto limpo da página
             const res = await fetch(`https://r.jina.ai/${encodeURI(url)}`, { signal: ctrl.signal, headers: {'Accept':'text/plain'} });
             clearTimeout(t); if (!res.ok) return '';
             return String(await res.text()).replace(/\s+/g, ' ').slice(0, 6000);
@@ -781,32 +795,35 @@
         const exemplos = await carregarExemplosAprendizado(10);
         const frozenKeywords = KEYWORDS_FROZEN ? KEYWORDS_LIST.join(', ') : 'Nenhuma';
 
-        return `Você é um detetive de logística e inteligência artificial. Identifique o produto com MÁXIMA PRECISÃO usando o link, imagem (se houver) e descrição manual.
+        return `Você é um sistema avançado de inteligência artificial de logística do Mercado Livre. 
+Sua missão é extrair as características exatas de um produto a partir de um link de anúncio, descrição manual ou imagem para encontrar correspondências no armazém de perdidos.
 
-EXEMPLOS DE SUCESSO APRENDIDOS (Use os padrões de descrição e status):
-${exemplos || 'Nenhum exemplo ainda. Use o bom senso.'}
-
-PALAVRAS-CHAVE OBRIGATÓRIAS (Congeladas): ${frozenKeywords}
-(Se houver, o produto DEVE conter essas palavras na descrição ou ID. Use-as como filtro principal.)
-
-DADOS FORNECIDOS:
-- Link: ${link || 'Não'}
+DADOS FORNECIDOS PELO USUÁRIO:
+- Link do Anúncio: ${link || 'Não fornecido'}
 - Dica da URL (Slug): "${slug}"
-- DESCRIÇÃO MANUAL DO USUÁRIO (MUITO IMPORTANTE): "${descManual || 'Não fornecida'}"
-- Texto extraído da página: ${contextoLink ? contextoLink.slice(0, 4000) : 'Sem texto'}
+- DESCRIÇÃO MANUAL: "${descManual || 'Não fornecida'}"
 
-REGRAS DE ANÁLISE:
-1. Analise o link, a descrição manual e a imagem para extrair o termo base correto.
-2. Considere os padrões de status encontrados nos exemplos.
-3. Se houver palavras-chave congeladas, certifique-se de que elas estejam presentes no termo base ou nas palavras-chave geradas.
-4. Retorne APENAS um JSON válido:
+DADOS EXTRAÍDOS DO SITE/ANÚNCIO:
+${contextoLink ? contextoLink.slice(0, 6000) : 'Sem dados de link (use descrição manual)'}
+
+MEMÓRIA DE APRENDIZADO DA IA (Itens já encontrados com sucesso):
+${exemplos || 'Nenhuma memória recente.'}
+
+RESTRIÇÃO DE PALAVRAS-CHAVE CONGELADAS: ${frozenKeywords}
+(Se houver alguma palavra aqui, VOCÊ DEVE incluí-la no "termo_base" ou "palavras_chave" obrigatoriamente).
+
+TAREFA:
+Leia TODOS os dados da página do anúncio acima com muita atenção. Identifique e cruze as informações para achar a MARCA REAL, a COR PREDOMINANTE e a FAIXA DE PREÇO de venda do produto. 
+Gere 5 palavras-chave fortes que descrevam esse item fisicamente no estoque.
+
+Retorne APENAS um JSON válido no formato abaixo, sem nenhum texto adicional:
 {
-  "termo_base": "nome completo e modelo",
-  "cor": "cor predominante ou indefinida",
-  "marca": "marca real ou generica",
-  "preco_min": 10.00,
-  "preco_max": 50.00,
-  "palavras_chave": ["p1", "p2", "p3", "p4", "p5"]
+  "termo_base": "Nome do produto limpo, direto e modelo exato",
+  "cor": "Cor principal ou indefinida se não tiver certeza",
+  "marca": "Marca identificada ou generica",
+  "preco_min": 10.0,
+  "preco_max": 50.0,
+  "palavras_chave": ["palavra1", "palavra2", "palavra3", "palavra4", "palavra5"]
 }`;
     }
 
@@ -867,7 +884,7 @@ REGRAS DE ANÁLISE:
 
         const apiKey = IAs_CONFIG[CURRENT_IA].key;
         if (!apiKey || apiKey.includes('COLE_AQUI') || apiKey.length < 5) {
-            resBox.innerHTML = "<span style='color:#FF5252;font-weight:bold;'>⚠️ API Key não configurada. Peça ao Admin para inserir em 'Gerenciar IAs'.</span>";
+            resBox.innerHTML = "<span style='color:#FF5252;font-weight:bold;'>⚠️ API Key não configurada. Peça ao Admin para inserir em '⚙️ IAs'.</span>";
             return;
         }
 
@@ -878,7 +895,7 @@ REGRAS DE ANÁLISE:
 
         try {
             let contextoLink = '';
-            if (link) { resBox.innerHTML = "⏳ <i>Lendo anúncio...</i>"; contextoLink = await obterResumoAnuncio(link); }
+            if (link) { resBox.innerHTML = "⏳ <i>Lendo site do anúncio para extrair dados...</i>"; contextoLink = await obterResumoAnuncio(link); }
 
             const prompt = await montarPromptIA(link, contextoLink, descManual);
             let aiResult;
@@ -901,7 +918,7 @@ REGRAS DE ANÁLISE:
         if (!query || query.length < 3) return alert('Por favor, digite as características de um produto na barra de pesquisa para a IA analisar.');
 
         if (!IAs_CONFIG['v1']?.operante || !IAs_CONFIG['v1']?.key) {
-            return alert('A IA Principal (V1) precisa estar operante e configurada pelo Admin para fazer análise na barra.');
+            return alert('A IA Principal (IA 1) precisa estar operante e configurada pelo Admin para fazer análise na barra rápida.');
         }
 
         document.getElementById('modal-ia-busca').classList.add('active');
@@ -1025,9 +1042,13 @@ Retorne APENAS um JSON válido:
         const min = Number(aiResult.preco_min || 0); const max = Number(aiResult.preco_max || 0); const centro = (min + max) / 2;
 
         let matches = [];
+        let seenIds = new Set(); // IGNORA IDs REPETIDAS EM DIFERENTES BANCOS
+
         BANCO_GLOBAL.forEach(item => {
             const idClean = String(item.ID || '').toLowerCase().trim().replace(/[.#$\[\]]/g, '_');
+            
             if (ITENS_ENCONTRADOS.has(idClean)) return;
+            if (seenIds.has(idClean)) return; // Se já calculou pra esse ID, pula (Traz apenas a versão mais forte)
 
             const desc      = removerAcentos(item.Descricao || '').toLowerCase();
             const idTxt     = removerAcentos(item.ID || '').toLowerCase();
@@ -1043,11 +1064,13 @@ Retorne APENAS um JSON válido:
 
             let tokensMatch = 0;
             termosDoNome.forEach(token => { if (textoItem.includes(token)) tokensMatch++; });
+            
+            // PRIORIDADE MÁXIMA PARA O TEXTO
             if (termosDoNome.length > 0) {
                 const ratio = tokensMatch / termosDoNome.length;
-                if (ratio === 1.0)      { score += 80; motivos.push('Nome Exato'); }
-                else if (ratio >= 0.75) { score += 55; motivos.push('Nome Forte'); }
-                else if (ratio >= 0.5)  { score += 35; motivos.push('Palavras Base'); }
+                if (ratio === 1.0)      { score += 150; motivos.push('Nome Exato'); }
+                else if (ratio >= 0.75) { score += 80; motivos.push('Nome Forte'); }
+                else if (ratio >= 0.5)  { score += 40; motivos.push('Palavras Base'); }
                 else if (ratio >= 0.25) { score += 15; }
             }
 
@@ -1055,12 +1078,16 @@ Retorne APENAS um JSON válido:
             if (cor && cor !== 'indefinida' && desc.includes(cor)) { score += 15; motivos.push('Cor'); }
             termosExpandidos.forEach(t => { if (t.length >= 3 && textoItem.includes(t) && !termosDoNome.includes(t)) score += 5; });
 
+            // PONTUAÇÃO DE PREÇO SECUNDÁRIA
             if (valorNum > 0 && centro > 0) {
-                if (min > 0 && max > 0 && valorNum >= min * 0.7 && valorNum <= max * 1.3) { score += 25; motivos.push('Preço Identico'); } 
-                else if (Math.abs(valorNum - centro) / Math.max(centro, 1) < 0.5) { score += 10; motivos.push('Preço Próximo'); }
+                if (min > 0 && max > 0 && valorNum >= min * 0.7 && valorNum <= max * 1.3) { score += 25; motivos.push('Preço Perfeito'); } 
+                else if (Math.abs(valorNum - centro) / Math.max(centro, 1) < 0.5) { score += 5; motivos.push('Faixa de Preço'); }
             }
 
-            if (score >= 25) matches.push({ ...item, aiScore: score, aiMotivos: motivos });
+            if (score >= 25) {
+                matches.push({ ...item, aiScore: score, aiMotivos: motivos });
+                seenIds.add(idClean); // Marca ID como processado
+            }
         });
 
         matches.sort((a,b) => b.aiScore - a.aiScore);
@@ -1077,14 +1104,14 @@ Retorne APENAS um JSON válido:
                 <b>💰 Valor estimado:</b> R$ ${Number(aiResult.preco_min||0).toLocaleString('pt-BR',{minimumFractionDigits:2})} até R$ ${Number(aiResult.preco_max||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}<br>
                 <b>🔑 Palavras de Busca:</b> ${escapeHtml((termosDoNome||[]).join(', ')||'-')}
             </div>
-            <div style="font-weight:900; font-size:0.85rem; color:var(--text-title); text-transform:uppercase; margin-bottom:6px;">🏆 Melhores correspondências na Base:</div>
+            <div style="font-weight:900; font-size:0.85rem; color:var(--text-title); text-transform:uppercase; margin-bottom:6px;">🏆 Melhores correspondências únicas:</div>
         `;
 
         if (topMatches.length === 0) {
             html += `<div class="ia-match-card" style="text-align:center; color:var(--accent-warn); padding:20px;">😔 Nenhuma correspondência razoável encontrada.</div>`;
         } else {
             topMatches.forEach(m => {
-                const pct = Math.min(99, Math.round((m.aiScore / 130) * 100));
+                const pct = Math.min(99, Math.round((m.aiScore / 180) * 100)); // Relativo ao score máximo de 150+30
                 const corBadge = pct >= 70 ? '#059669' : pct >= 45 ? '#d97706' : '#6b7280';
                 const [origemNome, origemClass] = getClassOrigem(m.OrigemDb);
                 const vFmt = Number(m.ValorNum||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
