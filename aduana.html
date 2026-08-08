@@ -648,7 +648,7 @@
                 let rota = rotaKey ? r[rotaKey].split('|')[0].trim() : '-';
                 let transp = transpKey && r[transpKey] ? (r[transpKey].length > 15 ? r[transpKey].substring(0,15)+'...' : r[transpKey]) : '-';
                 let repRaw = repKey && r[repKey] ? r[repKey] : '-';
-                let rep = repRaw.split('\n')[0].split(' ').slice(0,2).join(' '); // Apenas 2 nomes para caber
+                let rep = repRaw.split('\n')[0].split(' ').slice(0,2).join(' ');
                 let c = parseInt(cKey ? r[cKey] : 0)||0;
                 let a = parseInt(aKey ? r[aKey] : 0)||0;
                 let f = parseInt(fKey ? r[fKey] : 0)||0;
@@ -724,14 +724,14 @@
                 colors: ['var(--bar-yellow)', '#E74C3C', '#4A90E2'],
                 plotOptions: { bar: { horizontal: false, columnWidth: '60%', dataLabels: {position: 'top'} } },
                 dataLabels: { enabled: true, offsetY: -25, style: { fontSize: '11px', colors: [textColor] }, dropShadow: {enabled:false} },
-                xaxis: { type: 'category', categories: ciclos, labels: { style: { colors: textColor, fontWeight: 900, fontSize: '11px' } } },
+                xaxis: { categories: ciclos, labels: { style: { colors: textColor, fontWeight: 900, fontSize: '11px' } } },
                 yaxis: { labels: { style: { colors: textColor } } },
                 legend: { position: 'top', labels: { colors: textColor }, itemMargin: {horizontal: 5, vertical: 0} },
-                grid: { padding: { top: 30 }, borderColor: gridColor, strokeDashArray: 3 }
+                grid: { padding: { top: 30, bottom: 10 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.ciclo.render();
 
-            // 2. TOTAL PERFIL x CICLO (Força max e dados literais)
+            // 2. TOTAL PERFIL x CICLO
             let pcCiclos = Object.keys(mapPerfilCiclo);
             let dsVol = pcCiclos.map(c => ({x: c, y: mapPerfilCiclo[c].VOLUMOSO}));
             let dsEst = pcCiclos.map(c => ({x: c, y: mapPerfilCiclo[c].ESTEIRA}));
@@ -744,18 +744,18 @@
                 dataLabels: { enabled: true, textAnchor: 'start', offsetX: 10, style: { fontSize: '11px', colors: [textColor] }, dropShadow: {enabled:false} },
                 xaxis: { 
                     labels: { style: { colors: textColor, fontSize: '10px' } },
-                    max: function(val) { return val * 1.25; } // Multiplicador para nunca cortar a borda
+                    max: function(val) { return val * 1.25; } 
                 },
                 yaxis: { type: 'category', labels: { style: { colors: textColor, fontWeight: 900, fontSize: '11px' } } },
                 legend: { position: 'top', labels: { colors: textColor }, markers: { radius: 0 } },
-                grid: { padding: { right: 35 }, borderColor: gridColor, strokeDashArray: 3 }
+                grid: { padding: { top: 35, right: 35 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.perfil.render();
 
             // 3. REPS (Top 6)
             let arrReps = Object.keys(mapReps).map(r => ({rep: r, v: mapReps[r]})).sort((a,b) => b.v - a.v).slice(0,6);
             let dsReps = arrReps.map(x => ({
-                x: x.rep.split(' ').slice(0,2).join('\n'), // Quebra de linha para não esmagar
+                x: x.rep.split(' ').slice(0,2).join('\n'),
                 y: x.v
             }));
 
@@ -791,7 +791,7 @@
                 },
                 yaxis: { type: 'category', labels: { style: { colors: textColor, fontWeight: 800, fontSize:'10px' } } },
                 legend: { position: 'top', labels: { colors: textColor }, markers: { radius: 0 } },
-                grid: { borderColor: gridColor, strokeDashArray: 3 }
+                grid: { padding: { top: 35 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.transp.render();
         }
@@ -799,15 +799,21 @@
         // --- EXPORTAÇÃO ---
         function baixarImagem() {
             document.body.classList.add('exporting');
+            
+            // Força o gatilho de redimensionamento pra não piscar errado
+            window.dispatchEvent(new Event('resize'));
+            
             setTimeout(() => {
                 const bgCor = document.body.getAttribute('data-theme') === 'light' ? '#ffffff' : '#0f172a';
                 html2canvas(document.body, { scale: 2, backgroundColor: bgCor }).then(canvas => {
                     document.body.classList.remove('exporting');
+                    window.dispatchEvent(new Event('resize')); // Volta ao normal
+                    
                     const link = document.createElement('a');
                     link.download = `Aduanas_Resumo_${formatarDataHoje().replace(/\//g,'-')}.png`;
                     link.href = canvas.toDataURL('image/png'); link.click();
                 });
-            }, 200);
+            }, 800); // 800ms garante que as animações dos gráficos pararam completamente
         }
     </script>
 </body>
