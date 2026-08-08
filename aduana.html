@@ -45,7 +45,6 @@
             --text-on-yellow: #2D3277;
         }
 
-        /* PERMITE ROLAGEM GERAL DA PÁGINA PARA OS GRÁFICOS NÃO FICAREM ESPREMIDOS */
         html, body { width: 100%; min-height: 100vh; background: transparent !important; }
         body { padding: 10px; display: flex; flex-direction: column; gap: 10px; overflow-x: hidden; overflow-y: auto; font-family: 'Inter', sans-serif; font-size: 0.95rem; }
 
@@ -68,7 +67,7 @@
 
         /* KPI BAR */
         .kpi-container { text-align: center; margin-top: 5px; position: relative;}
-        .kpi-row { display: inline-flex; gap: 15px; background: var(--brand-yellow); padding: 12px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .kpi-row { display: inline-flex; gap: 15px; background: var(--bar-yellow); padding: 12px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         
         .kpi-box { padding: 10px 20px; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; min-width: 120px; text-shadow: 0 1px 2px rgba(0,0,0,0.2); box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1); }
         .kpi-box.black { background-color: #000000; border: 2px solid #333; }
@@ -81,8 +80,9 @@
         .kpi-value { font-size: 2.2rem; font-weight: 900; line-height: 1;}
 
         /* LAYOUT GERAL (GRÁFICOS) */
-        .dashboard-grid { display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 15px; flex: 1; margin-top: 10px;}
-        .chart-card { display: flex; flex-direction: column; border-radius: 8px; overflow: hidden; min-height: 330px; } /* Min-height destrava o aperto dos gráficos */
+        /* Reduzimos a proporção dos dois primeiros gráficos e aumentamos a área da tabela (1.4fr) */
+        .dashboard-grid { display: grid; grid-template-columns: 0.85fr 1.05fr 1.4fr; gap: 10px; flex: 1; margin-top: 10px;}
+        .chart-card { display: flex; flex-direction: column; border-radius: 8px; overflow: hidden; min-height: 300px; } 
         
         .chart-title { background: var(--brand-yellow); color: var(--text-on-yellow); padding: 8px 10px; font-size: 0.85rem; font-weight: 900; text-transform: uppercase; text-align: center; letter-spacing: 0.5px; margin: 0; border-bottom: 1px solid var(--border-card);}
         .chart-wrapper { flex: 1; min-height: 0; width: 100%; position: relative; padding: 10px; box-sizing: border-box; overflow: hidden;}
@@ -96,10 +96,10 @@
         .perfil-table .highlight-bg { background: var(--brand-yellow); color: var(--text-on-yellow); font-weight: 900; border-radius: 4px; }
 
         /* TABELA INFERIOR (DETALHES) */
-        .data-table-wrapper { flex: 1; overflow-y: auto; overflow-x: auto; background: var(--bg-card); max-height: 300px; }
-        table.data-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; text-align: center; }
+        .data-table-wrapper { flex: 1; overflow-y: auto; overflow-x: hidden; background: var(--bg-card); max-height: 310px; }
+        table.data-table { width: 100%; border-collapse: collapse; font-size: 0.72rem; text-align: center; }
         .data-table thead { background: var(--brand-yellow); color: var(--text-on-yellow); position: sticky; top: 0; z-index: 1; font-weight: 900; text-transform: uppercase;}
-        .data-table th, .data-table td { padding: 8px 10px; border-bottom: 1px solid var(--border-card); color: var(--text-main); white-space: nowrap; }
+        .data-table th, .data-table td { padding: 6px 4px; border-bottom: 1px solid var(--border-card); color: var(--text-main); white-space: nowrap; }
         .data-table tbody tr:hover { background-color: rgba(255, 241, 89, 0.15); }
         
         .data-table .col-correta { color: var(--text-main); font-weight: 600; }
@@ -228,8 +228,8 @@
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>ROTA</th><th>TRANSPORTADORA...</th><th>REP'S</th>
-                            <th>CORRETAS</th><th>A MAIS ❷</th><th>FALTA... ❶</th>
+                            <th>ROTA</th><th>TRANSP.</th><th>REP'S</th>
+                            <th>CORR.</th><th>A MAIS</th><th>FALTA</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-rotas">
@@ -368,7 +368,6 @@
             let datesSet = new Set([...Object.keys(globalDbResumo), ...Object.keys(globalDbPacotes)]);
             let dates = Array.from(datesSet).map(k => k.replace(/-/g, '/'));
             
-            // ORDENAÇÃO CRONOLÓGICA (Mais Atual para o Mais Antigo)
             dates.sort((a, b) => {
                 let pa = a.split('/'); let pb = b.split('/');
                 return new Date(pb[2], pb[1]-1, pb[0]) - new Date(pa[2], pa[1]-1, pa[0]);
@@ -445,7 +444,7 @@
             if(target) {
                 dSel.value = dataHoje;
             } else if (dSel.options.length > 1) {
-                dSel.value = dSel.options[1].value; // Puxa o dia mais recente da lista
+                dSel.value = dSel.options[1].value;
             }
             applyFilter('day');
         }
@@ -602,7 +601,6 @@
                     }
                 }
 
-                // Rastreador infalível de Ciclo
                 let cicloKey = Object.keys(r).find(k => k.toLowerCase().includes('ciclo'));
                 let ciclo = cicloKey && r[cicloKey] ? r[cicloKey].toString().trim().replace(/[^A-Za-z0-9]/g, '') : '';
                 if(ciclo) {
@@ -647,9 +645,13 @@
                 let fKey = Object.keys(r).find(k => k.toLowerCase().includes('faltantes'));
 
                 let rota = rotaKey ? r[rotaKey].split('|')[0].trim() : '-';
-                let transp = transpKey ? r[transpKey] : '-';
+                
+                let transpRaw = transpKey ? r[transpKey] : '-';
+                let transp = transpRaw.length > 15 ? transpRaw.substring(0, 15) + '...' : transpRaw; // Encurtando para caber na tabela
+                
                 let repRaw = repKey && r[repKey] ? r[repKey] : '-';
-                let rep = repRaw.split('\n')[0].split(' ').slice(0,3).join(' ');
+                let rep = repRaw.split('\n')[0].split(' ').slice(0,2).join(' '); // Apenas 2 nomes
+                
                 let c = parseInt(cKey ? r[cKey] : 0)||0;
                 let a = parseInt(aKey ? r[aKey] : 0)||0;
                 let f = parseInt(fKey ? r[fKey] : 0)||0;
@@ -660,7 +662,7 @@
                 tbR += `<tr>
                     <td style="font-weight:800; border-right: 1px solid var(--border-card);">${rota}</td>
                     <td>${transp}</td>
-                    <td style="font-size:0.75rem; color:var(--text-muted);">${rep}</td>
+                    <td style="font-size:0.7rem; color:var(--text-muted);">${rep}</td>
                     <td class="col-correta" style="border-left: 1px solid var(--border-card);">${c}</td>
                     <td class="${bgAmais}">${a}</td>
                     <td class="${bgFalta}">${f}</td>
@@ -713,11 +715,11 @@
             
             Object.keys(chartInstances).forEach(k => { if(chartInstances[k]) chartInstances[k].destroy(); });
 
-            // 1. TOTAL x CICLO (Cores Corrigidas e Ajuste de Eixo)
+            // 1. TOTAL x CICLO
             let ciclos = Object.keys(mapCiclo);
-            let srAd = ciclos.map(c => mapCiclo[c].aduanas);
-            let srF = ciclos.map(c => mapCiclo[c].f);
-            let srA = ciclos.map(c => mapCiclo[c].a);
+            let srAd = ciclos.map(c => ({x: c, y: mapCiclo[c].aduanas}));
+            let srF = ciclos.map(c => ({x: c, y: mapCiclo[c].f}));
+            let srA = ciclos.map(c => ({x: c, y: mapCiclo[c].a}));
             
             chartInstances.ciclo = new ApexCharts(document.querySelector("#chart-ciclo"), {
                 series: [{name: 'Aduanas', data: srAd}, {name: 'Faltantes', data: srF}, {name: 'A mais', data: srA}],
@@ -725,63 +727,63 @@
                 colors: ['var(--bar-yellow)', '#E74C3C', '#4A90E2'],
                 plotOptions: { bar: { horizontal: false, columnWidth: '60%', dataLabels: {position: 'top'} } },
                 dataLabels: { enabled: true, offsetY: -25, style: { fontSize: '11px', colors: [textColor] }, dropShadow: {enabled:false} },
-                xaxis: { categories: ciclos, labels: { style: { colors: textColor, fontWeight: 900, fontSize: '11px' } } },
+                xaxis: { labels: { style: { colors: textColor, fontWeight: 900, fontSize: '11px' } } },
                 yaxis: { labels: { style: { colors: textColor } } },
                 legend: { position: 'top', labels: { colors: textColor }, itemMargin: {horizontal: 5, vertical: 0} },
                 grid: { padding: { top: 30 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.ciclo.render();
 
-            // 2. TOTAL PERFIL x CICLO (Cores Corrigidas, Valores na Frente da Vela e Nomes no Eixo Y)
+            // 2. TOTAL PERFIL x CICLO (Solução de dados x/y para forçar os nomes no eixo)
             let pcCiclos = Object.keys(mapPerfilCiclo);
-            let srVol = pcCiclos.map(c => mapPerfilCiclo[c].VOLUMOSO);
-            let srEst = pcCiclos.map(c => mapPerfilCiclo[c].ESTEIRA);
+            let dsVol = pcCiclos.map(c => ({x: c, y: mapPerfilCiclo[c].VOLUMOSO}));
+            let dsEst = pcCiclos.map(c => ({x: c, y: mapPerfilCiclo[c].ESTEIRA}));
             
             chartInstances.perfil = new ApexCharts(document.querySelector("#chart-perfil-ciclo"), {
-                series: [{name: 'VOLUMOSO', data: srVol}, {name: 'ESTEIRA', data: srEst}],
+                series: [{name: 'VOLUMOSO', data: dsVol}, {name: 'ESTEIRA', data: dsEst}],
                 chart: { type: 'bar', height: '100%', stacked: false, background: 'transparent', toolbar: {show:false} },
                 colors: ['var(--bar-yellow)', '#000000'],
                 plotOptions: { bar: { horizontal: true, dataLabels: {position: 'top'} } },
                 dataLabels: { enabled: true, textAnchor: 'start', offsetX: 10, style: { fontSize: '12px', colors: [textColor] }, dropShadow: {enabled:false} },
                 xaxis: { labels: { style: { colors: textColor, fontSize: '10px' } } },
-                yaxis: { categories: pcCiclos, labels: { style: { colors: textColor, fontWeight: 900, fontSize: '11px' } } },
+                yaxis: { labels: { style: { colors: textColor, fontWeight: 900, fontSize: '11px' } } },
                 legend: { position: 'top', labels: { colors: textColor }, markers: { radius: 0 } },
                 grid: { padding: { right: 35 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.perfil.render();
 
-            // 3. REPS (Top 6) (Cores Corrigidas, Valores na Frente da Vela e Nomes no Eixo Y)
+            // 3. REPS (Top 6)
             let arrReps = Object.keys(mapReps).map(r => ({rep: r, v: mapReps[r]})).sort((a,b) => b.v - a.v).slice(0,6);
-            
-            let repCategories = arrReps.map(x => {
-                let parts = x.rep.split(' ');
-                if(parts.length > 2) return [parts.slice(0,2).join(' '), parts.slice(2,4).join(' ')];
-                return x.rep;
-            });
+            let dsReps = arrReps.map(x => ({
+                x: x.rep.split(' ').slice(0,2).join(' '), // Encurta nome para não esmagar a barra
+                y: x.v
+            }));
 
             chartInstances.reps = new ApexCharts(document.querySelector("#chart-reps"), {
-                series: [{name: 'Rota', data: arrReps.map(x=>x.v)}],
+                series: [{name: 'Rota', data: dsReps}],
                 chart: { type: 'bar', height: '100%', background: 'transparent', toolbar: {show:false} },
                 colors: ['var(--bar-yellow)'],
                 plotOptions: { bar: { horizontal: true, dataLabels: {position: 'top'} } },
                 dataLabels: { enabled: true, textAnchor: 'start', offsetX: 10, style: { fontSize: '11px', colors: [textColor] }, dropShadow: {enabled:false} },
                 xaxis: { labels: { style: { colors: textColor, fontSize: '10px' } } },
-                yaxis: { categories: repCategories, labels: { style: { colors: textColor, fontWeight: 800, fontSize:'10px' } } },
+                yaxis: { labels: { style: { colors: textColor, fontWeight: 800, fontSize:'10px' } } },
                 grid: { padding: { right: 35 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.reps.render();
 
-            // 4. TRANSPORTADORAS (Top 6) (Valores na Frente e Nomes no Eixo Y)
+            // 4. TRANSPORTADORAS (Top 6)
             let arrT = Object.keys(mapTransp).map(t => ({t:t, f:mapTransp[t].f, a:mapTransp[t].a})).sort((a,b) => (b.f+b.a) - (a.f+a.a)).slice(0,6);
-            
+            let dsTFalt = arrT.map(x => ({x: x.t.length > 15 ? x.t.substring(0,15)+'...' : x.t, y: x.f}));
+            let dsTAmais = arrT.map(x => ({x: x.t.length > 15 ? x.t.substring(0,15)+'...' : x.t, y: x.a}));
+
             chartInstances.transp = new ApexCharts(document.querySelector("#chart-transp"), {
-                series: [{name: 'Faltantes', data: arrT.map(x=>x.f)}, {name: 'A mais', data: arrT.map(x=>x.a)}],
+                series: [{name: 'Faltantes', data: dsTFalt}, {name: 'A mais', data: dsTAmais}],
                 chart: { type: 'bar', height: '100%', stacked: true, background: 'transparent', toolbar: {show:false} },
                 colors: ['#E74C3C', '#4A90E2'],
                 plotOptions: { bar: { horizontal: true } },
                 dataLabels: { enabled: true, style: { fontSize: '11px', colors: ['#fff'] }, dropShadow: {enabled:false} },
                 xaxis: { labels: { style: { colors: textColor, fontSize: '10px' } } },
-                yaxis: { categories: arrT.map(x=>x.t.slice(0,20)), labels: { style: { colors: textColor, fontWeight: 800, fontSize:'10px' } } },
+                yaxis: { labels: { style: { colors: textColor, fontWeight: 800, fontSize:'10px' } } },
                 legend: { position: 'top', labels: { colors: textColor }, markers: { radius: 0 } },
                 grid: { borderColor: gridColor, strokeDashArray: 3 }
             });
