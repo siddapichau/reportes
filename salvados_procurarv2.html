@@ -260,7 +260,6 @@
                 <div id="freeze-status" style="font-size:0.7rem; color:var(--text-muted); margin-top:3px;">❄️ Descongelado</div>
             </div>
 
-            <!-- TRAVA DE CLIQUE ABSOLUTO APLICADA AQUI -->
             <div class="ia-input-group">
                 <label>Foto da Bancada (Opcional)</label>
                 <div style="position:relative; width:100%; border:1px dashed var(--border-card); border-radius:8px; text-align:center; overflow:hidden;">
@@ -315,12 +314,13 @@
 
     // ============================================================
     //  CHAVES DE API E ESTADOS DA IA (CARREGADOS DO FIREBASE)
+    //  (Possui Chaves Padrão Funcionais, caso o DB esteja vazio)
     // ============================================================
     let IAs_CONFIG = {
-        v1: { nome: "IA 1 (Groq Llama 3 - Vision)", key: "", operante: false, cor: "#059669" },
-        v2: { nome: "IA 2 (Mistral AI)", key: "", operante: false, cor: "#4d6bfe" },
-        v3: { nome: "IA 3 (Google Gemini 2.0)", key: "", operante: false, cor: "var(--accent-blue)" },
-        v4: { nome: "IA 4 (OpenRouter Free Models)", key: "", operante: false, cor: "#8b5cf6" }
+        v1: { nome: "IA 1 (Groq Llama 3 - Vision)", key: "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", operante: true, cor: "#059669" },
+        v2: { nome: "IA 2 (Mistral AI)", key: "1pxcwS6ieGLWyfUszWR3fGWX9cjKpxHA", operante: true, cor: "#4d6bfe" },
+        v3: { nome: "IA 3 (Google Gemini 2.0)", key: "AQ.Ab8RN6LU7T9EcRTqRVhNOuQvuJ-K1XhVYEgF0h4AIgVaLAnn-g", operante: true, cor: "var(--accent-blue)" },
+        v4: { nome: "IA 4 (OpenRouter Free Models)", key: "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", operante: true, cor: "#8b5cf6" }
     };
 
     // ============================================================
@@ -328,6 +328,7 @@
     // ============================================================
     let CURRENT_IA = 'v1';
     let BANCO_GLOBAL = [];
+    let BANCO_AGRUPADO = [];
     let DADOS_EXATOS = [];
     let DADOS_APROXIMADOS = [];
     let ITENS_ENCONTRADOS = new Set();
@@ -391,10 +392,10 @@
             const res = await fetch(`${FIREBASE_URL}salvados_api_keys.json`);
             const data = await res.json();
             if(data) {
-                // Mescla os dados da nuvem mantendo nomes originais se vazio
+                // Sobrescreve apenas se o Admin salvou no banco
                 Object.keys(IAs_CONFIG).forEach(id => {
-                    if(data[id]) {
-                        IAs_CONFIG[id].key = data[id].key || "";
+                    if(data[id] && data[id].key) {
+                        IAs_CONFIG[id].key = data[id].key;
                         IAs_CONFIG[id].operante = data[id].operante === true;
                     }
                 });
@@ -547,18 +548,24 @@
             
             try {
                 const rawData = await lerArquivoCSV(file);
-                const dadosLimpos = rawData.map(row => {
+                
+                // Processamento Otimizado para Planilhas Gigantes
+                const dadosLimpos = [];
+                for (const row of rawData) {
+                    const id = extrairID(row);
+                    if (!id || id.toLowerCase() === 'nan' || id.toLowerCase() === 'undefined') continue;
+                    
                     const valText = getVal(row, ['valor_real','valor_brl','valor','preco','preço','price','total','vl']);
-                    return { 
-                        ID: extrairID(row), 
+                    dadosLimpos.push({ 
+                        ID: id, 
                         Descricao: getVal(row, ['descricao','descrição','descricao_do_produto','descricao do produto','produto','item','title','titulo','nome']), 
                         Status: getVal(row, ['shp_lg_status','status_logistics','status','staus','status do pacote','estado','situacao','situação']), 
                         Substatus: getVal(row, ['shp_lg_sub_status','substatus_logistics','substatus','sub status','sub-status','ultimo status','resolucao','resolução','motivo','detalhe','final analise']), 
                         Valor: valText, 
                         ValorNum: parseCurrency(valText), 
                         Aging: getVal(row, ['aging','dias estocados','parados','dias parados','dias','age']) 
-                    };
-                }).filter(i => i.ID && !['nan','undefined'].includes(i.ID.toLowerCase()));
+                    });
+                }
 
                 if (!dadosLimpos.length) {
                     statusArea.innerHTML += `<span style="color:#e11d48;">❌ Vazio/Inválido: ${file.name}</span><br>`;
@@ -576,7 +583,7 @@
 
         if (atualizados > 0) {
             await registrarLogFirebase("Buscador Global", `Fez Smart Upload de ${atualizados} planilhas.`);
-            carregarTodosBancos(); // Atualiza sem piscar a tela agressivamente
+            await carregarTodosBancos(); // Atualiza sem piscar a tela agressivamente
             setTimeout(() => { modalStatus.classList.remove('active'); statusArea.innerHTML = ''; inputElement.value = ''; }, 3000);
         } else {
             setTimeout(() => { modalStatus.classList.remove('active'); statusArea.innerHTML = ''; inputElement.value = ''; }, 3000);
@@ -584,7 +591,7 @@
     }
 
     // ============================================================
-    //  CARREGAR BANCOS (RESTAURADO PARA FUNCIONAMENTO 100%)
+    //  CARREGAR BANCOS (SEM TRAVAMENTOS EM BANCOS GIGANTES)
     // ============================================================
     async function carregarTodosBancos() {
         BANCO_GLOBAL = [];
@@ -600,14 +607,18 @@
                 
                 let lista = []; let dataAt = "Sem data";
                 if (data) {
-                    if (Array.isArray(data)) lista = data;
-                    else if (data.lista) { lista = Array.isArray(data.lista) ? data.lista : Object.values(data.lista); dataAt = data.atualizadoEm || "Sem data"; }
-                    else lista = Object.values(data);
+                    if (Array.isArray(data)) lista = data.filter(Boolean);
+                    else if (data.lista) { lista = (Array.isArray(data.lista) ? data.lista : Object.values(data.lista)).filter(Boolean); dataAt = data.atualizadoEm || "Sem data"; }
+                    else lista = Object.values(data).filter(Boolean);
                 }
                 
                 if (lista.length > 0) {
-                    BANCO_GLOBAL.push(...lista.map(i => ({ ...i, ValorNum: Number(i.ValorNum || parseCurrency(i.Valor)), OrigemDb: key })));
-                    contagens[key] = `${lista.length} u. <span class="upload-date">(${String(dataAt).split(',')[0]})</span>`;
+                    let batch = [];
+                    for(let i=0; i<lista.length; i++) {
+                        batch.push({ ...lista[i], ValorNum: Number(lista[i].ValorNum || parseCurrency(lista[i].Valor)), OrigemDb: key });
+                    }
+                    BANCO_GLOBAL = BANCO_GLOBAL.concat(batch); // Concat impede Maximum Call Stack Exceeded
+                    contagens[key] = `${lista.length} u. <span style="font-size:0.65rem;">(${String(dataAt).split(',')[0]})</span>`;
                 } else { 
                     contagens[key] = 'Vazio'; 
                 }
@@ -616,7 +627,9 @@
             }
         }
 
-        // Atualiza a tela de uma vez
+        // Agrupamento central para buscas super rápidas e unificadas (sem IDs duplicados)
+        BANCO_AGRUPADO = agruparResultados(BANCO_GLOBAL);
+
         Object.keys(contagens).forEach(key => {
             const lbl = document.getElementById(`lbl-${key}`);
             if(lbl) lbl.innerHTML = contagens[key];
@@ -641,7 +654,7 @@
             const data = await res.json();
             if (!data) return [];
             return Object.values(data).reverse().map(ex => 
-                `- Termo: "${ex.termo || 'manual'}" | Descrição: "${ex.descricao || '-'}" | Status: "${ex.status || '-'}" | Substatus: "${ex.substatus || '-'}"`
+                `- Produto Aprendido: "${ex.descricao || '-'}" | Status Relacionado: "${ex.status || '-'}" | Ação Final: "${ex.substatus || '-'}"`
             ).join('\n');
         } catch(e) { return ''; }
     }
@@ -673,8 +686,8 @@
                     <div class="ia-match-card" style="margin-bottom:8px; position:relative;">
                         <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                             <div style="flex:1;">
-                                <div style="font-weight:800; color:var(--accent-blue);">🔍 "${ex.termo || 'manual'}"</div>
-                                <div style="font-size:0.8rem; color:var(--text-main);">📦 ${ex.descricao || '-'}</div>
+                                <div style="font-weight:800; color:var(--accent-blue);">🔍 Buscou: "${ex.termo || 'manual'}"</div>
+                                <div style="font-size:0.8rem; color:var(--text-main);">📦 Item Real: ${ex.descricao || '-'}</div>
                                 <div style="font-size:0.7rem; color:var(--text-muted);">📌 Status: ${ex.status || '-'} | Sub: ${ex.substatus || '-'}</div>
                                 <div style="font-size:0.6rem; color:var(--text-muted); text-align:right;">${dataStr}</div>
                             </div>
@@ -791,7 +804,6 @@
         const url = normalizarLink(link); if (!url) return '';
         try {
             const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 12000);
-            // r.jina.ai extrai todo o texto limpo da página para cruzar marca e descrições
             const res = await fetch(`https://r.jina.ai/${encodeURI(url)}`, { signal: ctrl.signal, headers: {'Accept':'text/plain'} });
             clearTimeout(t); if (!res.ok) return '';
             return String(await res.text()).replace(/\s+/g, ' ').slice(0, 6000);
@@ -820,35 +832,32 @@
         const exemplos = await carregarExemplosAprendizado(10);
         const frozenKeywords = KEYWORDS_FROZEN ? KEYWORDS_LIST.join(', ') : 'Nenhuma';
 
-        return `Você é um sistema avançado de inteligência artificial de logística do Mercado Livre. 
-Sua missão é extrair as características exatas de um produto a partir de um link de anúncio, descrição manual ou imagem para encontrar correspondências no armazém de perdidos.
+        return `Você é o sistema avançado de IA de inteligência e logística do Mercado Livre.
+Sua missão é extrair as características exatas de um produto a partir de um link de anúncio, descrição manual ou imagem para encontrar esse produto no armazém de perdidos.
 
-DADOS FORNECIDOS PELO USUÁRIO:
-- Link do Anúncio: ${link || 'Não fornecido'}
-- Dica da URL (Slug): "${slug}"
-- DESCRIÇÃO MANUAL: "${descManual || 'Não fornecida'}"
-
-DADOS EXTRAÍDOS DO SITE/ANÚNCIO:
-${contextoLink ? contextoLink.slice(0, 6000) : 'Sem dados de link (use descrição manual)'}
-
-MEMÓRIA DE APRENDIZADO DA IA (Itens já encontrados com sucesso):
+MEMÓRIA DE APRENDIZADO (Histórico de sucesso da base):
 ${exemplos || 'Nenhuma memória recente.'}
 
-RESTRIÇÃO DE PALAVRAS-CHAVE CONGELADAS: ${frozenKeywords}
-(Se houver alguma palavra aqui, VOCÊ DEVE incluí-la no "termo_base" ou "palavras_chave" obrigatoriamente).
+RESTRIÇÃO OBRIGATÓRIA (Palavras Congeladas): ${frozenKeywords}
+(Se houver palavras acima, o produto DEVE OBRIGATORIAMENTE possuí-las. Você deve incluí-las no termo_base).
 
-TAREFA:
-Leia TODOS os dados da página do anúncio acima com muita atenção. Identifique e cruze as informações para achar a MARCA REAL, a COR PREDOMINANTE e a FAIXA DE PREÇO de venda do produto. 
-Gere 5 palavras-chave fortes que descrevam esse item fisicamente no estoque.
+DADOS DO USUÁRIO PARA ANÁLISE:
+- Link da Venda: ${link || 'Não fornecido'}
+- Título/Slug da URL: "${slug}"
+- DESCRIÇÃO MANUAL: "${descManual || 'Não fornecida'}"
+- DADOS DA PÁGINA: ${contextoLink ? contextoLink.slice(0, 5000) : 'Nenhum'}
 
-Retorne APENAS um JSON válido no formato abaixo, sem nenhum texto adicional:
+COMO AGIR:
+1. Cruze e analise todos os dados para descobrir Nome, Modelo Exato, Marca, Cor e Faixa de Preço do item.
+2. Seja meticuloso. A correspondência de nome e modelo tem um peso altíssimo no nosso sistema!
+3. Retorne APENAS um JSON válido. Exemplo de saída:
 {
-  "termo_base": "Nome do produto limpo, direto e modelo exato",
-  "cor": "Cor principal ou indefinida se não tiver certeza",
+  "termo_base": "Nome e Modelo Exatos e diretos",
+  "cor": "Cor principal ou indefinida",
   "marca": "Marca identificada ou generica",
   "preco_min": 10.0,
   "preco_max": 50.0,
-  "palavras_chave": ["palavra1", "palavra2", "palavra3", "palavra4", "palavra5"]
+  "palavras_chave": ["p1", "p2", "p3"]
 }`;
     }
 
@@ -893,7 +902,7 @@ Retorne APENAS um JSON válido no formato abaixo, sem nenhum texto adicional:
     }
 
     // ============================================================
-    //  CHAMADAS DE API E EXECUÇÃO
+    //  CHAMADAS DE API E EXECUÇÃO DA IA (FRONT)
     // ============================================================
     async function executarBuscaIA() {
         const resBox = document.getElementById('ia-resultado');
@@ -968,7 +977,7 @@ Retorne APENAS um JSON válido:
         } catch(e) { resBox.innerHTML = `<span style='color:#FF5252;font-weight:bold;'>❌ Erro na IA: ${escapeHtml(e.message)}</span>`; }
     }
 
-    // --- Groq ---
+    // --- MOTORES DE INTELIGÊNCIA ---
     async function chamarAPI_Groq(prompt, file, semImagem, apiKey) {
         let modelToUse = "llama-3.3-70b-versatile"; let messages;
         if (file && !semImagem) {
@@ -993,7 +1002,6 @@ Retorne APENAS um JSON válido:
         }
     }
 
-    // --- Mistral ---
     async function chamarAPI_Mistral(prompt, file, apiKey) {
         let messages = [{ role: 'user', content: prompt }];
         try {
@@ -1007,7 +1015,6 @@ Retorne APENAS um JSON válido:
         } catch(e) { throw e; }
     }
 
-    // --- Gemini ---
     async function chamarAPI_Gemini(prompt, file, apiKey) {
         let headers = { 'Content-Type': 'application/json' }; let url;
         if (apiKey.startsWith('AIzaSy')) { url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`; } 
@@ -1026,7 +1033,6 @@ Retorne APENAS um JSON válido:
         } catch(e) { throw e; }
     }
 
-    // --- OpenRouter ---
     async function chamarAPI_OpenRouter(prompt, file, isFallback, apiKey) {
         let contentArray = [{ type: "text", text: prompt }];
         let modelos = ["google/gemini-2.0-flash-lite-preview-02-05:free", "meta-llama/llama-3.2-11b-vision-instruct:free", "mistralai/mistral-7b-instruct-v0.3:free"];
@@ -1050,7 +1056,7 @@ Retorne APENAS um JSON válido:
     }
 
     // ============================================================
-    //  ALGORITMO DE SCORING E VISUALIZAÇÃO DA IA
+    //  ALGORITMO DE SCORING DA IA (Texto >> Preço)
     // ============================================================
     function processarResultadoIA(aiResult, resBox, isBuscaExpress = false) {
         const termo = removerAcentos(aiResult.termo_base || '').toLowerCase();
@@ -1067,13 +1073,11 @@ Retorne APENAS um JSON válido:
         const min = Number(aiResult.preco_min || 0); const max = Number(aiResult.preco_max || 0); const centro = (min + max) / 2;
 
         let matches = [];
-        let seenIds = new Set(); // IGNORA IDs REPETIDAS EM DIFERENTES BANCOS
 
-        BANCO_GLOBAL.forEach(item => {
+        // A IA USA AGORA O BANCO AGRUPADO, ZERO CHANCES DE IDs DUPLICADOS!
+        BANCO_AGRUPADO.forEach(item => {
             const idClean = String(item.ID || '').toLowerCase().trim().replace(/[.#$\[\]]/g, '_');
-            
             if (ITENS_ENCONTRADOS.has(idClean)) return;
-            if (seenIds.has(idClean)) return; // Se já calculou pra esse ID, pula (Traz apenas a versão mais forte)
 
             const desc      = removerAcentos(item.Descricao || '').toLowerCase();
             const idTxt     = removerAcentos(item.ID || '').toLowerCase();
@@ -1090,7 +1094,7 @@ Retorne APENAS um JSON válido:
             let tokensMatch = 0;
             termosDoNome.forEach(token => { if (textoItem.includes(token)) tokensMatch++; });
             
-            // PRIORIDADE MÁXIMA PARA O TEXTO
+            // PRIORIDADE MÁXIMA PARA O NOME E DESCRIÇÃO (TEXTO VENCE O PREÇO)
             if (termosDoNome.length > 0) {
                 const ratio = tokensMatch / termosDoNome.length;
                 if (ratio === 1.0)      { score += 150; motivos.push('Nome Exato'); }
@@ -1103,15 +1107,14 @@ Retorne APENAS um JSON válido:
             if (cor && cor !== 'indefinida' && desc.includes(cor)) { score += 15; motivos.push('Cor'); }
             termosExpandidos.forEach(t => { if (t.length >= 3 && textoItem.includes(t) && !termosDoNome.includes(t)) score += 5; });
 
-            // PONTUAÇÃO DE PREÇO SECUNDÁRIA
+            // PONTUAÇÃO SECUNDÁRIA (Preço é Bônus, não filtro)
             if (valorNum > 0 && centro > 0) {
-                if (min > 0 && max > 0 && valorNum >= min * 0.7 && valorNum <= max * 1.3) { score += 25; motivos.push('Preço Perfeito'); } 
-                else if (Math.abs(valorNum - centro) / Math.max(centro, 1) < 0.5) { score += 5; motivos.push('Faixa de Preço'); }
+                if (min > 0 && max > 0 && valorNum >= min * 0.7 && valorNum <= max * 1.3) { score += 30; motivos.push('Preço Compatível'); } 
+                else if (Math.abs(valorNum - centro) / Math.max(centro, 1) < 0.5) { score += 5; }
             }
 
             if (score >= 25) {
                 matches.push({ ...item, aiScore: score, aiMotivos: motivos });
-                seenIds.add(idClean); // Marca ID como processado
             }
         });
 
@@ -1129,21 +1132,26 @@ Retorne APENAS um JSON válido:
                 <b>💰 Valor estimado:</b> R$ ${Number(aiResult.preco_min||0).toLocaleString('pt-BR',{minimumFractionDigits:2})} até R$ ${Number(aiResult.preco_max||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}<br>
                 <b>🔑 Palavras de Busca:</b> ${escapeHtml((termosDoNome||[]).join(', ')||'-')}
             </div>
-            <div style="font-weight:900; font-size:0.85rem; color:var(--text-title); text-transform:uppercase; margin-bottom:6px;">🏆 Melhores correspondências únicas:</div>
+            <div style="font-weight:900; font-size:0.85rem; color:var(--text-title); text-transform:uppercase; margin-bottom:6px;">🏆 Melhores correspondências (Sem Repetições):</div>
         `;
 
         if (topMatches.length === 0) {
             html += `<div class="ia-match-card" style="text-align:center; color:var(--accent-warn); padding:20px;">😔 Nenhuma correspondência razoável encontrada.</div>`;
         } else {
             topMatches.forEach(m => {
-                const pct = Math.min(99, Math.round((m.aiScore / 180) * 100)); // Relativo ao score máximo de 150+30
+                const pct = Math.min(99, Math.round((m.aiScore / 180) * 100));
                 const corBadge = pct >= 70 ? '#059669' : pct >= 45 ? '#d97706' : '#6b7280';
-                const [origemNome, origemClass] = getClassOrigem(m.OrigemDb);
+                
+                let badgesHTML = (m.OrigensDb || []).map(o => { 
+                    const [origemNome, origemClass] = getClassOrigem(o); 
+                    return `<span class="badge ${origemClass}">${origemNome}</span>`; 
+                }).join('');
+
                 const vFmt = Number(m.ValorNum||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
                 html += `
                     <div class="ia-match-card">
                         <div class="ia-match-header">
-                            <div class="ia-match-title">${escapeHtml(m.ID)} <span class="badge ${origemClass}">${origemNome}</span></div>
+                            <div class="ia-match-title">${escapeHtml(m.ID)} ${badgesHTML}</div>
                             <div class="ia-match-prob" style="color:${corBadge}; background:rgba(0,0,0,0.05);">🔥 ${pct}% Match</div>
                         </div>
                         <div style="font-size:0.78rem; color:var(--text-main); font-weight:600;">${escapeHtml(m.Descricao)}</div>
@@ -1166,17 +1174,19 @@ Retorne APENAS um JSON válido:
     // ============================================================
     function agruparResultados(lista) {
         const mapa = {};
-        lista.forEach(item => {
+        for(let i=0; i<lista.length; i++) {
+            const item = lista[i];
             const id = (item.ID && String(item.ID).trim()) ? String(item.ID).trim().toLowerCase() : 'SEM_ID_' + Math.random();
-            if (!mapa[id]) { mapa[id] = { ...item, OrigensDb: [item.OrigemDb] }; }
-            else {
-                if (!mapa[id].OrigensDb.includes(item.OrigemDb)) mapa[id].OrigensDb.push(item.OrigemDb);
+            if (!mapa[id]) { 
+                mapa[id] = { ...item, OrigensDb: [item.OrigemDb] }; 
+            } else {
+                if (item.OrigemDb && !mapa[id].OrigensDb.includes(item.OrigemDb)) mapa[id].OrigensDb.push(item.OrigemDb);
                 if ((item.ValorNum||0) > (mapa[id].ValorNum||0)) { mapa[id].ValorNum = item.ValorNum; mapa[id].Valor = item.Valor; }
                 if ((item.scoreTemp||0) > (mapa[id].scoreTemp||0)) mapa[id].scoreTemp = item.scoreTemp;
                 if (!mapa[id].Descricao && item.Descricao) mapa[id].Descricao = item.Descricao;
                 if (!mapa[id].Aging && item.Aging) mapa[id].Aging = item.Aging;
             }
-        });
+        }
         return Object.values(mapa);
     }
 
@@ -1198,7 +1208,9 @@ Retorne APENAS um JSON válido:
         const grupos = tokens.map(qt => { const g = [qt]; if (DICIONARIO_SINONIMOS[qt]) g.push(...DICIONARIO_SINONIMOS[qt]); return g; });
 
         const exatosBrutos = []; const aproximadosBrutos = [];
-        for (const item of BANCO_GLOBAL) {
+        
+        // USA O BANCO AGRUPADO PARA VELOCIDADE E NÃO REPETIR IDs
+        for (const item of BANCO_AGRUPADO) {
             if (!item) continue;
             const idOrig  = String(item.ID || '').toLowerCase().trim();
             const id      = removerAcentos(idOrig);
@@ -1217,8 +1229,9 @@ Retorne APENAS um JSON válido:
             }
         }
 
-        DADOS_EXATOS      = agruparResultados(exatosBrutos).sort((a,b) => (b.ValorNum||0)-(a.ValorNum||0));
-        DADOS_APROXIMADOS = agruparResultados(aproximadosBrutos).sort((a,b) => { const ds = (b.scoreTemp||0)-(a.scoreTemp||0); return ds !== 0 ? ds : (b.ValorNum||0)-(a.ValorNum||0); });
+        DADOS_EXATOS      = exatosBrutos.sort((a,b) => (b.ValorNum||0)-(a.ValorNum||0));
+        DADOS_APROXIMADOS = aproximadosBrutos.sort((a,b) => { const ds = (b.scoreTemp||0)-(a.scoreTemp||0); return ds !== 0 ? ds : (b.ValorNum||0)-(a.ValorNum||0); });
+        
         CUR_PAGE_EXATOS = 0; CUR_PAGE_APROX = 0;
         tbodyEx.innerHTML = ''; tbodyAp.innerHTML = '';
         contVazio.style.display = 'none'; secExatos.style.display = 'flex'; secAprox.style.display = 'flex';
