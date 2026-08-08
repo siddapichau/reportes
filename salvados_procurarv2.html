@@ -36,16 +36,19 @@
         .btn-ia-busca { background: #8b5cf6 !important; color: #fff !important; border: none; border-radius: 30px; padding: 0 20px; font-weight: 900; cursor: pointer; box-shadow: 0 2px 6px rgba(139, 92, 246, 0.3); transition: 0.2s; display: flex; align-items: center; gap: 6px; white-space: nowrap;}
         .btn-ia-busca:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(139, 92, 246, 0.5); }
 
-        .btn-header { background: #FFFFFF !important; color: #333333 !important; border: 1px solid #CCCCCC !important; border-radius: 6px; padding: 8px 10px; font-size: .75rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: all .2s ease; }
+        .btn-header { background: #FFFFFF !important; color: #333333 !important; border: 2px solid #CCCCCC !important; border-radius: 6px; padding: 8px 10px; font-size: .8rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); transition: all .2s ease; }
         .btn-header:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.15) !important; }
         
-        .btn-ia-ok { border-color: #059669 !important; color: #059669 !important; background: rgba(5, 150, 105, 0.1) !important;}
-        .btn-ia-ok:hover { background: #059669 !important; color: #fff !important; }
+        /* BOTÕES DE IA ESTILO IMAGEM */
+        .btn-ia-1 { border-color: #059669 !important; color: #059669 !important; }
+        .btn-ia-1:hover { background: #059669 !important; color: #fff !important; }
         
-        .btn-ia-2 { border-color: var(--accent-blue) !important; color: var(--accent-blue) !important; }
-        .btn-ia-2:hover { background: var(--accent-blue) !important; color: #fff !important; }
-        .btn-ia-3 { border-color: #f97316 !important; color: #f97316 !important; }
-        .btn-ia-3:hover { background: #f97316 !important; color: #fff !important; }
+        .btn-ia-2 { border-color: #4d6bfe !important; color: #4d6bfe !important; }
+        .btn-ia-2:hover { background: #4d6bfe !important; color: #fff !important; }
+        
+        .btn-ia-3 { border-color: var(--accent-blue) !important; color: var(--accent-blue) !important; }
+        .btn-ia-3:hover { background: var(--accent-blue) !important; color: #fff !important; }
+        
         .btn-ia-4 { border-color: #8b5cf6 !important; color: #8b5cf6 !important; }
         .btn-ia-4:hover { background: #8b5cf6 !important; color: #fff !important; }
         
@@ -89,28 +92,49 @@
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-card); padding-bottom: 10px; }
         .modal-title { font-size: 1.1rem; font-weight: 900; color: var(--text-title); text-transform: uppercase; }
         .close-modal { background: transparent; border: none; color: var(--text-main); font-size: 1.6rem; cursor: pointer; font-weight: bold; }
-        .modal-grid { display: grid; grid-template-columns: 1fr; gap: 10px; max-height: 60vh; overflow-y: auto; padding-right: 4px; }
-        .modal-upload-row { display: grid; grid-template-columns: 1.5fr 1fr; align-items: center; gap: 12px; padding: 10px 14px; background: var(--bg-body); border: 1px solid var(--border-card); border-radius: 6px; }
-        .upload-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
-        .upload-wrapper input[type=file] { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10; }
-        .upload-wrapper .btn { width: 100%; pointer-events: none; }
+        
+        .upload-area { border: 2px dashed var(--border-card); border-radius: 8px; padding: 30px; text-align: center; color: var(--text-muted); position: relative; cursor: pointer; transition: 0.3s; background: var(--bg-body); }
+        .upload-area:hover { border-color: var(--accent-blue); background: rgba(52,131,250,0.05); }
+        .upload-area input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+
+        .modal-grid { display: flex; flex-direction: column; gap: 15px; }
+        .ia-admin-row { padding: 15px; border: 1px solid var(--border-card); border-radius: 8px; background: var(--bg-body); display: flex; flex-direction: column; gap: 10px; }
         .ia-input-group { display: flex; flex-direction: column; gap: 5px; }
         .ia-input-group label { font-size: 0.8rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
-        .ia-input { background: var(--bg-body); border: 1px solid var(--border-card); color: var(--text-main); padding: 10px; border-radius: 8px; font-size: 0.9rem; outline: none; font-family: inherit;}
+        .ia-input { background: var(--bg-card); border: 1px solid var(--border-card); color: var(--text-main); padding: 10px; border-radius: 8px; font-size: 0.9rem; outline: none; font-family: inherit;}
         .ia-input:focus { border-color: var(--accent-blue); }
         .ia-box-resultado { background: rgba(0,0,0,0.02); border: 1px dashed #ccc; border-radius: 8px; padding: 15px; font-size: 0.9rem; color: var(--text-main); min-height: 100px; max-height: 350px; overflow-y: auto; }
         .ia-match-card { background: var(--bg-card); border: 1px solid var(--border-card); padding: 10px; border-radius: 6px; margin-top: 10px; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .ia-match-header { display: flex; justify-content: space-between; align-items: center; }
         .ia-match-title { font-weight: 800; color: var(--text-title); font-size: 0.85rem; }
         .ia-match-prob { color: #059669; font-weight: 900; font-size: 0.8rem; background: rgba(5,150,105,0.1); padding: 2px 6px; border-radius: 12px; }
-        .ia-info-badge { font-size: 0.72rem; padding: 4px 10px; border-radius: 20px; font-weight: 800; display: inline-block; margin-bottom: 2px; }
-        .ia-info-ok { background: rgba(5, 150, 105, 0.12); color: #059669; border: 1px solid rgba(5, 150, 105, 0.25); }
-        .ia-info-v2 { background: rgba(52,131,250,0.12); color: var(--accent-blue); border: 1px solid rgba(52,131,250,0.25); }
-        .ia-info-v3 { background: rgba(249,115,22,0.12); color: #f97316; border: 1px solid rgba(249,115,22,0.25); }
-        .ia-info-v4 { background: rgba(139,92,246,0.12); color: #8b5cf6; border: 1px solid rgba(139,92,246,0.25); }
+        
+        /* Toggle Switch para IAs */
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #059669; }
+        input:checked + .slider:before { transform: translateX(20px); }
+
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg-body); }
         ::-webkit-scrollbar-thumb { background: var(--border-card); border-radius: 3px; }
+
+        @media (max-width: 768px) {
+            .top-navbar { grid-template-columns: 1fr; gap: 8px; padding: 10px; }
+            .nav-center { flex-direction: column; align-items: stretch; gap: 6px; }
+            .nav-title { font-size: 1rem; text-align: center; white-space: normal; }
+            .search-wrapper { width: 100%; }
+            .nav-right { justify-content: center; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+            .nav-right .btn-header { font-size: 0.65rem; padding: 6px 8px; }
+            .modal-content { width: 95%; padding: 15px; }
+            .btn-ia-busca { font-size: 0.8rem; padding: 8px 12px; }
+            .search-input { font-size: 0.85rem; padding: 8px 14px; }
+            table { font-size: 0.7rem; min-width: 800px; }
+            th, td { padding: 6px 6px; }
+            .col-id { font-size: 0.7rem; }
+        }
     </style>
 </head>
 
@@ -127,11 +151,14 @@
             </div>
         </div>
         <div class="nav-right" style="display:flex; gap:4px; flex-wrap:wrap; justify-content:flex-end;">
-            <button class="btn-header btn-ia-ok" onclick="abrirModalIA('ok')" title="A Inteligência Oficial Perfeita">✅ OK (Oficial)</button>
-            <button class="btn-header btn-ia-2" onclick="abrirModalIA('v2')" title="Google Gemini">🤖 IA 2</button>
-            <button class="btn-header btn-ia-3" onclick="abrirModalIA('v3')" title="Hugging Face">🤖 IA 3</button>
-            <button class="btn-header btn-ia-4" onclick="abrirModalIA('v4')" title="OpenRouter Free">🤖 IA 4</button>
-            <button class="btn-header" id="btn-gerenciar" onclick="abrirModalGerenciador()" style="display:none; margin-left:10px;">📂 CSVs</button>
+            <button class="btn-header btn-ia-1" id="btn-ia-v1" onclick="abrirModalIA('v1')">🤖 IA 1</button>
+            <button class="btn-header btn-ia-2" id="btn-ia-v2" onclick="abrirModalIA('v2')">🤖 IA 2</button>
+            <button class="btn-header btn-ia-3" id="btn-ia-v3" onclick="abrirModalIA('v3')">🤖 IA 3</button>
+            <button class="btn-header btn-ia-4" id="btn-ia-v4" onclick="abrirModalIA('v4')">🤖 IA 4</button>
+            
+            <button class="btn-header" style="border-color:#ccc;" id="btn-memoria" onclick="abrirModalMemoria()" title="Ver aprendizado da IA">🧠 Memória</button>
+            <button class="btn-header" style="border-color:#ccc;" id="btn-gerenciar" onclick="abrirModalGerenciador()" style="display:none; margin-left:10px;">📂 CSVs</button>
+            <button class="btn-header" id="btn-gerenciar-ia" onclick="abrirModalGerenciarIA()" style="display:none; margin-left:10px; background:#8b5cf6; color:#fff; border:none;">⚙️ IAs</button>
         </div>
     </div>
 
@@ -143,13 +170,14 @@
         <div class="status-pill"><span class="pill-dot" style="background:#7c3aed"></span>Q OnHub: <span id="lbl-qonhub">Carregando...</span></div>
         <div class="status-pill"><span class="pill-dot" style="background:#c026d3"></span>Pendências CFTV: <span id="lbl-cftv">Carregando...</span></div>
         <div class="status-pill"><span class="pill-dot" style="background:#d97706"></span>Parado Percurso: <span id="lbl-parado">Carregando...</span></div>
+        <div class="status-pill"><span class="pill-dot" style="background:#8b5cf6"></span>🧠 Memória: <span id="lbl-memoria">0</span></div>
     </div>
 
     <div class="resultados-container" id="resultados-container">
         <div class="table-wrapper glass-panel" id="container-vazio">
             <table>
                 <thead><tr><th style="width:18%;">Ação / ID / Rastreio</th><th style="width:18%;">Base(s) & Tempo</th><th style="width:28%;">Descrição do Item</th><th style="width:11%;">Status</th><th style="width:14%;">Substatus / Resolução</th><th style="width:11%;">Valor</th></tr></thead>
-                <tbody id="tbody-vazio"><tr><td colspan="6" class="center" style="padding:35px; color:var(--text-muted); font-weight:600;">Digite os termos acima para cruzar dados nas bases.</td></tr></tbody>
+                <tbody id="tbody-vazio"><tr><td colspan="6" class="center" style="padding:35px; color:var(--text-muted); text-align:center; font-weight:600;">Digite os termos acima para cruzar dados nas bases.</td></tr></tbody>
             </table>
         </div>
         <div class="section-exatos" id="section-exatos">
@@ -172,23 +200,44 @@
         </div>
     </div>
 
-    <!-- MODAL UPLOAD -->
+    <!-- MODAL UPLOAD INTELIGENTE -->
     <div class="modal-overlay" id="modal-gerenciador">
         <div class="modal-content">
             <div class="modal-header">
-                <div class="modal-title">📂 Gerenciar Planilhas</div>
+                <div class="modal-title">📂 Upload Automático CSV</div>
                 <button class="close-modal" onclick="fecharModalGerenciador()">×</button>
             </div>
-            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:5px;">Atenção: A base será substituída.</div>
-            <div class="modal-grid">
-                <div class="modal-upload-row"><div><b>📦 Devolução 2.0</b></div><div class="upload-wrapper"><button class="btn">Subir CSV</button><input type="file" accept=".csv" onchange="processarUpload(this,'devolucao')" /></div></div>
-                <div class="modal-upload-row"><div><b>💾 ID Data</b></div><div class="upload-wrapper"><button class="btn">Subir CSV</button><input type="file" accept=".csv" onchange="processarUpload(this,'iddata')" /></div></div>
-                <div class="modal-upload-row"><div><b>⏳ Q 10 Dias</b></div><div class="upload-wrapper"><button class="btn">Subir CSV</button><input type="file" accept=".csv" onchange="processarUpload(this,'q10')" /></div></div>
-                <div class="modal-upload-row"><div><b>⏳ Q 15 Dias</b></div><div class="upload-wrapper"><button class="btn">Subir CSV</button><input type="file" accept=".csv" onchange="processarUpload(this,'q15')" /></div></div>
-                <div class="modal-upload-row"><div><b>🌐 Q OnHub</b></div><div class="upload-wrapper"><button class="btn">Subir CSV</button><input type="file" accept=".csv" onchange="processarUpload(this,'qonhub')" /></div></div>
-                <div class="modal-upload-row"><div><b>🛡️ Pendências CFTV</b></div><div class="upload-wrapper"><button class="btn">Subir CSV</button><input type="file" accept=".csv" onchange="processarUpload(this,'cftv')" /></div></div>
-                <div class="modal-upload-row"><div><b>🛑 Parado no Percurso</b></div><div class="upload-wrapper"><button class="btn">Subir CSV</button><input type="file" accept=".csv" onchange="processarUpload(this,'parado')" /></div></div>
+            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:5px; text-align:center;">
+                Arraste ou selecione uma ou mais planilhas ao mesmo tempo.<br>O sistema identificará a categoria pelo nome do arquivo.
             </div>
+            
+            <div class="upload-area">
+                <input type="file" id="smart-csv-upload" accept=".csv" multiple onchange="processarUploadSmart(this)">
+                <div style="font-size: 2rem; margin-bottom:10px;">📄</div>
+                <div style="font-weight: 800; color: var(--text-main);">Clique aqui ou arraste arquivos CSV</div>
+                <div style="font-size: 0.75rem; margin-top:5px;">(Devolução, ID Data, Q10, Q15, OnHub, CFTV, Parados)</div>
+            </div>
+
+            <div id="upload-status-area" style="margin-top: 15px; font-size: 0.85rem; font-weight: 600;"></div>
+        </div>
+    </div>
+
+    <!-- MODAL GERENCIAR IA E API KEYS (Admin) -->
+    <div class="modal-overlay" id="modal-gerenciar-ia">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" style="color:#8b5cf6;">⚙️ Gerenciar Chaves e Status das IAs</div>
+                <button class="close-modal" onclick="fecharModalGerenciarIA()">×</button>
+            </div>
+            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:10px;">
+                As chaves (API Keys) ficam salvas com segurança no Banco de Dados.<br>Você pode ligar ou desligar as IAs a qualquer momento.
+            </div>
+            
+            <div class="modal-grid" id="lista-ias-admin">
+                <!-- Preenchido via JS -->
+            </div>
+
+            <button class="btn" onclick="salvarConfigIAs()" style="background:#8b5cf6; color:#fff; width:100%; padding:12px; margin-top:10px; border:none; font-size:1rem;">💾 Salvar Alterações</button>
         </div>
     </div>
 
@@ -199,7 +248,7 @@
                 <div class="modal-title" id="modal-ia-title" style="color:var(--accent-blue);">✨ Assistente Inteligente</div>
                 <button class="close-modal" onclick="fecharModalIA()">×</button>
             </div>
-            <div id="ia-info-descricao" style="font-size:0.82rem; color:var(--text-muted); margin-bottom:2px;"></div>
+            <div id="ia-info-descricao" style="font-size:0.82rem; color:var(--text-muted); margin-bottom:10px; font-weight:800;"></div>
             
             <div class="ia-input-group">
                 <label>Link do Anúncio (Mercado Livre)</label>
@@ -207,15 +256,24 @@
             </div>
             
             <div class="ia-input-group">
-                <label>Breve Descrição do Anúncio / Etiqueta (Opcional - Ajuda muito a IA)</label>
+                <label>Breve Descrição do Anúncio / Etiqueta (Opcional)</label>
                 <textarea class="ia-input" id="ia-desc-manual" placeholder="Cole aqui detalhes, modelo, marca, cor ou especificações extras..." rows="2"></textarea>
             </div>
 
             <div class="ia-input-group">
+                <label>Palavras-chave obrigatórias (separadas por vírgula)</label>
+                <div style="display:flex; gap:6px;">
+                    <input type="text" class="ia-input" id="ia-keywords" placeholder="câmera, wifi, mini" style="flex:1;">
+                    <button class="btn" id="btn-freeze" onclick="toggleFreeze()" style="background:#8b5cf6; color:#fff; border:none; padding:0 12px; white-space:nowrap;">❄️ Congelar</button>
+                </div>
+                <div id="freeze-status" style="font-size:0.7rem; color:var(--text-muted); margin-top:3px;">❄️ Descongelado</div>
+            </div>
+
+            <div class="ia-input-group">
                 <label>Foto da Bancada (Opcional)</label>
-                <div class="upload-wrapper" style="border:1px dashed var(--border-card); border-radius:8px;">
-                    <button class="btn" style="background:transparent; border:none; padding:15px; color:var(--text-muted);" id="btn-ia-file-label">📷 Anexar Foto do Item</button>
-                    <input type="file" accept="image/*" id="ia-foto" onchange="previewIAFile(this)" />
+                <div class="upload-wrapper" style="border:1px dashed var(--border-card); border-radius:8px; text-align:center;">
+                    <input type="file" accept="image/*" id="ia-foto" onchange="previewIAFile(this)" style="position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%;" />
+                    <div style="padding:15px; color:var(--text-muted); font-weight:800;" id="btn-ia-file-label">📷 Clique para Anexar Foto do Item</div>
                 </div>
             </div>
             
@@ -223,7 +281,7 @@
             
             <div class="ia-input-group" style="margin-top:10px;">
                 <label>📡 Resposta da Inteligência</label>
-                <div class="ia-box-resultado" id="ia-resultado">Aguardando entrada de dados... A IA extrairá características usando seus dados e varrerá o banco procurando pelo maior Match.</div>
+                <div class="ia-box-resultado" id="ia-resultado">Aguardando entrada de dados...</div>
             </div>
         </div>
     </div>
@@ -235,14 +293,26 @@
                 <div class="modal-title" style="color:#8b5cf6;">✨ Análise de Busca via IA</div>
                 <button class="close-modal" onclick="document.getElementById('modal-ia-busca').classList.remove('active')">×</button>
             </div>
-            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:5px;">A IA "OK" está interpretando o texto que você digitou na barra de pesquisa.</div>
+            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:5px;">A IA 1 está interpretando o texto que você digitou na barra de pesquisa.</div>
             <div class="ia-box-resultado" id="ia-busca-resultado" style="margin-top:10px; border-color: #8b5cf6;">Aguardando...</div>
+        </div>
+    </div>
+
+    <!-- MODAL MEMÓRIA DA IA -->
+    <div class="modal-overlay" id="modal-memoria">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" style="color:#8b5cf6;">🧠 Memória da IA (Aprendizado)</div>
+                <button class="close-modal" onclick="fecharModalMemoria()">×</button>
+            </div>
+            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:5px;">Padrões que a IA está usando para melhorar suas buscas.</div>
+            <div class="ia-box-resultado" id="memoria-resultado" style="margin-top:10px; border-color: #8b5cf6; max-height: 60vh; overflow-y: auto;">Carregando...</div>
         </div>
     </div>
 
     <script>
     // ============================================================
-    //  FIREBASE
+    //  FIREBASE E BANCOS
     // ============================================================
     const FIREBASE_URL = "https://reportes-bdb0a-default-rtdb.firebaseio.com/";
     const DB_NODES = {
@@ -252,24 +322,19 @@
     };
 
     // ============================================================
-    //  CHAVES DE API 
+    //  CHAVES DE API E ESTADOS DA IA (CARREGADOS DO FIREBASE)
     // ============================================================
-    // A IA Principal perfeita (Groq Llama)
-    const GROQ_API_KEY = "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";
-
-    // IA 2 - Google Gemini (Precisa começar com AIzaSy. Gere em aistudio.google.com)
-    const GEMINI_API_KEY = "COLE_AQUI_SUA_CHAVE_AIZASY_DO_GOOGLE";
-
-    // IA 3 - Hugging Face (Gere em huggingface.co/settings/tokens)
-    const HUGGINGFACE_API_KEY = "COLE_AQUI_SUA_CHAVE_HUGGINGFACE";
-
-    // IA 4 - OpenRouter (Modelos gratuitos, não precisa por saldo. Gere em openrouter.ai)
-    const OPENROUTER_API_KEY = "COLE_AQUI_SUA_CHAVE_OPENROUTER";
+    let IAs_CONFIG = {
+        v1: { nome: "IA 1 (Groq Llama 3 - Vision)", key: "", operante: false, cor: "#059669" },
+        v2: { nome: "IA 2 (Mistral AI)", key: "", operante: false, cor: "#4d6bfe" },
+        v3: { nome: "IA 3 (Google Gemini 2.0)", key: "", operante: false, cor: "var(--accent-blue)" },
+        v4: { nome: "IA 4 (OpenRouter Free Models)", key: "", operante: false, cor: "#8b5cf6" }
+    };
 
     // ============================================================
     //  ESTADO GLOBAL
     // ============================================================
-    let CURRENT_IA = 'ok';
+    let CURRENT_IA = 'v1';
     let BANCO_GLOBAL = [];
     let DADOS_EXATOS = [];
     let DADOS_APROXIMADOS = [];
@@ -278,8 +343,10 @@
     let CUR_PAGE_EXATOS = 0;
     let CUR_PAGE_APROX = 0;
 
-    const STOPWORDS = ['de','para','com','o','a','os','as','em','um','uma','uns','umas','no','na','nos','nas','do','da','dos','das','por','sem'];
+    let KEYWORDS_FROZEN = false;
+    let KEYWORDS_LIST = [];
 
+    const STOPWORDS = ['de','para','com','o','a','os','as','em','um','uma','uns','umas','no','na','nos','nas','do','da','dos','das','por','sem'];
     const DICIONARIO_SINONIMOS = {
         'tenis': ['sapato','calcado','sneaker','chuteira','bota'],
         'celular': ['smartphone','telefone','iphone','aparelho','mobile'],
@@ -297,15 +364,8 @@
         'mesa': ['escrivaninha','bancada','suporte']
     };
 
-    const IA_CONFIG = {
-        ok: { titulo: "✅ OK — A IA Principal Perfeita",  cor: "#059669", icone: "✅", classe: "ia-info-ok", descricao: "Funcionando Perfeitamente 🟢 · Motor Groq Llama Vision" },
-        v2: { titulo: "🤖 IA 2 — Google Gemini",   cor: "var(--accent-blue)", icone: "🤖", classe: "ia-info-v2", descricao: "Google Gemini Free API · aistudio.google.com" },
-        v3: { titulo: "🤖 IA 3 — Hugging Face", cor: "#f97316", icone: "🤖", classe: "ia-info-v3", descricao: "Hugging Face Free Inference API · huggingface.co" },
-        v4: { titulo: "🤖 IA 4 — OpenRouter Free",  cor: "#8b5cf6", icone: "🤖", classe: "ia-info-v4", descricao: "OpenRouter Free Models · openrouter.ai" }
-    };
-
     // ============================================================
-    //  TEMA
+    //  INICIALIZAÇÃO & PERMISSÕES
     // ============================================================
     function syncTheme() { const t = localStorage.getItem('themePreference') || 'light'; document.body.setAttribute('data-theme', t); }
     syncTheme();
@@ -315,66 +375,347 @@
     let userName = currentUser?.usuario || 'Sistema';
     const paginaNome = window.location.pathname.split('/').pop() || 'salvados_procurar.html';
     let canEdit = window.parent && typeof window.parent.verificarPermissaoUpload === 'function' ? window.parent.verificarPermissaoUpload(paginaNome) : false;
-    if (canEdit) document.getElementById('btn-gerenciar').style.display = 'inline-flex';
+    
+    if (canEdit) {
+        document.getElementById('btn-gerenciar').style.display = 'inline-flex';
+        document.getElementById('btn-gerenciar-ia').style.display = 'inline-flex';
+    }
+
+    window.onload = async () => { 
+        await carregarConfigIAs();
+        await carregarListaEncontrados(); 
+        carregarTodosBancos(); 
+    };
 
     async function registrarLogFirebase(modulo, acao) {
         try { await fetch(`${FIREBASE_URL}logs.json`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ modulo, acao, usuario: userName, timestamp: Date.now() }) }); } catch(e) {}
     }
 
     // ============================================================
-    //  MODAIS
+    //  GERENCIAMENTO DE API E BOTÕES DA IA NO DB
     // ============================================================
-    function abrirModalGerenciador() { document.getElementById('modal-gerenciador').classList.add('active'); }
-    function fecharModalGerenciador() { document.getElementById('modal-gerenciador').classList.remove('active'); }
+    async function carregarConfigIAs() {
+        try {
+            const res = await fetch(`${FIREBASE_URL}salvados_api_keys.json`);
+            const data = await res.json();
+            if(data) {
+                // Mescla os dados da nuvem mantendo nomes originais se vazio
+                Object.keys(IAs_CONFIG).forEach(id => {
+                    if(data[id]) {
+                        IAs_CONFIG[id].key = data[id].key || "";
+                        IAs_CONFIG[id].operante = data[id].operante === true;
+                    }
+                });
+            }
+            atualizarBotoesHeaderIA();
+        } catch(e) { console.log("Erro ao carregar configurações de IA."); }
+    }
 
+    function atualizarBotoesHeaderIA() {
+        ['v1','v2','v3','v4'].forEach(id => {
+            const btn = document.getElementById(`btn-ia-${id}`);
+            if(btn && IAs_CONFIG[id]) {
+                if(IAs_CONFIG[id].operante) {
+                    btn.innerHTML = `🤖 IA ${id.replace('v','')}`;
+                    btn.style.opacity = '1';
+                    btn.title = `${IAs_CONFIG[id].nome} - Operante ✅`;
+                } else {
+                    btn.innerHTML = `🤖 IA ${id.replace('v','')} ❌`;
+                    btn.style.opacity = '0.4';
+                    btn.title = `${IAs_CONFIG[id].nome} - Desligada ❌`;
+                }
+            }
+        });
+    }
+
+    function abrirModalGerenciarIA() {
+        document.getElementById('modal-gerenciar-ia').classList.add('active');
+        const container = document.getElementById('lista-ias-admin');
+        let html = '';
+        
+        ['v1','v2','v3','v4'].forEach(id => {
+            let ia = IAs_CONFIG[id];
+            let checkState = ia.operante ? 'checked' : '';
+            html += `
+                <div class="ia-admin-row">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <label style="font-weight:900; color:${ia.cor}; font-size:0.95rem;">${ia.nome}</label>
+                        <label class="switch">
+                            <input type="checkbox" id="ia-op-${id}" ${checkState}>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <input type="password" class="ia-input" id="ia-key-${id}" placeholder="Cole a API KEY aqui..." value="${ia.key}">
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    function fecharModalGerenciarIA() { document.getElementById('modal-gerenciar-ia').classList.remove('active'); }
+
+    async function salvarConfigIAs() {
+        const payload = {};
+        ['v1','v2','v3','v4'].forEach(id => {
+            payload[id] = {
+                key: document.getElementById(`ia-key-${id}`).value.trim(),
+                operante: document.getElementById(`ia-op-${id}`).checked
+            };
+        });
+
+        try {
+            await fetch(`${FIREBASE_URL}salvados_api_keys.json`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+            await registrarLogFirebase("Buscador", "Atualizou as configurações e chaves das IAs.");
+            alert("Configurações das IAs salvas com sucesso!");
+            fecharModalGerenciarIA();
+            await carregarConfigIAs();
+        } catch(e) {
+            alert("Erro ao salvar no Firebase.");
+        }
+    }
+
+    // ============================================================
+    //  MODAL DA IA PRINCIPAL E BUSCA
+    // ============================================================
     function abrirModalIA(versao) {
         CURRENT_IA = versao;
-        const cfg = IA_CONFIG[versao];
-        document.getElementById('modal-ia-title').innerHTML = cfg.titulo;
+        const cfg = IAs_CONFIG[versao];
+        
+        document.getElementById('modal-ia-title').innerHTML = `🤖 IA ${versao.replace('v','')}`;
         document.getElementById('modal-ia-title').style.color = cfg.cor;
         document.getElementById('btn-run-ia').style.background = cfg.cor;
-        document.getElementById('ia-info-descricao').innerHTML = `<span class="ia-info-badge ${cfg.classe}">${cfg.descricao}</span>`;
-        document.getElementById('ia-resultado').innerHTML = "Aguardando entrada de dados... Adicione uma descrição manual, link ou foto para começar.";
         
-        // Avisos de Chave Ausente
-        if (versao === 'v2' && GEMINI_API_KEY.includes('COLE_AQUI')) document.getElementById('ia-resultado').innerHTML = `<span style="color:#f97316; font-weight:800;">⚠️ Insira sua chave AIzaSy do Google no código.</span>`;
-        if (versao === 'v3' && HUGGINGFACE_API_KEY.includes('COLE_AQUI')) document.getElementById('ia-resultado').innerHTML = `<span style="color:#f97316; font-weight:800;">⚠️ Insira sua chave do HuggingFace no código.</span>`;
-        if (versao === 'v4' && OPENROUTER_API_KEY.includes('COLE_AQUI')) document.getElementById('ia-resultado').innerHTML = `<span style="color:#f97316; font-weight:800;">⚠️ Insira sua chave do OpenRouter no código.</span>`;
+        const statusTexto = cfg.operante ? "🟢 Online e Operante" : "🔴 Desligada pelo Administrador";
+        document.getElementById('ia-info-descricao').innerHTML = `${cfg.nome} - ${statusTexto}`;
+        document.getElementById('ia-resultado').innerHTML = "Aguardando entrada de dados... Adicione uma descrição manual, link ou foto para começar.";
         
         document.getElementById('modal-ia').classList.add('active');
     }
     function fecharModalIA() { document.getElementById('modal-ia').classList.remove('active'); }
 
+    function previewIAFile(input) {
+        const btn = document.getElementById('btn-ia-file-label');
+        if (input.files && input.files[0]) { btn.innerHTML = `✅ Imagem Carregada: ${input.files[0].name}`; btn.style.color = "var(--accent-green)"; }
+        else { btn.innerHTML = `📷 Clique para Anexar Foto do Item`; btn.style.color = "var(--text-muted)"; }
+    }
+
     // ============================================================
-    //  ENCONTRADOS
+    //  SMART UPLOAD DE CSV MÚLTIPLO
     // ============================================================
+    function abrirModalGerenciador() { document.getElementById('modal-gerenciador').classList.add('active'); }
+    function fecharModalGerenciador() { document.getElementById('modal-gerenciador').classList.remove('active'); }
+
+    function identificarPlanilha(nome) {
+        let n = nome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        if(n.includes('devolu')) return 'devolucao';
+        if(n.includes('id data') || n.includes('iddata') || n.includes('id_data')) return 'iddata';
+        if(n.includes('10')) return 'q10';
+        if(n.includes('15')) return 'q15';
+        if(n.includes('onhub') || n.includes('on hub')) return 'qonhub';
+        if(n.includes('cftv')) return 'cftv';
+        if(n.includes('parado') || n.includes('percurso')) return 'parado';
+        return null;
+    }
+
+    function pedirTipoPlanilha(nome) {
+        const msg = `Não identificamos automaticamente a planilha:\n"${nome}"\n\nDigite o NÚMERO correspondente para forçar:\n1. Devolução 2.0\n2. ID Data\n3. Q 10 Dias\n4. Q 15 Dias\n5. Q OnHub\n6. Pendências CFTV\n7. Parado no Percurso\n\n(Ou cancele para pular esta)`;
+        let res = prompt(msg);
+        const map = {'1':'devolucao','2':'iddata','3':'q10','4':'q15','5':'qonhub','6':'cftv','7':'parado'};
+        return map[res] || null;
+    }
+
+    const lerArquivoCSV = (file) => new Promise(resolve => {
+        Papa.parse(file, { header: true, skipEmptyLines: true, complete: results => resolve(results.data) });
+    });
+
+    async function processarUploadSmart(inputElement) {
+        if (!canEdit) return;
+        const files = Array.from(inputElement.files);
+        if (files.length === 0) return;
+
+        const statusArea = document.getElementById('upload-status-area');
+        statusArea.innerHTML = "Iniciando processamento...<br>";
+
+        let atualizados = 0;
+
+        for (const file of files) {
+            let dbKey = identificarPlanilha(file.name);
+            if (!dbKey) {
+                dbKey = pedirTipoPlanilha(file.name);
+                if(!dbKey) {
+                    statusArea.innerHTML += `<span style="color:#e11d48;">❌ Arquivo ignorado: ${file.name}</span><br>`;
+                    continue;
+                }
+            }
+
+            statusArea.innerHTML += `⏳ Processando <b>${file.name}</b> para [${dbKey.toUpperCase()}]...<br>`;
+            
+            const rawData = await lerArquivoCSV(file);
+            const dadosLimpos = rawData.map(row => {
+                const valText = getVal(row, ['valor_real','valor_brl','valor','preco','preço','price','total','vl']);
+                return { 
+                    ID: extrairID(row), 
+                    Descricao: getVal(row, ['descricao','descrição','descricao_do_produto','descricao do produto','produto','item','title','titulo','nome']), 
+                    Status: getVal(row, ['shp_lg_status','status_logistics','status','staus','status do pacote','estado','situacao','situação']), 
+                    Substatus: getVal(row, ['shp_lg_sub_status','substatus_logistics','substatus','sub status','sub-status','ultimo status','resolucao','resolução','motivo','detalhe','final analise']), 
+                    Valor: valText, 
+                    ValorNum: parseCurrency(valText), 
+                    Aging: getVal(row, ['aging','dias estocados','parados','dias parados','dias','age']) 
+                };
+            }).filter(i => i.ID && !['nan','undefined'].includes(i.ID.toLowerCase()));
+
+            if (!dadosLimpos.length) {
+                statusArea.innerHTML += `<span style="color:#e11d48;">❌ Vazio/Inválido: ${file.name}</span><br>`;
+                continue;
+            }
+
+            try {
+                const payload = { atualizadoEm: new Date().toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'}), lista: dadosLimpos };
+                await fetch(`${FIREBASE_URL}${DB_NODES[dbKey]}.json`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+                statusArea.innerHTML += `<span style="color:#059669;">✅ Sucesso: ${file.name} (${dadosLimpos.length} itens salvos)</span><br>`;
+                atualizados++;
+            } catch(e) {
+                statusArea.innerHTML += `<span style="color:#e11d48;">❌ Erro de nuvem: ${file.name}</span><br>`;
+            }
+        }
+
+        if (atualizados > 0) {
+            await registrarLogFirebase("Buscador Global", `Fez Smart Upload de ${atualizados} planilhas.`);
+            carregarTodosBancos();
+            setTimeout(() => { fecharModalGerenciador(); statusArea.innerHTML = ''; inputElement.value = ''; }, 3000);
+        } else {
+            inputElement.value = '';
+        }
+    }
+
+    // ============================================================
+    //  ENCONTRADOS + SISTEMA DE APRENDIZADO
+    // ============================================================
+    function fecharModalMemoria() { document.getElementById('modal-memoria').classList.remove('active'); }
+
     async function carregarListaEncontrados() {
         try { const res = await fetch(`${FIREBASE_URL}salvados_encontrados.json`); const data = await res.json(); if (data) Object.keys(data).forEach(k => ITENS_ENCONTRADOS.add(k)); } catch(e) {}
     }
+
+    async function carregarExemplosAprendizado(limite = 10) {
+        try {
+            const res = await fetch(`${FIREBASE_URL}salvados_aprendizado.json?orderBy="timestamp"&limitToLast=${limite}`);
+            const data = await res.json();
+            if (!data) return [];
+            return Object.values(data).reverse().map(ex => 
+                `- Termo: "${ex.termo || 'manual'}" | Descrição: "${ex.descricao || '-'}" | Status: "${ex.status || '-'}" | Substatus: "${ex.substatus || '-'}"`
+            ).join('\n');
+        } catch(e) { return ''; }
+    }
+
+    async function atualizarIndicadorMemoria() {
+        try {
+            const res = await fetch(`${FIREBASE_URL}salvados_aprendizado.json`);
+            const data = await res.json();
+            const count = data ? Object.keys(data).length : 0;
+            document.getElementById('lbl-memoria').innerText = count;
+        } catch(e) { document.getElementById('lbl-memoria').innerText = 'Erro'; }
+    }
+
+    async function abrirModalMemoria() {
+        document.getElementById('modal-memoria').classList.add('active');
+        const box = document.getElementById('memoria-resultado');
+        box.innerHTML = "⏳ Carregando exemplos aprendidos...";
+        try {
+            const res = await fetch(`${FIREBASE_URL}salvados_aprendizado.json?orderBy="timestamp"&limitToLast=50`);
+            const data = await res.json();
+            if (!data || Object.keys(data).length === 0) {
+                box.innerHTML = "Nenhum exemplo aprendido ainda. Marque itens como '✅ É Este' para ensinar a IA.";
+                return;
+            }
+            let html = `<div style="font-weight:900; margin-bottom:10px;">Total: ${Object.keys(data).length} exemplos</div>`;
+            for (const [key, ex] of Object.entries(data).reverse()) {
+                const dataStr = ex.timestamp ? new Date(ex.timestamp).toLocaleString('pt-BR') : '';
+                html += `
+                    <div class="ia-match-card" style="margin-bottom:8px; position:relative;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div style="flex:1;">
+                                <div style="font-weight:800; color:var(--accent-blue);">🔍 "${ex.termo || 'manual'}"</div>
+                                <div style="font-size:0.8rem; color:var(--text-main);">📦 ${ex.descricao || '-'}</div>
+                                <div style="font-size:0.7rem; color:var(--text-muted);">📌 Status: ${ex.status || '-'} | Sub: ${ex.substatus || '-'}</div>
+                                <div style="font-size:0.6rem; color:var(--text-muted); text-align:right;">${dataStr}</div>
+                            </div>
+                            <button class="btn" style="padding:2px 8px; font-size:0.6rem; background:#e11d48; color:#fff; border:none;" onclick="removerMemoria('${key}')">🗑️ Remover</button>
+                        </div>
+                    </div>
+                `;
+            }
+            box.innerHTML = html;
+        } catch(e) {
+            box.innerHTML = `<span style="color:#FF5252;">Erro ao carregar memória: ${escapeHtml(e.message)}</span>`;
+        }
+    }
+
+    window.removerMemoria = async function(key) {
+        if (!confirm("Remover este item da memória?")) return;
+        try {
+            await fetch(`${FIREBASE_URL}salvados_aprendizado/${key}.json`, { method: 'DELETE' });
+            await atualizarIndicadorMemoria();
+            abrirModalMemoria(); 
+        } catch(e) { alert("Erro ao remover."); }
+    };
 
     window.marcarComoEncontrado = async function(id) {
         if (!confirm(`Tem certeza que deseja marcar o pacote ${id} como ENCONTRADO?`)) return;
         let idLimpo = String(id).toLowerCase().trim().replace(/[.#$\[\]]/g, "_");
         try {
+            const item = BANCO_GLOBAL.find(i => String(i.ID).toLowerCase().trim() === String(id).toLowerCase().trim());
+            const termoAtual = document.getElementById('search-input').value.trim() || 'busca manual';
+            
+            const aprendizagem = { termo: termoAtual, descricao: item?.Descricao || '', status: item?.Status || '', substatus: item?.Substatus || '', timestamp: Date.now() };
+            await fetch(`${FIREBASE_URL}salvados_aprendizado.json`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(aprendizagem) });
+
             await fetch(`${FIREBASE_URL}salvados_encontrados/${idLimpo}.json`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ data: Date.now(), user: userName }) });
             ITENS_ENCONTRADOS.add(idLimpo);
-            await registrarLogFirebase("Buscador Global", `Marcou item <b>${id}</b> como ENCONTRADO.`);
+            await registrarLogFirebase("Buscador Global", `Marcou item <b>${id}</b> como ENCONTRADO. Termo: "${termoAtual}"`);
+            
+            await atualizarIndicadorMemoria();
             executarSmartSearch();
+            
             if (document.getElementById('modal-ia').classList.contains('active')) {
-                document.getElementById('ia-resultado').innerHTML = `<div style="color:var(--accent-green); font-weight:900; text-align:center; padding:20px;">✅ Pacote Registrado com Sucesso!</div>`;
+                document.getElementById('ia-resultado').innerHTML = `<div style="color:var(--accent-green); font-weight:900; text-align:center; padding:20px;">✅ Pacote Registrado! IA aprendeu com descrição e status.</div>`;
             }
         } catch(e) { alert("Erro de comunicação."); }
     };
 
     // ============================================================
-    //  UTILITÁRIOS DE IMAGEM
+    //  CONTROLE DE PALAVRAS-CHAVE CONGELADAS
     // ============================================================
-    function previewIAFile(input) {
-        const btn = document.getElementById('btn-ia-file-label');
-        if (input.files && input.files[0]) { btn.innerHTML = `✅ Imagem Carregada: ${input.files[0].name}`; btn.style.color = "var(--accent-green)"; }
-        else { btn.innerHTML = `📷 Anexar Foto do Item`; btn.style.color = "var(--text-muted)"; }
+    function toggleFreeze() {
+        const input = document.getElementById('ia-keywords');
+        const btn = document.getElementById('btn-freeze');
+        const status = document.getElementById('freeze-status');
+        
+        if (!KEYWORDS_FROZEN) {
+            const raw = input.value.trim();
+            if (!raw) { alert("Digite pelo menos uma palavra-chave antes de congelar."); return; }
+            KEYWORDS_LIST = raw.split(',').map(k => removerAcentos(k.trim().toLowerCase())).filter(k => k.length >= 2);
+            if (KEYWORDS_LIST.length === 0) { alert("Palavras-chave inválidas."); return; }
+            KEYWORDS_FROZEN = true;
+            btn.innerHTML = "🔓 Descongelar";
+            btn.style.background = "#e11d48";
+            status.innerHTML = "❄️ Congelado - Palavras obrigatórias: " + KEYWORDS_LIST.join(', ');
+            status.style.color = "#e11d48";
+            input.disabled = true;
+        } else {
+            KEYWORDS_FROZEN = false;
+            KEYWORDS_LIST = [];
+            btn.innerHTML = "❄️ Congelar";
+            btn.style.background = "#8b5cf6";
+            status.innerHTML = "❄️ Descongelado";
+            status.style.color = "var(--text-muted)";
+            input.disabled = false;
+        }
     }
 
+    // ============================================================
+    //  UTILITÁRIOS DE IMAGEM E LINKS
+    // ============================================================
     function fileToBase64(file) {
         return new Promise((resolve, reject) => { const r = new FileReader(); r.readAsDataURL(file); r.onload = () => resolve(r.result); r.onerror = reject; });
     }
@@ -401,9 +742,6 @@
         });
     }
 
-    // ============================================================
-    //  LEITURA DO ANÚNCIO VIA JINA
-    // ============================================================
     function normalizarLink(link) {
         let url = String(link || '').trim();
         if (!url) return '';
@@ -426,38 +764,42 @@
             const url = new URL(normalizarLink(link));
             const segs = url.pathname.split('/').filter(p => p.includes('-') && p.length > 8);
             if (segs.length > 0) {
-                return segs.sort((a,b) => b.length - a.length)[0]
-                    .replace(/-/g, ' ')
-                    .replace(/mlb\d+/gi, '')
-                    .replace(/up\//gi, '')
-                    .trim();
+                return segs.sort((a,b) => b.length - a.length)[0].replace(/-/g, ' ').replace(/mlb\d+/gi, '').replace(/up\//gi, '').trim();
             }
         } catch(e) {}
         return '';
     }
 
     // ============================================================
-    //  PROMPT TURBINADO (Com Descrição Manual)
+    //  PROMPT E PROCESSAMENTO DE JSON
     // ============================================================
-    function montarPromptIA(link, contextoLink, descManual) {
+    async function montarPromptIA(link, contextoLink, descManual) {
         const slug = extrairSlugDaUrl(link);
         let termoBusca = '';
         try { const u = new URL(normalizarLink(link)); termoBusca = u.searchParams.get('q') || u.searchParams.get('search') || ''; } catch(e) {}
 
-        return `Você é um detetive de logística sênior. Identifique o produto com MÁXIMA PRECISÃO para buscar em planilhas.
+        const exemplos = await carregarExemplosAprendizado(10);
+        const frozenKeywords = KEYWORDS_FROZEN ? KEYWORDS_LIST.join(', ') : 'Nenhuma';
+
+        return `Você é um detetive de logística e inteligência artificial. Identifique o produto com MÁXIMA PRECISÃO usando o link, imagem (se houver) e descrição manual.
+
+EXEMPLOS DE SUCESSO APRENDIDOS (Use os padrões de descrição e status):
+${exemplos || 'Nenhum exemplo ainda. Use o bom senso.'}
+
+PALAVRAS-CHAVE OBRIGATÓRIAS (Congeladas): ${frozenKeywords}
+(Se houver, o produto DEVE conter essas palavras na descrição ou ID. Use-as como filtro principal.)
 
 DADOS FORNECIDOS:
 - Link: ${link || 'Não'}
-- Dica da URL: "${slug}"
+- Dica da URL (Slug): "${slug}"
 - DESCRIÇÃO MANUAL DO USUÁRIO (MUITO IMPORTANTE): "${descManual || 'Não fornecida'}"
 - Texto extraído da página: ${contextoLink ? contextoLink.slice(0, 4000) : 'Sem texto'}
 
-REGRAS:
-1. TERMO_BASE: NOME ESPECÍFICO E MODELO COMPLETO (ex: "Camera Mini Redonda A9 Wifi", "Smartphone Xiaomi Redmi Note 12"). Não use termos vagos.
-2. PALAVRAS_CHAVE: De 4 a 6 palavras únicas do produto (ex: "a9", "mini", "wifi", "espia").
-3. PREÇO: Se não achar claro, ESTIME o valor de mercado (números puros). Nunca use faixa de 0 a 0.
-
-Retorne APENAS um JSON válido:
+REGRAS DE ANÁLISE:
+1. Analise o link, a descrição manual e a imagem para extrair o termo base correto.
+2. Considere os padrões de status encontrados nos exemplos.
+3. Se houver palavras-chave congeladas, certifique-se de que elas estejam presentes no termo base ou nas palavras-chave geradas.
+4. Retorne APENAS um JSON válido:
 {
   "termo_base": "nome completo e modelo",
   "cor": "cor predominante ou indefinida",
@@ -508,23 +850,66 @@ Retorne APENAS um JSON válido:
         return out;
     }
 
-    function escapeJsAttr(v) { return String(v ?? '').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,' ').replace(/\r/g,' '); }
+    // ============================================================
+    //  CHAMADAS DE API E EXECUÇÃO
+    // ============================================================
+    async function executarBuscaIA() {
+        const resBox = document.getElementById('ia-resultado');
+        const link = document.getElementById('ia-link').value.trim();
+        const descManual = document.getElementById('ia-desc-manual').value.trim();
+        const file = document.getElementById('ia-foto').files[0];
+        const btnRun = document.getElementById('btn-run-ia');
 
-    // ============================================================
-    //  NOVO: EXECUTOR DA BUSCA NA BARRA VIA IA (BOTÃO ROXO)
-    // ============================================================
+        if (!IAs_CONFIG[CURRENT_IA]?.operante) {
+            resBox.innerHTML = "<span style='color:#FF5252;font-weight:bold;'>⚠️ Esta IA está desativada pelo Administrador. Escolha outra.</span>";
+            return;
+        }
+
+        const apiKey = IAs_CONFIG[CURRENT_IA].key;
+        if (!apiKey || apiKey.includes('COLE_AQUI') || apiKey.length < 5) {
+            resBox.innerHTML = "<span style='color:#FF5252;font-weight:bold;'>⚠️ API Key não configurada. Peça ao Admin para inserir em 'Gerenciar IAs'.</span>";
+            return;
+        }
+
+        if (!link && !file && !descManual) { resBox.innerHTML = "<span style='color:#FF5252;font-weight:bold;'>⚠️ Insira uma descrição, link ou anexe uma foto.</span>"; return; }
+        
+        btnRun.disabled = true; btnRun.innerText = "⏳ Analisando...";
+        resBox.innerHTML = "⏳ <i>Preparando dados e conectando à IA...</i>";
+
+        try {
+            let contextoLink = '';
+            if (link) { resBox.innerHTML = "⏳ <i>Lendo anúncio...</i>"; contextoLink = await obterResumoAnuncio(link); }
+
+            const prompt = await montarPromptIA(link, contextoLink, descManual);
+            let aiResult;
+
+            if      (CURRENT_IA === 'v1') aiResult = await chamarAPI_Groq(prompt, file, false, apiKey);
+            else if (CURRENT_IA === 'v2') aiResult = await chamarAPI_Mistral(prompt, file, apiKey);
+            else if (CURRENT_IA === 'v3') aiResult = await chamarAPI_Gemini(prompt, file, apiKey);
+            else if (CURRENT_IA === 'v4') aiResult = await chamarAPI_OpenRouter(prompt, file, false, apiKey);
+
+            processarResultadoIA(aiResult, resBox);
+        } catch(e) {
+            resBox.innerHTML = `<span style='color:#FF5252;font-weight:bold;'>❌ Erro na IA (${CURRENT_IA.toUpperCase()}):<br>${escapeHtml(e.message)}</span>`;
+        } finally {
+            btnRun.disabled = false; btnRun.innerText = "🔎 Analisar e Buscar Padrões";
+        }
+    }
+
     async function buscarComIANaBarra() {
         const query = document.getElementById('search-input').value.trim();
         if (!query || query.length < 3) return alert('Por favor, digite as características de um produto na barra de pesquisa para a IA analisar.');
 
+        if (!IAs_CONFIG['v1']?.operante || !IAs_CONFIG['v1']?.key) {
+            return alert('A IA Principal (V1) precisa estar operante e configurada pelo Admin para fazer análise na barra.');
+        }
+
         document.getElementById('modal-ia-busca').classList.add('active');
         const resBox = document.getElementById('ia-busca-resultado');
-        resBox.innerHTML = "⏳ <i>A IA 'OK' está desmembrando sua busca para varrer o armazém...</i>";
+        resBox.innerHTML = "⏳ <i>A IA 1 está desmembrando sua busca para varrer o armazém...</i>";
 
         const promptBusca = `Você é um analista de dados. O usuário digitou o seguinte termo na barra de pesquisa de um estoque de encomendas perdidas:
 "${query}"
-
-Sua missão é extrair e expandir essas informações para encontrarmos o produto na planilha de estoque.
 Retorne APENAS um JSON válido:
 {
   "termo_base": "Nome limpo do produto",
@@ -536,167 +921,80 @@ Retorne APENAS um JSON válido:
 }`;
 
         try {
-            // Força a usar a API OK (Groq) que é a mais rápida e funcional para texto puro
-            const aiResult = await chamarAPI_Groq(promptBusca, null, true);
-            
-            // Passa para a renderização, informando uma flag especial para não quebrar UI
+            const aiResult = await chamarAPI_Groq(promptBusca, null, true, IAs_CONFIG['v1'].key);
             processarResultadoIA(aiResult, resBox, true);
-        } catch(e) {
-            resBox.innerHTML = `<span style='color:#FF5252;font-weight:bold;'>❌ Erro na IA: ${escapeHtml(e.message)}</span>`;
-        }
+        } catch(e) { resBox.innerHTML = `<span style='color:#FF5252;font-weight:bold;'>❌ Erro na IA: ${escapeHtml(e.message)}</span>`; }
     }
 
-
-    // ============================================================
-    //  EXECUTOR DA IA MODAL
-    // ============================================================
-    async function executarBuscaIA() {
-        const resBox = document.getElementById('ia-resultado');
-        const link = document.getElementById('ia-link').value.trim();
-        const descManual = document.getElementById('ia-desc-manual').value.trim();
-        const file = document.getElementById('ia-foto').files[0];
-        const btnRun = document.getElementById('btn-run-ia');
-
-        if (!link && !file && !descManual) { resBox.innerHTML = "<span style='color:#FF5252;font-weight:bold;'>⚠️ Insira uma descrição, link ou anexe uma foto.</span>"; return; }
-        
-        btnRun.disabled = true; btnRun.innerText = "⏳ Analisando...";
-        resBox.innerHTML = "⏳ <i>Preparando dados e conectando à IA...</i>";
-
-        try {
-            let contextoLink = '';
-            if (link) {
-                resBox.innerHTML = "⏳ <i>Lendo anúncio no Mercado Livre...</i>";
-                contextoLink = await obterResumoAnuncio(link);
-            }
-
-            const prompt = montarPromptIA(link, contextoLink, descManual);
-            let aiResult;
-
-            if      (CURRENT_IA === 'ok') aiResult = await chamarAPI_Groq(prompt, file);
-            else if (CURRENT_IA === 'v2') aiResult = await chamarAPI_Gemini(prompt, file);
-            else if (CURRENT_IA === 'v3') aiResult = await chamarAPI_HuggingFace(prompt, file);
-            else if (CURRENT_IA === 'v4') aiResult = await chamarAPI_OpenRouter(prompt, file);
-
-            processarResultadoIA(aiResult, resBox);
-        } catch(e) {
-            resBox.innerHTML = `<span style='color:#FF5252;font-weight:bold;'>❌ Erro na IA (${CURRENT_IA.toUpperCase()}):<br>${escapeHtml(e.message)}</span>`;
-        } finally {
-            btnRun.disabled = false; btnRun.innerText = "🔎 Analisar e Buscar Padrões";
-        }
-    }
-
-    // ============================================================
-    //  IA "OK" (GROQ) - A Inteligência Perfeita
-    // ============================================================
-    async function chamarAPI_Groq(prompt, file, semImagem = false) {
-        if (!GROQ_API_KEY) throw new Error("Chave Groq ausente.");
-        let modelToUse = "llama-3.3-70b-versatile"; 
-        let messages;
-
+    // --- Groq ---
+    async function chamarAPI_Groq(prompt, file, semImagem, apiKey) {
+        let modelToUse = "llama-3.3-70b-versatile"; let messages;
         if (file && !semImagem) {
             try {
                 const img = await fileToOptimizedImage(file);
-                messages = [{ role: 'user', content: [ { type: 'text', text: prompt + " BASEIE-SE FORTEMENTE NESTA IMAGEM PARA DESCOBRIR A COR E MODELO:" }, { type: 'image_url', image_url: { url: img.dataUrl } } ]}];
+                messages = [{ role: 'user', content: [ { type: 'text', text: prompt + " BASEIE-SE FORTEMENTE NESTA IMAGEM:" }, { type: 'image_url', image_url: { url: img.dataUrl } } ]}];
                 modelToUse = "llama-3.2-90b-vision-preview";
-            } catch(e) {
-                messages = [{ role: 'user', content: prompt }];
-            }
-        } else {
-            messages = [{ role: 'user', content: prompt }];
-        }
+            } catch(e) { messages = [{ role: 'user', content: prompt }]; }
+        } else { messages = [{ role: 'user', content: prompt }]; }
 
         try {
             const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
+                method: 'POST', headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({ model: modelToUse, messages, temperature: 0.1, max_completion_tokens: 1024, response_format: { type: 'json_object' } })
             });
             const data = await res.json().catch(() => ({}));
             if (!res.ok) throw new Error(data?.error?.message || `${res.status}`);
             return normalizarRespostaIA(extrairJsonIA(data?.choices?.[0]?.message?.content || ''));
         } catch(e) {
-            if (file && !semImagem) {
-                console.warn("Groq Vision falhou. Tentando texto...");
-                return await chamarAPI_Groq(prompt, null, true);
-            }
+            if (file && !semImagem) { console.warn("Groq Vision falhou. Tentando texto..."); return await chamarAPI_Groq(prompt, null, true, apiKey); }
             throw e;
         }
     }
 
-    // ============================================================
-    //  IA 2 (GEMINI) - Com validação de chave rigorosa
-    // ============================================================
-    async function chamarAPI_Gemini(prompt, file) {
-        if (!GEMINI_API_KEY || !GEMINI_API_KEY.startsWith("AIzaSy")) throw new Error("Sua chave do Gemini é inválida. Acesse aistudio.google.com/app/apikey, crie uma chave nova (ela obrigatoriamente começará com 'AIzaSy') e cole no código.");
-        
+    // --- Mistral ---
+    async function chamarAPI_Mistral(prompt, file, apiKey) {
+        let messages = [{ role: 'user', content: prompt }];
+        try {
+            const res = await fetch('https://api.mistral.ai/v1/chat/completions', {
+                method: 'POST', headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ model: 'mistral-tiny', messages, temperature: 0.1, max_tokens: 1024, response_format: { type: 'json_object' } })
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data?.error?.message || `${res.status}`);
+            return normalizarRespostaIA(extrairJsonIA(data?.choices?.[0]?.message?.content || ''));
+        } catch(e) { throw e; }
+    }
+
+    // --- Gemini ---
+    async function chamarAPI_Gemini(prompt, file, apiKey) {
+        let headers = { 'Content-Type': 'application/json' }; let url;
+        if (apiKey.startsWith('AIzaSy')) { url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`; } 
+        else if (apiKey.startsWith('AQ')) { headers['Authorization'] = `Bearer ${apiKey}`; url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`; } 
+        else { throw new Error("Chave Gemini inválida. Deve começar com 'AIzaSy' ou 'AQ'."); }
+
         const parts = [{ text: prompt }];
-        if (file) {
-            const img = await fileToOptimizedImage(file);
-            parts.push({ inline_data: { mime_type: img.mimeType, data: img.base64 } });
-        }
+        if (file) { const img = await fileToOptimizedImage(file); parts.push({ inline_data: { mime_type: img.mimeType, data: img.base64 } }); }
 
-        const modelos = ['gemini-1.5-flash', 'gemini-2.0-flash'];
-        let erro = '';
-        for (const mod of modelos) {
-            try {
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${mod}:generateContent?key=${GEMINI_API_KEY}`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ role: 'user', parts }], generationConfig: { temperature: 0.1, response_mime_type: 'application/json' } })
-                });
-                const data = await res.json().catch(() => ({}));
-                if (!res.ok) { erro = data?.error?.message; continue; }
-                const texto = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-                return normalizarRespostaIA(extrairJsonIA(texto));
-            } catch(e) { erro = e.message; }
-        }
-        throw new Error(erro);
+        try {
+            const res = await fetch(url, { method: 'POST', headers: headers, body: JSON.stringify({ contents: [{ role: 'user', parts }], generationConfig: { temperature: 0.1, response_mime_type: 'application/json' } }) });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data?.error?.message || `${res.status}`);
+            const texto = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            return normalizarRespostaIA(extrairJsonIA(texto));
+        } catch(e) { throw e; }
     }
 
-    // ============================================================
-    //  IA 3 (HUGGING FACE)
-    // ============================================================
-    async function chamarAPI_HuggingFace(prompt, file) {
-        if (!HUGGINGFACE_API_KEY || HUGGINGFACE_API_KEY.includes("COLE_AQUI")) throw new Error("Chave do Hugging Face ausente. Crie em huggingface.co/settings/tokens");
-        
-        // HuggingFace free inference is text only
-        const res = await fetch(`https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct`, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${HUGGINGFACE_API_KEY}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ inputs: `Você é uma IA. ${prompt}`, parameters: { max_new_tokens: 800, temperature: 0.1, return_full_text: false } })
-        });
-        
-        if (res.status === 503) throw new Error("O modelo do Hugging Face está ligando, aguarde alguns segundos e tente novamente.");
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data?.error || "Erro HF");
-        
-        let texto = Array.isArray(data) ? data[0]?.generated_text : data?.generated_text;
-        return normalizarRespostaIA(extrairJsonIA(texto));
-    }
-
-    // ============================================================
-    //  IA 4 (OPENROUTER FREE) - Modelos 100% gratuitos verificados
-    // ============================================================
-    async function chamarAPI_OpenRouter(prompt, file, isFallback = false) {
-        if (!OPENROUTER_API_KEY || OPENROUTER_API_KEY.includes("COLE_AQUI")) throw new Error("Chave OpenRouter ausente.");
-        
+    // --- OpenRouter ---
+    async function chamarAPI_OpenRouter(prompt, file, isFallback, apiKey) {
         let contentArray = [{ type: "text", text: prompt }];
-        let modelos = ["google/gemini-2.0-flash-lite-preview-02-05:free", "meta-llama/llama-3.2-11b-vision-instruct:free"];
-        
-        if (file && !isFallback) {
-            try {
-                const img = await fileToOptimizedImage(file);
-                contentArray.push({ type: "image_url", image_url: { url: img.dataUrl } });
-            } catch(e) {}
-        } else {
-            modelos.push("mistralai/mistral-small-24b-instruct-2501:free"); // fallback text
-        }
+        let modelos = ["google/gemini-2.0-flash-lite-preview-02-05:free", "meta-llama/llama-3.2-11b-vision-instruct:free", "mistralai/mistral-7b-instruct-v0.3:free"];
+        if (file && !isFallback) { try { const img = await fileToOptimizedImage(file); contentArray.push({ type: "image_url", image_url: { url: img.dataUrl } }); } catch(e) {} }
 
         let erroFinal = '';
         for (const mod of modelos) {
             try {
                 const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-                    method: "POST",
-                    headers: { "Authorization": `Bearer ${OPENROUTER_API_KEY}`, "Content-Type": "application/json", "HTTP-Referer": window.location.href, "X-Title": "Buscador" },
+                    method: "POST", headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json", "HTTP-Referer": window.location.href, "X-Title": "Buscador" },
                     body: JSON.stringify({ model: mod, messages: [{ role: "user", content: contentArray }], max_tokens: 800 })
                 });
                 const data = await res.json().catch(() => ({}));
@@ -705,13 +1003,12 @@ Retorne APENAS um JSON válido:
                 return normalizarRespostaIA(extrairJsonIA(texto));
             } catch(e) { erroFinal = e.message; }
         }
-        
-        if (file && !isFallback) return await chamarAPI_OpenRouter(prompt, null, true);
+        if (file && !isFallback) return await chamarAPI_OpenRouter(prompt, null, true, apiKey);
         throw new Error(erroFinal);
     }
 
     // ============================================================
-    //  NOVO ALGORITMO DE SCORING (TEXTO >> PREÇO)
+    //  ALGORITMO DE SCORING E VISUALIZAÇÃO DA IA
     // ============================================================
     function processarResultadoIA(aiResult, resBox, isBuscaExpress = false) {
         const termo = removerAcentos(aiResult.termo_base || '').toLowerCase();
@@ -719,24 +1016,13 @@ Retorne APENAS um JSON válido:
         const marca = removerAcentos(aiResult.marca || '').toLowerCase();
         const palavras = Array.isArray(aiResult.palavras_chave) ? aiResult.palavras_chave : [];
 
-        // Extrai palavras fortes do termo principal gerado pela IA
         const termosDoNome = termo.split(/\s+/).filter(t => t.length >= 2 && !STOPWORDS.includes(t));
-        
-        // Reúne todas as palavras
-        const termosBusca = [...termosDoNome, marca, cor, ...palavras]
-            .map(x => removerAcentos(String(x || '').toLowerCase().trim()))
-            .filter(x => x && !['indefinida','generica','undefined','null'].includes(x) && x.length >= 2);
+        const termosBusca = [...termosDoNome, marca, cor, ...palavras].map(x => removerAcentos(String(x || '').toLowerCase().trim())).filter(x => x && !['indefinida','generica','undefined','null'].includes(x) && x.length >= 2);
 
-        // Sinônimos
         const termosExpandidos = new Set(termosBusca);
-        termosBusca.forEach(t => {
-            const pri = t.split(/\s+/)[0];
-            if (DICIONARIO_SINONIMOS[pri]) DICIONARIO_SINONIMOS[pri].forEach(s => termosExpandidos.add(removerAcentos(s)));
-        });
+        termosBusca.forEach(t => { const pri = t.split(/\s+/)[0]; if (DICIONARIO_SINONIMOS[pri]) DICIONARIO_SINONIMOS[pri].forEach(s => termosExpandidos.add(removerAcentos(s))); });
 
-        const min = Number(aiResult.preco_min || 0);
-        const max = Number(aiResult.preco_max || 0);
-        const centro = (min + max) / 2;
+        const min = Number(aiResult.preco_min || 0); const max = Number(aiResult.preco_max || 0); const centro = (min + max) / 2;
 
         let matches = [];
         BANCO_GLOBAL.forEach(item => {
@@ -749,56 +1035,44 @@ Retorne APENAS um JSON válido:
             const valorNum  = Number(item.ValorNum || 0);
             let score = 0; let motivos = [];
 
-            // A MÁGICA: O TEXTO É O QUE MANDA (Valor Altíssimo para Matches de Palavras)
+            if (KEYWORDS_FROZEN && KEYWORDS_LIST.length > 0) {
+                let allPresent = true;
+                for (const kw of KEYWORDS_LIST) { if (!textoItem.includes(kw)) { allPresent = false; break; } }
+                if (!allPresent) return; else { score += 30; motivos.push('Palavras obrigatórias'); }
+            }
+
             let tokensMatch = 0;
             termosDoNome.forEach(token => { if (textoItem.includes(token)) tokensMatch++; });
-            
             if (termosDoNome.length > 0) {
                 const ratio = tokensMatch / termosDoNome.length;
-                if (ratio === 1.0)      { score += 80; motivos.push('Nome Completo Exato'); }
+                if (ratio === 1.0)      { score += 80; motivos.push('Nome Exato'); }
                 else if (ratio >= 0.75) { score += 55; motivos.push('Nome Forte'); }
-                else if (ratio >= 0.5)  { score += 35; motivos.push('Palavras do Nome'); }
+                else if (ratio >= 0.5)  { score += 35; motivos.push('Palavras Base'); }
                 else if (ratio >= 0.25) { score += 15; }
             }
 
-            // Marcas e Cores
-            if (marca && !['generica','indefinida'].includes(marca) && marca.length > 2 && desc.includes(marca)) {
-                score += 20; motivos.push('Marca');
-            }
-            if (cor && cor !== 'indefinida' && cor.length > 2 && desc.includes(cor)) {
-                score += 15; motivos.push('Cor');
-            }
+            if (marca && !['generica','indefinida'].includes(marca) && desc.includes(marca)) { score += 20; motivos.push('Marca'); }
+            if (cor && cor !== 'indefinida' && desc.includes(cor)) { score += 15; motivos.push('Cor'); }
+            termosExpandidos.forEach(t => { if (t.length >= 3 && textoItem.includes(t) && !termosDoNome.includes(t)) score += 5; });
 
-            // Outras palavras chave
-            termosExpandidos.forEach(t => {
-                if (t.length >= 3 && textoItem.includes(t) && !termosDoNome.includes(t)) { score += 5; }
-            });
-
-            // O PREÇO AGORA É SÓ BÔNUS (Se a descrição for perfeita, o preço errado não anula o item)
             if (valorNum > 0 && centro > 0) {
-                if (min > 0 && max > 0 && valorNum >= min * 0.7 && valorNum <= max * 1.3) {
-                    score += 25; motivos.push('Valor Estimado');
-                } else {
-                    const dist = Math.abs(valorNum - centro) / Math.max(centro, 1);
-                    if (dist < 0.5) { score += 10; motivos.push('Faixa de Valor'); }
-                }
+                if (min > 0 && max > 0 && valorNum >= min * 0.7 && valorNum <= max * 1.3) { score += 25; motivos.push('Preço Identico'); } 
+                else if (Math.abs(valorNum - centro) / Math.max(centro, 1) < 0.5) { score += 10; motivos.push('Preço Próximo'); }
             }
 
-            // Filtro mais brando: precisa de 25 pontos (ex: metade do nome certo já aprova)
             if (score >= 25) matches.push({ ...item, aiScore: score, aiMotivos: motivos });
         });
 
         matches.sort((a,b) => b.aiScore - a.aiScore);
         const topMatches = matches.slice(0, 10);
-        const SCORE_MAX = 130; // 80 (nome) + 25 (valor) + 25 (marca/cor/palavras)
         
-        let tituloIA = isBuscaExpress ? 'Análise Expressa da Busca' : IA_CONFIG[CURRENT_IA].titulo;
-        let corTema = isBuscaExpress ? '#8b5cf6' : IA_CONFIG[CURRENT_IA].cor;
+        let tituloIA = isBuscaExpress ? 'Análise Expressa da Busca' : IAs_CONFIG[CURRENT_IA].nome;
+        let corTema = isBuscaExpress ? '#8b5cf6' : IAs_CONFIG[CURRENT_IA].cor;
 
         let html = `
             <div style="color:${corTema}; font-weight:900; margin-bottom:6px;">✅ ${tituloIA} Concluída</div>
             <div style="font-size:0.8rem; background:var(--bg-body); padding:10px 12px; border-radius:8px; border:1px solid var(--border-card); margin-bottom:12px; line-height:1.8;">
-                <b>📦 Produto Identificado:</b> <span style="text-transform:capitalize; color:${corTema}; font-weight:900;">${escapeHtml(aiResult.termo_base)}</span><br>
+                <b>📦 Produto:</b> <span style="text-transform:capitalize; color:${corTema}; font-weight:900;">${escapeHtml(aiResult.termo_base)}</span><br>
                 <b>🎨 Cor:</b> ${escapeHtml(aiResult.cor)} &nbsp;|&nbsp; <b>🏷️ Marca:</b> ${escapeHtml(aiResult.marca)}<br>
                 <b>💰 Valor estimado:</b> R$ ${Number(aiResult.preco_min||0).toLocaleString('pt-BR',{minimumFractionDigits:2})} até R$ ${Number(aiResult.preco_max||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}<br>
                 <b>🔑 Palavras de Busca:</b> ${escapeHtml((termosDoNome||[]).join(', ')||'-')}
@@ -807,13 +1081,10 @@ Retorne APENAS um JSON válido:
         `;
 
         if (topMatches.length === 0) {
-            html += `<div class="ia-match-card" style="text-align:center; color:var(--accent-warn); padding:20px;">
-                😔 Nenhuma correspondência razoável encontrada.<br>
-                <small style="color:var(--text-muted);">Tente buscar manualmente pelas palavras: <b>${escapeHtml(termosDoNome.slice(0,3).join(', '))}</b></small>
-            </div>`;
+            html += `<div class="ia-match-card" style="text-align:center; color:var(--accent-warn); padding:20px;">😔 Nenhuma correspondência razoável encontrada.</div>`;
         } else {
             topMatches.forEach(m => {
-                const pct = Math.min(99, Math.round((m.aiScore / SCORE_MAX) * 100));
+                const pct = Math.min(99, Math.round((m.aiScore / 130) * 100));
                 const corBadge = pct >= 70 ? '#059669' : pct >= 45 ? '#d97706' : '#6b7280';
                 const [origemNome, origemClass] = getClassOrigem(m.OrigemDb);
                 const vFmt = Number(m.ValorNum||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
@@ -823,7 +1094,7 @@ Retorne APENAS um JSON válido:
                             <div class="ia-match-title">${escapeHtml(m.ID)} <span class="badge ${origemClass}">${origemNome}</span></div>
                             <div class="ia-match-prob" style="color:${corBadge}; background:rgba(0,0,0,0.05);">🔥 ${pct}% Match</div>
                         </div>
-                        <div style="font-size:0.78rem; color:var(--text-main); font-weight:600; line-height:1.4;">${escapeHtml(m.Descricao)}</div>
+                        <div style="font-size:0.78rem; color:var(--text-main); font-weight:600;">${escapeHtml(m.Descricao)}</div>
                         <div style="font-size:0.68rem; color:var(--text-muted); font-weight:700;">✅ Bateu: ${escapeHtml((m.aiMotivos||[]).join(' · ')||'similaridade')}</div>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px; gap:8px;">
                             <div style="font-size:0.8rem; color:var(--accent-green); font-weight:900;">R$ ${vFmt}</div>
@@ -835,88 +1106,11 @@ Retorne APENAS um JSON válido:
                     </div>`;
             });
         }
-
         resBox.innerHTML = html;
     }
 
     // ============================================================
-    //  UTILITÁRIOS GERAIS
-    // ============================================================
-    function removerAcentos(str) { return String(str ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
-    function escapeHtml(v) { return String(v ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;'); }
-    function parseCurrency(v) {
-        if (!v) return 0;
-        let s = String(v).replace(/R\$/gi,'').replace(/\s/g,'').trim();
-        const lc = s.lastIndexOf(','); const lp = s.lastIndexOf('.');
-        if (lc > lp) s = s.replace(/\./g,'').replace(',','.'); else if (lp > lc) s = s.replace(/,/g,'');
-        return parseFloat(s) || 0;
-    }
-    function cleanKey(k) { return String(k||'').toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
-    function getVal(row, keys) {
-        const rk = Object.keys(row || {});
-        for (const pk of keys) { const f = rk.find(k => cleanKey(k) === cleanKey(pk)); if (f && String(row[f]).trim()) return String(row[f]).trim(); }
-        return '';
-    }
-    function extrairID(row) {
-        const v = getVal(row, ['id','id do pacote','pacote','shipment','tracking','numero','n pacote','rastreio','shipment id']);
-        if (v) return v;
-        const k = Object.keys(row || {}); return k.length > 0 ? String(row[k[0]]).trim() : '';
-    }
-
-    // ============================================================
-    //  FIREBASE — CARREGAR BANCOS
-    // ============================================================
-    async function carregarTodosBancos() {
-        BANCO_GLOBAL = [];
-        for (const [key, node] of Object.entries(DB_NODES)) {
-            try {
-                const res = await fetch(`${FIREBASE_URL}${node}.json`);
-                if (!res.ok) throw new Error();
-                const data = await res.json();
-                let lista = []; let dataAt = "Sem data";
-                if (data) {
-                    if (Array.isArray(data)) lista = data;
-                    else if (data.lista) { lista = Array.isArray(data.lista) ? data.lista : Object.values(data.lista); dataAt = data.atualizadoEm || "Sem data"; }
-                    else lista = Object.values(data);
-                }
-                const lbl = document.getElementById(`lbl-${key}`);
-                if (lista.length > 0) {
-                    BANCO_GLOBAL.push(...lista.map(i => ({ ...i, ValorNum: Number(i.ValorNum || parseCurrency(i.Valor)), OrigemDb: key })));
-                    if (lbl) lbl.innerHTML = `${lista.length} u. <span class="upload-date">(${String(dataAt).split(',')[0]})</span>`;
-                } else { if (lbl) lbl.innerText = 'Vazio'; }
-            } catch(e) { const lbl = document.getElementById(`lbl-${key}`); if (lbl) lbl.innerText = 'Erro ❌'; }
-        }
-        if (document.getElementById('search-input').value.trim()) executarSmartSearch();
-    }
-
-    // ============================================================
-    //  UPLOAD CSV
-    // ============================================================
-    function processarUpload(inputElement, dbKey) {
-        if (!canEdit) return;
-        const file = inputElement.files[0]; if (!file) return;
-        document.getElementById(`lbl-${dbKey}`).innerText = 'Processando...';
-        Papa.parse(file, {
-            header: true, skipEmptyLines: true,
-            complete: async function(results) {
-                const dadosLimpos = (results.data || []).map(row => {
-                    const valText = getVal(row, ['valor_real','valor_brl','valor','preco','preço','price','total','vl']);
-                    return { ID: extrairID(row), Descricao: getVal(row, ['descricao','descrição','descricao_do_produto','descricao do produto','produto','item','title','titulo','nome']), Status: getVal(row, ['shp_lg_status','status_logistics','status','staus','status do pacote','estado','situacao','situação']), Substatus: getVal(row, ['shp_lg_sub_status','substatus_logistics','substatus','sub status','sub-status','ultimo status','resolucao','resolução','motivo','detalhe','final analise']), Valor: valText, ValorNum: parseCurrency(valText), Aging: getVal(row, ['aging','dias estocados','parados','dias parados','dias','age']) };
-                }).filter(i => i.ID && !['nan','undefined'].includes(i.ID.toLowerCase()));
-
-                if (!dadosLimpos.length) { alert("Arquivo inválido."); document.getElementById(`lbl-${dbKey}`).innerText = 'Falha ❌'; return; }
-                try {
-                    const payload = { atualizadoEm: new Date().toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'}), lista: dadosLimpos };
-                    await fetch(`${FIREBASE_URL}${DB_NODES[dbKey]}.json`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-                    await registrarLogFirebase("Buscador Global", `Atualizou a base <b>${dbKey.toUpperCase()}</b> (${dadosLimpos.length} itens).`);
-                    carregarTodosBancos(); fecharModalGerenciador(); inputElement.value = "";
-                } catch(e) { alert('Erro na nuvem.'); document.getElementById(`lbl-${dbKey}`).innerText = 'Erro ❌'; }
-            }
-        });
-    }
-
-    // ============================================================
-    //  SMART SEARCH MANAUL (Barra Raiz)
+    //  SMART SEARCH MANUAL (Barra Raiz)
     // ============================================================
     function agruparResultados(lista) {
         const mapa = {};
@@ -1005,7 +1199,18 @@ Retorne APENAS um JSON válido:
     function renderizarPedaçoAproximados() { const s = CUR_PAGE_APROX * PAGE_SIZE; document.getElementById('tbody-aproximados').insertAdjacentHTML('beforeend', DADOS_APROXIMADOS.slice(s, s+PAGE_SIZE).map(i=>renderizarLinha(i,false)).join('')); }
     function carregarMaisAproximados()     { const c = document.getElementById('scroll-aproximados'); if (c.scrollTop+c.clientHeight >= c.scrollHeight-60 && (CUR_PAGE_APROX+1)*PAGE_SIZE < DADOS_APROXIMADOS.length) { CUR_PAGE_APROX++; renderizarPedaçoAproximados(); } }
 
-    window.onload = async () => { await carregarListaEncontrados(); carregarTodosBancos(); };
+    function escapeJsAttr(v) { return String(v ?? '').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,' ').replace(/\r/g,' '); }
+    function cleanKey(k) { return String(k||'').toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+    function getVal(row, keys) {
+        const rk = Object.keys(row || {});
+        for (const pk of keys) { const f = rk.find(k => cleanKey(k) === cleanKey(pk)); if (f && String(row[f]).trim()) return String(row[f]).trim(); }
+        return '';
+    }
+    function extrairID(row) {
+        const v = getVal(row, ['id','id do pacote','pacote','shipment','tracking','numero','n pacote','rastreio','shipment id']);
+        if (v) return v;
+        const k = Object.keys(row || {}); return k.length > 0 ? String(row[k[0]]).trim() : '';
+    }
     </script>
 </body>
 </html>
