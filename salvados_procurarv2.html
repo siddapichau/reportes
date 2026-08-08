@@ -260,6 +260,7 @@
                 <div id="freeze-status" style="font-size:0.7rem; color:var(--text-muted); margin-top:3px;">❄️ Descongelado</div>
             </div>
 
+            <!-- TRAVA DE CLIQUE ABSOLUTO APLICADA AQUI -->
             <div class="ia-input-group">
                 <label>Foto da Bancada (Opcional)</label>
                 <div style="position:relative; width:100%; border:1px dashed var(--border-card); border-radius:8px; text-align:center; overflow:hidden;">
@@ -583,7 +584,7 @@
 
         if (atualizados > 0) {
             await registrarLogFirebase("Buscador Global", `Fez Smart Upload de ${atualizados} planilhas.`);
-            await carregarTodosBancos(); // Atualiza sem piscar a tela agressivamente
+            carregarTodosBancos(); // Atualiza sem piscar a tela agressivamente
             setTimeout(() => { modalStatus.classList.remove('active'); statusArea.innerHTML = ''; inputElement.value = ''; }, 3000);
         } else {
             setTimeout(() => { modalStatus.classList.remove('active'); statusArea.innerHTML = ''; inputElement.value = ''; }, 3000);
@@ -804,6 +805,7 @@
         const url = normalizarLink(link); if (!url) return '';
         try {
             const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 12000);
+            // r.jina.ai extrai todo o texto limpo da página para cruzar marca e descrições
             const res = await fetch(`https://r.jina.ai/${encodeURI(url)}`, { signal: ctrl.signal, headers: {'Accept':'text/plain'} });
             clearTimeout(t); if (!res.ok) return '';
             return String(await res.text()).replace(/\s+/g, ' ').slice(0, 6000);
@@ -857,7 +859,7 @@ COMO AGIR:
   "marca": "Marca identificada ou generica",
   "preco_min": 10.0,
   "preco_max": 50.0,
-  "palavras_chave": ["p1", "p2", "p3"]
+  "palavras_chave": ["palavra1", "palavra2", "palavra3", "palavra4", "palavra5"]
 }`;
     }
 
@@ -977,7 +979,7 @@ Retorne APENAS um JSON válido:
         } catch(e) { resBox.innerHTML = `<span style='color:#FF5252;font-weight:bold;'>❌ Erro na IA: ${escapeHtml(e.message)}</span>`; }
     }
 
-    // --- MOTORES DE INTELIGÊNCIA ---
+    // --- Groq ---
     async function chamarAPI_Groq(prompt, file, semImagem, apiKey) {
         let modelToUse = "llama-3.3-70b-versatile"; let messages;
         if (file && !semImagem) {
@@ -1002,6 +1004,7 @@ Retorne APENAS um JSON válido:
         }
     }
 
+    // --- Mistral ---
     async function chamarAPI_Mistral(prompt, file, apiKey) {
         let messages = [{ role: 'user', content: prompt }];
         try {
@@ -1015,6 +1018,7 @@ Retorne APENAS um JSON válido:
         } catch(e) { throw e; }
     }
 
+    // --- Gemini ---
     async function chamarAPI_Gemini(prompt, file, apiKey) {
         let headers = { 'Content-Type': 'application/json' }; let url;
         if (apiKey.startsWith('AIzaSy')) { url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`; } 
@@ -1033,6 +1037,7 @@ Retorne APENAS um JSON válido:
         } catch(e) { throw e; }
     }
 
+    // --- OpenRouter ---
     async function chamarAPI_OpenRouter(prompt, file, isFallback, apiKey) {
         let contentArray = [{ type: "text", text: prompt }];
         let modelos = ["google/gemini-2.0-flash-lite-preview-02-05:free", "meta-llama/llama-3.2-11b-vision-instruct:free", "mistralai/mistral-7b-instruct-v0.3:free"];
@@ -1139,7 +1144,7 @@ Retorne APENAS um JSON válido:
             html += `<div class="ia-match-card" style="text-align:center; color:var(--accent-warn); padding:20px;">😔 Nenhuma correspondência razoável encontrada.</div>`;
         } else {
             topMatches.forEach(m => {
-                const pct = Math.min(99, Math.round((m.aiScore / 180) * 100));
+                const pct = Math.min(99, Math.round((m.aiScore / 180) * 100)); // Relativo ao score máximo de 150+30
                 const corBadge = pct >= 70 ? '#059669' : pct >= 45 ? '#d97706' : '#6b7280';
                 
                 let badgesHTML = (m.OrigensDb || []).map(o => { 
