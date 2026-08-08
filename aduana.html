@@ -648,7 +648,7 @@
                 let rota = rotaKey ? r[rotaKey].split('|')[0].trim() : '-';
                 let transp = transpKey && r[transpKey] ? (r[transpKey].length > 15 ? r[transpKey].substring(0,15)+'...' : r[transpKey]) : '-';
                 let repRaw = repKey && r[repKey] ? r[repKey] : '-';
-                let rep = repRaw.split('\n')[0].split(' ').slice(0,2).join(' ');
+                let rep = repRaw.split('\n')[0].split(' ').slice(0,2).join(' '); // Apenas 2 nomes para caber
                 let c = parseInt(cKey ? r[cKey] : 0)||0;
                 let a = parseInt(aKey ? r[aKey] : 0)||0;
                 let f = parseInt(fKey ? r[fKey] : 0)||0;
@@ -727,7 +727,7 @@
                 xaxis: { categories: ciclos, labels: { style: { colors: textColor, fontWeight: 900, fontSize: '11px' } } },
                 yaxis: { labels: { style: { colors: textColor } } },
                 legend: { position: 'top', labels: { colors: textColor }, itemMargin: {horizontal: 5, vertical: 0} },
-                grid: { padding: { top: 30, bottom: 10 }, borderColor: gridColor, strokeDashArray: 3 }
+                grid: { padding: { top: 30, bottom: 15 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.ciclo.render();
 
@@ -748,7 +748,7 @@
                 },
                 yaxis: { type: 'category', labels: { style: { colors: textColor, fontWeight: 900, fontSize: '11px' } } },
                 legend: { position: 'top', labels: { colors: textColor }, markers: { radius: 0 } },
-                grid: { padding: { top: 35, right: 35 }, borderColor: gridColor, strokeDashArray: 3 }
+                grid: { padding: { top: 30, right: 35, bottom: 10 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.perfil.render();
 
@@ -770,7 +770,7 @@
                     max: function(val) { return val * 1.25; } 
                 },
                 yaxis: { type: 'category', labels: { style: { colors: textColor, fontWeight: 800, fontSize:'10px' } } },
-                grid: { padding: { right: 35 }, borderColor: gridColor, strokeDashArray: 3 }
+                grid: { padding: { top: 30, right: 35, bottom: 10 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.reps.render();
 
@@ -791,7 +791,7 @@
                 },
                 yaxis: { type: 'category', labels: { style: { colors: textColor, fontWeight: 800, fontSize:'10px' } } },
                 legend: { position: 'top', labels: { colors: textColor }, markers: { radius: 0 } },
-                grid: { padding: { top: 35 }, borderColor: gridColor, strokeDashArray: 3 }
+                grid: { padding: { top: 30, right: 10, bottom: 10 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.transp.render();
         }
