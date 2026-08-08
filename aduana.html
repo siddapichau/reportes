@@ -82,7 +82,7 @@
 
         /* LAYOUT GERAL (GRÁFICOS) */
         .dashboard-grid { display: grid; grid-template-columns: 0.95fr 1.05fr 1.35fr; grid-template-rows: 1fr 1fr; gap: 10px; flex: 1; min-height: 0; margin-top: 5px;}
-        .chart-card { display: flex; flex-direction: column; border-radius: 8px; overflow: hidden; min-height: 0; } 
+        .chart-card { display: flex; flex-direction: column; border-radius: 8px; min-height: 0; } 
         
         .chart-title { background: var(--brand-yellow); color: var(--text-on-yellow); padding: 6px 10px; font-size: 0.8rem; font-weight: 900; text-transform: uppercase; text-align: center; letter-spacing: 0.5px; margin: 0; border-bottom: 1px solid var(--border-card); flex: 0 0 auto;}
         .chart-wrapper { flex: 1; min-height: 0; width: 100%; position: relative; padding: 5px; box-sizing: border-box; }
@@ -712,7 +712,7 @@
             
             Object.keys(chartInstances).forEach(k => { if(chartInstances[k]) chartInstances[k].destroy(); });
 
-            // 1. TOTAL x CICLO (Margem corrigida para não sumir os eixos)
+            // 1. TOTAL x CICLO (Com espaço inferior garantido e eixo X restaurado)
             let ciclos = Object.keys(mapCiclo);
             let srAd = ciclos.map(c => mapCiclo[c].aduanas);
             let srF = ciclos.map(c => mapCiclo[c].f);
@@ -724,10 +724,13 @@
                 colors: ['var(--bar-yellow)', '#E74C3C', '#4A90E2'],
                 plotOptions: { bar: { horizontal: false, columnWidth: '60%', dataLabels: {position: 'top'} } },
                 dataLabels: { enabled: true, offsetY: -25, style: { fontSize: '11px', colors: [textColor] }, dropShadow: {enabled:false} },
-                xaxis: { categories: ciclos, labels: { show: true, style: { colors: textColor, fontWeight: 900, fontSize: '11px' } } },
-                yaxis: { labels: { style: { colors: textColor } } },
+                xaxis: { categories: ciclos, labels: { style: { colors: textColor, fontWeight: 900, fontSize: '11px' } } },
+                yaxis: { 
+                    labels: { style: { colors: textColor } },
+                    max: function(val) { return val * 1.25; } 
+                },
                 legend: { position: 'top', labels: { colors: textColor }, itemMargin: {horizontal: 5, vertical: 0} },
-                grid: { padding: { top: 30 }, borderColor: gridColor, strokeDashArray: 3 }
+                grid: { padding: { top: 20, bottom: 25 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.ciclo.render();
 
@@ -748,7 +751,7 @@
                 },
                 yaxis: { type: 'category', labels: { style: { colors: textColor, fontWeight: 900, fontSize: '11px' } } },
                 legend: { position: 'top', labels: { colors: textColor }, markers: { radius: 0 } },
-                grid: { padding: { top: 30, right: 35 }, borderColor: gridColor, strokeDashArray: 3 }
+                grid: { padding: { top: 30, right: 35, bottom: 10 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.perfil.render();
 
@@ -791,7 +794,7 @@
                 },
                 yaxis: { type: 'category', labels: { style: { colors: textColor, fontWeight: 800, fontSize:'10px' } } },
                 legend: { position: 'top', labels: { colors: textColor }, markers: { radius: 0 } },
-                grid: { padding: { top: 30, right: 10 }, borderColor: gridColor, strokeDashArray: 3 }
+                grid: { padding: { top: 30, right: 10, bottom: 10 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.transp.render();
         }
