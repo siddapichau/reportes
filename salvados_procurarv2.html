@@ -112,6 +112,10 @@
         input:checked + .slider { background-color: #059669; }
         input:checked + .slider:before { transform: translateX(20px); }
 
+        /* MODAL DE STATUS DO UPLOAD */
+        #modal-upload-status .modal-content { max-width: 400px; text-align: center; }
+        #upload-status-log { font-size: 0.85rem; color: var(--text-main); font-weight: 600; line-height: 1.6; max-height: 200px; overflow-y: auto; text-align: left; background: var(--bg-body); padding: 10px; border-radius: 8px; border: 1px solid var(--border-card);}
+
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg-body); }
         ::-webkit-scrollbar-thumb { background: var(--border-card); border-radius: 3px; }
@@ -203,9 +207,9 @@
 
     <!-- MODAL DE STATUS DO UPLOAD DE CSVs -->
     <div class="modal-overlay" id="modal-upload-status">
-        <div class="modal-content" style="max-width: 400px; text-align: center;">
+        <div class="modal-content" style="max-width: 450px; text-align: center;">
             <div class="modal-title" style="color:var(--accent-blue); margin-bottom:10px;">📦 Sincronizando Planilhas...</div>
-            <div id="upload-status-log" style="font-size:0.85rem; color:var(--text-main); font-weight:600; line-height:1.6;"></div>
+            <div id="upload-status-log"></div>
         </div>
     </div>
 
@@ -387,6 +391,7 @@
             const res = await fetch(`${FIREBASE_URL}salvados_api_keys.json`);
             const data = await res.json();
             if(data) {
+                // Mescla os dados da nuvem mantendo nomes originais se vazio
                 Object.keys(IAs_CONFIG).forEach(id => {
                     if(data[id]) {
                         IAs_CONFIG[id].key = data[id].key || "";
@@ -508,8 +513,12 @@
         return map[res] || null;
     }
 
-    const lerArquivoCSV = (file) => new Promise(resolve => {
-        Papa.parse(file, { header: true, skipEmptyLines: true, complete: results => resolve(results.data) });
+    const lerArquivoCSV = (file) => new Promise((resolve, reject) => {
+        Papa.parse(file, { 
+            header: true, skipEmptyLines: true, 
+            complete: results => resolve(results.data),
+            error: err => reject(err)
+        });
     });
 
     async function processarUploadSmart(inputElement) {
@@ -536,26 +545,26 @@
 
             statusArea.innerHTML += `⏳ Lendo <b>${file.name}</b> para [${dbKey.toUpperCase()}]...<br>`;
             
-            const rawData = await lerArquivoCSV(file);
-            const dadosLimpos = rawData.map(row => {
-                const valText = getVal(row, ['valor_real','valor_brl','valor','preco','preço','price','total','vl']);
-                return { 
-                    ID: extrairID(row), 
-                    Descricao: getVal(row, ['descricao','descrição','descricao_do_produto','descricao do produto','produto','item','title','titulo','nome']), 
-                    Status: getVal(row, ['shp_lg_status','status_logistics','status','staus','status do pacote','estado','situacao','situação']), 
-                    Substatus: getVal(row, ['shp_lg_sub_status','substatus_logistics','substatus','sub status','sub-status','ultimo status','resolucao','resolução','motivo','detalhe','final analise']), 
-                    Valor: valText, 
-                    ValorNum: parseCurrency(valText), 
-                    Aging: getVal(row, ['aging','dias estocados','parados','dias parados','dias','age']) 
-                };
-            }).filter(i => i.ID && !['nan','undefined'].includes(i.ID.toLowerCase()));
-
-            if (!dadosLimpos.length) {
-                statusArea.innerHTML += `<span style="color:#e11d48;">❌ Vazio/Inválido: ${file.name}</span><br>`;
-                continue;
-            }
-
             try {
+                const rawData = await lerArquivoCSV(file);
+                const dadosLimpos = rawData.map(row => {
+                    const valText = getVal(row, ['valor_real','valor_brl','valor','preco','preço','price','total','vl']);
+                    return { 
+                        ID: extrairID(row), 
+                        Descricao: getVal(row, ['descricao','descrição','descricao_do_produto','descricao do produto','produto','item','title','titulo','nome']), 
+                        Status: getVal(row, ['shp_lg_status','status_logistics','status','staus','status do pacote','estado','situacao','situação']), 
+                        Substatus: getVal(row, ['shp_lg_sub_status','substatus_logistics','substatus','sub status','sub-status','ultimo status','resolucao','resolução','motivo','detalhe','final analise']), 
+                        Valor: valText, 
+                        ValorNum: parseCurrency(valText), 
+                        Aging: getVal(row, ['aging','dias estocados','parados','dias parados','dias','age']) 
+                    };
+                }).filter(i => i.ID && !['nan','undefined'].includes(i.ID.toLowerCase()));
+
+                if (!dadosLimpos.length) {
+                    statusArea.innerHTML += `<span style="color:#e11d48;">❌ Vazio/Inválido: ${file.name}</span><br>`;
+                    continue;
+                }
+
                 const payload = { atualizadoEm: new Date().toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'}), lista: dadosLimpos };
                 await fetch(`${FIREBASE_URL}${DB_NODES[dbKey]}.json`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
                 statusArea.innerHTML += `<span style="color:#059669;">✅ Sucesso: ${file.name} salvos!</span><br>`;
@@ -567,7 +576,7 @@
 
         if (atualizados > 0) {
             await registrarLogFirebase("Buscador Global", `Fez Smart Upload de ${atualizados} planilhas.`);
-            carregarTodosBancos();
+            carregarTodosBancos(); // Atualiza sem piscar a tela agressivamente
             setTimeout(() => { modalStatus.classList.remove('active'); statusArea.innerHTML = ''; inputElement.value = ''; }, 3000);
         } else {
             setTimeout(() => { modalStatus.classList.remove('active'); statusArea.innerHTML = ''; inputElement.value = ''; }, 3000);
@@ -579,24 +588,40 @@
     // ============================================================
     async function carregarTodosBancos() {
         BANCO_GLOBAL = [];
+        let contagens = {};
+
         for (const [key, node] of Object.entries(DB_NODES)) {
+            const lbl = document.getElementById(`lbl-${key}`);
+            if (lbl) lbl.innerText = 'Carregando...';
             try {
                 const res = await fetch(`${FIREBASE_URL}${node}.json`);
                 if (!res.ok) throw new Error();
                 const data = await res.json();
+                
                 let lista = []; let dataAt = "Sem data";
                 if (data) {
                     if (Array.isArray(data)) lista = data;
                     else if (data.lista) { lista = Array.isArray(data.lista) ? data.lista : Object.values(data.lista); dataAt = data.atualizadoEm || "Sem data"; }
                     else lista = Object.values(data);
                 }
-                const lbl = document.getElementById(`lbl-${key}`);
+                
                 if (lista.length > 0) {
                     BANCO_GLOBAL.push(...lista.map(i => ({ ...i, ValorNum: Number(i.ValorNum || parseCurrency(i.Valor)), OrigemDb: key })));
-                    if (lbl) lbl.innerHTML = `${lista.length} u. <span class="upload-date">(${String(dataAt).split(',')[0]})</span>`;
-                } else { if (lbl) lbl.innerText = 'Vazio'; }
-            } catch(e) { const lbl = document.getElementById(`lbl-${key}`); if (lbl) lbl.innerText = 'Erro ❌'; }
+                    contagens[key] = `${lista.length} u. <span class="upload-date">(${String(dataAt).split(',')[0]})</span>`;
+                } else { 
+                    contagens[key] = 'Vazio'; 
+                }
+            } catch(e) { 
+                contagens[key] = 'Erro ❌'; 
+            }
         }
+
+        // Atualiza a tela de uma vez
+        Object.keys(contagens).forEach(key => {
+            const lbl = document.getElementById(`lbl-${key}`);
+            if(lbl) lbl.innerHTML = contagens[key];
+        });
+
         await atualizarIndicadorMemoria();
         if (document.getElementById('search-input').value.trim()) executarSmartSearch();
     }
@@ -766,7 +791,7 @@
         const url = normalizarLink(link); if (!url) return '';
         try {
             const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 12000);
-            // r.jina.ai extrai todo o texto limpo da página
+            // r.jina.ai extrai todo o texto limpo da página para cruzar marca e descrições
             const res = await fetch(`https://r.jina.ai/${encodeURI(url)}`, { signal: ctrl.signal, headers: {'Accept':'text/plain'} });
             clearTimeout(t); if (!res.ok) return '';
             return String(await res.text()).replace(/\s+/g, ' ').slice(0, 6000);
