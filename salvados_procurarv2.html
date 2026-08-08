@@ -39,7 +39,6 @@
         .btn-header { background: #FFFFFF !important; color: #333333 !important; border: 1px solid #CCCCCC !important; border-radius: 6px; padding: 8px 10px; font-size: .75rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: all .2s ease; }
         .btn-header:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.15) !important; }
         
-        /* Novo estilo unificado das IAs baseado na 3 e 4 */
         .btn-ia-style { border-color: var(--accent-blue) !important; color: var(--accent-blue) !important; }
         .btn-ia-style:hover { background: var(--accent-blue) !important; color: #fff !important; }
         .btn-ia-purple { border-color: #8b5cf6 !important; color: #8b5cf6 !important; }
@@ -116,7 +115,6 @@
             </div>
         </div>
         <div class="nav-right" style="display:flex; gap:4px; flex-wrap:wrap; justify-content:flex-end;">
-            <!-- Botões IAs agora unificados -->
             <button class="btn-header btn-ia-style" id="btn-ia-1" onclick="abrirModalIA('v1')" title="Groq (Perfeita)" style="display:none;">🤖 IA 1</button>
             <button class="btn-header btn-ia-style" id="btn-ia-2" onclick="abrirModalIA('v2')" title="Mistral AI" style="display:none;">🤖 IA 2</button>
             <button class="btn-header btn-ia-style" id="btn-ia-3" onclick="abrirModalIA('v3')" title="Google Gemini" style="display:none;">🤖 IA 3</button>
@@ -170,6 +168,17 @@
         </div>
     </div>
 
+    <!-- MODAL UPLOAD PROGRESS -->
+    <div class="modal-overlay" id="modal-upload-progress">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <div class="modal-title" style="color:var(--accent-blue);">Subindo Arquivos...</div>
+            <div id="upload-status-text" style="font-size:0.85rem; color:var(--text-main); margin:10px 0; font-weight:bold;">Preparando...</div>
+            <div style="width:100%; background:var(--bg-body); border-radius:8px; overflow:hidden; height:20px; border: 1px solid var(--border-card);">
+                <div id="upload-progress-bar" style="width:0%; background:var(--accent-green); height:100%; transition:width 0.3s ease;"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL GERENCIAR IA (Apenas Admin) -->
     <div class="modal-overlay" id="modal-gerenciar-ia">
         <div class="modal-content">
@@ -180,7 +189,6 @@
             <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:5px;">Preencha as chaves (API Keys) de cada motor e ative-os.</div>
             
             <div style="display:flex; flex-direction:column; gap:12px;">
-                <!-- IA 1 -->
                 <div style="padding:10px; border:1px solid var(--border-card); border-radius:8px;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <strong>🤖 IA 1 (Groq Llama)</strong>
@@ -188,7 +196,6 @@
                     </div>
                     <input type="password" class="ia-input" id="ia-1-key" placeholder="API Key Groq" style="width:100%; margin-top:8px;">
                 </div>
-                <!-- IA 2 -->
                 <div style="padding:10px; border:1px solid var(--border-card); border-radius:8px;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <strong>🤖 IA 2 (Mistral AI)</strong>
@@ -196,7 +203,6 @@
                     </div>
                     <input type="password" class="ia-input" id="ia-2-key" placeholder="API Key Mistral" style="width:100%; margin-top:8px;">
                 </div>
-                <!-- IA 3 -->
                 <div style="padding:10px; border:1px solid var(--border-card); border-radius:8px;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <strong>🤖 IA 3 (Google Gemini)</strong>
@@ -204,7 +210,6 @@
                     </div>
                     <input type="password" class="ia-input" id="ia-3-key" placeholder="API Key Gemini" style="width:100%; margin-top:8px;">
                 </div>
-                <!-- IA 4 -->
                 <div style="padding:10px; border:1px solid var(--border-card); border-radius:8px;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <strong>🤖 IA 4 (OpenRouter / Custom)</strong>
@@ -308,7 +313,6 @@
             const data = await res.json();
             if (data) IA_CONFIGS = { ...IA_CONFIGS, ...data };
             
-            // Atualizar UI dos botões baseados no status ativo
             document.getElementById('btn-ia-1').style.display = IA_CONFIGS.v1.active ? 'inline-flex' : 'none';
             document.getElementById('btn-ia-2').style.display = IA_CONFIGS.v2.active ? 'inline-flex' : 'none';
             document.getElementById('btn-ia-3').style.display = IA_CONFIGS.v3.active ? 'inline-flex' : 'none';
@@ -350,29 +354,51 @@
     }
     function fecharModalIA() { document.getElementById('modal-ia').classList.remove('active'); }
 
-    // ====== UPLOAD MÚLTIPLO E INTELIGENTE ======
+    // ====== UPLOAD MÚLTIPLO COM BARRA DE PROGRESSO ======
     async function processarMultiUpload(inputElement) {
         if (!canEdit) return;
         const files = inputElement.files;
         if (!files || files.length === 0) return;
         
-        for(let file of files) {
+        const modalProg = document.getElementById('modal-upload-progress');
+        const bar = document.getElementById('upload-progress-bar');
+        const text = document.getElementById('upload-status-text');
+        
+        modalProg.classList.add('active');
+        let filesProcessed = 0;
+        
+        for(let i=0; i<files.length; i++) {
+            let file = files[i];
             const name = file.name.toLowerCase();
             let dbKey = '';
             
             if (name.includes('devolu')) dbKey = 'devolucao';
-            else if (name.includes('toda gest') || name.includes('toda_gest') || name.includes('id data') || name.includes('id_data')) dbKey = 'iddata'; // Atualizado para Toda Gestão
+            else if (name.includes('toda gest') || name.includes('toda_gest') || name.includes('id data') || name.includes('id_data')) dbKey = 'iddata'; 
             else if (name.includes('10')) dbKey = 'q10';
             else if (name.includes('15')) dbKey = 'q15';
             else if (name.includes('onhub')) dbKey = 'qonhub';
             else if (name.includes('cftv')) dbKey = 'cftv';
             else if (name.includes('parado')) dbKey = 'parado';
-            else { alert(`Não foi possível identificar o banco para o arquivo: ${file.name}`); continue; }
+            else { 
+                filesProcessed++; 
+                continue; 
+            }
 
+            text.innerText = `Processando: ${file.name} (${i+1}/${files.length})`;
             document.getElementById(`lbl-${dbKey}`).innerText = 'Subindo...';
+            
             await processarArquivoCSV(file, dbKey);
+            filesProcessed++;
+            bar.style.width = `${(filesProcessed / files.length) * 100}%`;
         }
-        inputElement.value = ''; // Limpar input
+        
+        text.innerText = "Upload Concluído!";
+        setTimeout(() => { 
+            modalProg.classList.remove('active'); 
+            bar.style.width = '0%'; 
+        }, 1500);
+        
+        inputElement.value = ''; 
     }
 
     function processarArquivoCSV(file, dbKey) {
@@ -405,7 +431,7 @@
         });
     }
 
-    // ====== BANCO DE DADOS E MEMÓRIA ======
+    // ====== BANCO DE DADOS E MEMÓRIA CORRIGIDA ======
     async function carregarListaEncontrados() {
         try { const res = await fetch(`${FIREBASE_URL}salvados_encontrados.json`); const data = await res.json(); if (data) Object.keys(data).forEach(k => ITENS_ENCONTRADOS.add(k)); } catch(e) {}
     }
@@ -424,8 +450,8 @@
         const box = document.getElementById('memoria-resultado');
         box.innerHTML = "⏳ Carregando aprendizados...";
         try {
-            // Corrige a falha no carregamento dos dados da memória (ordenado por timestamp)
-            const res = await fetch(`${FIREBASE_URL}salvados_aprendizado.json?orderBy="timestamp"&limitToLast=50`);
+            // Puxando os dados sem filtro de URL e tratando no javascript para evitar falha do firebase sem index
+            const res = await fetch(`${FIREBASE_URL}salvados_aprendizado.json`);
             const data = await res.json();
             
             if (!data || Object.keys(data).length === 0) {
@@ -433,8 +459,11 @@
                 return;
             }
             
-            let html = `<div style="font-weight:900; margin-bottom:10px;">Total na Memória: ${Object.keys(data).length} exemplos</div>`;
-            for (const [key, ex] of Object.entries(data).reverse()) {
+            const memoriaArray = Object.entries(data).map(([key, value]) => ({ key, ...value }));
+            memoriaArray.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)); // Do mais recente para o mais antigo
+            
+            let html = `<div style="font-weight:900; margin-bottom:10px;">Total na Memória: ${memoriaArray.length} exemplos</div>`;
+            for (const ex of memoriaArray) {
                 const dataStr = ex.timestamp ? new Date(ex.timestamp).toLocaleString('pt-BR') : '';
                 html += `
                     <div class="ia-match-card" style="margin-bottom:8px; position:relative;">
@@ -474,31 +503,33 @@
         } catch(e) { alert("Erro de comunicação."); }
     };
 
-    // ====== PROMPTS E CHAMADAS DE IA ======
+    // ====== PROMPTS E CHAMADAS DE IA (Inteligência Melhorada) ======
     function previewIAFile(input) {
         const btn = document.getElementById('btn-ia-file-label');
         if (input.files && input.files[0]) { btn.innerHTML = `✅ Imagem Carregada: ${input.files[0].name}`; btn.style.color = "var(--accent-green)"; }
     }
 
     async function montarPromptIA(link, contextoLink, descManual) {
-        return `Você é uma inteligência artificial especialista em e-commerce, logística e análise detalhada de anúncios (especialmente do Mercado Livre).
-Seu objetivo é mapear todas as informações vitais do produto para encontrar a correspondência exata em nosso armazém.
-Se for fornecido uma imagem do produto, você deve analisá-la de forma minuciosa para garantir a correspondência de cores, modelos e especificidades.
+        return `Você é uma inteligência artificial especialista em e-commerce e estruturação de dados.
+Seu objetivo é analisar o link do Mercado Livre fornecido (e o texto extraído dele) para mapear todas as características do produto.
 
 DADOS FORNECIDOS:
 - Link: ${link || 'Não fornecido'}
-- Descrição inserida pelo usuário: "${descManual || 'Não fornecida'}"
-- Leitura bruta da página do anúncio: ${contextoLink ? contextoLink.slice(0, 5000) : 'Sem texto extraído'}
+- Descrição manual: "${descManual || 'Não fornecida'}"
+- Texto extraído da página (Leia atentamente para extrair Marca, Modelo, Preço, Cor, Voltagem, Características Principais, etc):
+${contextoLink ? contextoLink.slice(0, 5000) : 'Sem texto extraído'}
 
 REGRA CRUCIAL:
-Identifique marca, nome do produto completo, descrição técnica, cores disponíveis (ou predominante na imagem), fabricante, tamanhos e preços.
-Retorne APENAS UM JSON VÁLIDO no seguinte formato, sem formatação markdown adicional:
+1. Encontre o PREÇO EXATO e REAL do produto no texto extraído (ex: 4100.00) se ele existir. 
+2. Vasculhe a leitura da página para achar a Marca, o Modelo, a Cor e as Características do produto.
+3. Retorne APENAS UM JSON VÁLIDO no seguinte formato, sem formatação markdown:
 {
-  "termo_base": "Nome limpo e completo do produto",
-  "cor": "Cor detectada (ou indefinida se não souber)",
-  "marca": "Fabricante/Marca",
-  "preco_min": 10.00,
-  "preco_max": 90.00,
+  "termo_base": "Nome do produto completo",
+  "marca": "Marca identificada",
+  "modelo": "Modelo identificado",
+  "cor": "Cor detectada",
+  "preco_exato": 4100.00,
+  "caracteristicas": ["caracteristica 1", "caracteristica 2", "caracteristica 3"],
   "palavras_chave": ["palavra1", "palavra2", "palavra3", "palavra4"]
 }`;
     }
@@ -522,14 +553,12 @@ Retorne APENAS UM JSON VÁLIDO no seguinte formato, sem formatação markdown ad
         if (!link && !file && !descManual) { resBox.innerHTML = "<span style='color:#FF5252;font-weight:bold;'>⚠️ Insira uma descrição, link ou foto.</span>"; return; }
         if (!IA_CONFIGS[CURRENT_IA].key) { resBox.innerHTML = "<span style='color:#FF5252;font-weight:bold;'>⚠️ API Key não configurada para esta IA. Configure no botão 'Gerenciar IAs'.</span>"; return; }
         
-        resBox.innerHTML = "⏳ <i>Acessando dados estruturados e vasculhando imagem/links via IA...</i>";
+        resBox.innerHTML = "⏳ <i>Acessando dados estruturados, varrendo a página e organizando informações via IA...</i>";
 
         try {
             let contextoLink = await obterResumoAnuncio(link);
             const prompt = await montarPromptIA(link, contextoLink, descManual);
             
-            // Simulação de chamada universal baseada no motor selecionado e formato OpenAI / Compatível
-            // Devido à limitação do sandbox, faremos a lógica padronizada:
             let apiKey = IA_CONFIGS[CURRENT_IA].key;
             let endpoint = ''; let model = '';
             
@@ -560,17 +589,22 @@ Retorne APENAS UM JSON VÁLIDO no seguinte formato, sem formatação markdown ad
         }
     }
 
-    // ====== AVALIAÇÃO DE RESULTADOS (SEM DUPLICIDADE & MATCH MAIS INTELIGENTE) ======
+    // ====== AVALIAÇÃO DE RESULTADOS INTELIGENTE ======
     function processarResultadoIA(aiResult, resBox) {
         const termo = removerAcentos(aiResult.termo_base || '').toLowerCase();
         const termosDoNome = termo.split(/\s+/).filter(t => t.length >= 3);
-        const cor = removerAcentos(aiResult.cor || '').toLowerCase();
         
-        const min = Number(aiResult.preco_min || 0);
-        const max = Number(aiResult.preco_max || 0);
+        const cor = removerAcentos(aiResult.cor || '').toLowerCase();
+        const marca = removerAcentos(aiResult.marca || '').toLowerCase();
+        const modelo = removerAcentos(aiResult.modelo || '').toLowerCase();
+        
+        // Criação de margem automática a partir do preço exato da página lida
+        const precoExato = Number(aiResult.preco_exato || 0);
+        const min = precoExato > 0 ? precoExato * 0.5 : 0; 
+        const max = precoExato > 0 ? precoExato * 1.1 : 0; 
 
         let matches = [];
-        let idsAdicionados = new Set(); // Previne trazer a mesma ID se ela estiver no QonHub e no 10 Dias
+        let idsAdicionados = new Set(); // Previne repetição de IDs
 
         BANCO_GLOBAL.forEach(item => {
             const idClean = String(item.ID || '').toLowerCase().trim().replace(/[.#$\[\]]/g, '_');
@@ -583,15 +617,18 @@ Retorne APENAS UM JSON VÁLIDO no seguinte formato, sem formatação markdown ad
             let tokensMatch = 0;
             termosDoNome.forEach(token => { if (desc.includes(token)) tokensMatch++; });
 
-            // Boost se bater 2 a 3 palavras da base da descrição da IA
-            if (tokensMatch >= 2) { score += 40; motivos.push('Palavras Chave Fortes'); }
+            // Identificação de Características Extras
+            if (marca && marca !== 'indefinida' && desc.includes(marca)) { score += 20; motivos.push('Marca'); }
+            if (modelo && modelo !== 'indefinido' && desc.includes(modelo)) { score += 25; motivos.push('Modelo'); }
+            if (cor && cor !== 'indefinida' && desc.includes(cor)) { score += 15; motivos.push('Cor'); }
+
+            // Match Forte na Descrição Base (Permite puxar mesmo que o preço varie)
+            if (tokensMatch >= 2) { score += 30; motivos.push('Palavras Chaves'); }
             if (tokensMatch >= 4) { score += 30; motivos.push('Nome Quase Exato'); }
 
-            if (cor && cor !== 'indefinida' && desc.includes(cor)) { score += 20; motivos.push('Cor Exata'); }
-
-            // Lógica de preço flexível: O preço não mata o match se a descrição bater forte
+            // Lógica de Preço
             if (valorNum > 0 && min > 0) {
-                if (valorNum >= min * 0.6 && valorNum <= max * 1.5) { score += 30; motivos.push('Preço Compatível'); }
+                if (valorNum >= min && valorNum <= max) { score += 30; motivos.push('Preço na Margem'); }
             }
 
             if (score >= 40) {
@@ -606,12 +643,13 @@ Retorne APENAS UM JSON VÁLIDO no seguinte formato, sem formatação markdown ad
         let html = `
             <div style="color:var(--accent-blue); font-weight:900; margin-bottom:6px;">✅ Inteligência Concluída</div>
             <div style="font-size:0.8rem; background:var(--bg-body); padding:10px; border-radius:8px; margin-bottom:12px;">
-                <b>Identificado:</b> ${aiResult.termo_base} | <b>Cor:</b> ${aiResult.cor}<br>
-                <b>Faixa Preço:</b> R$ ${min} - R$ ${max}
+                <b>Identificado:</b> ${aiResult.termo_base}<br>
+                <b>Detalhes:</b> Marca: ${aiResult.marca || '-'} | Modelo: ${aiResult.modelo || '-'} | Cor: ${aiResult.cor || '-'}<br>
+                <b>Preço Alvo:</b> R$ ${precoExato.toLocaleString('pt-BR',{minimumFractionDigits:2})} (Buscando de R$ ${min.toLocaleString('pt-BR',{minimumFractionDigits:2})} a R$ ${max.toLocaleString('pt-BR',{minimumFractionDigits:2})})
             </div>`;
 
         if (topMatches.length === 0) {
-            html += `<div style="text-align:center; padding:10px; color:var(--accent-warn);">Nenhuma correspondência com 2+ palavras foi localizada.</div>`;
+            html += `<div style="text-align:center; padding:10px; color:var(--accent-warn);">Nenhuma correspondência inteligente com os parâmetros lidos foi localizada.</div>`;
         } else {
             topMatches.forEach(m => {
                 html += `
@@ -632,7 +670,7 @@ Retorne APENAS UM JSON VÁLIDO no seguinte formato, sem formatação markdown ad
         resBox.innerHTML = html;
     }
 
-    // ====== CARREGAMENTO DE BANCOS ======
+    // ====== CARREGAMENTO DE BANCOS (Mostrando a Data) ======
     async function carregarTodosBancos() {
         BANCO_GLOBAL = [];
         for (const [key, node] of Object.entries(DB_NODES)) {
@@ -648,7 +686,7 @@ Retorne APENAS UM JSON VÁLIDO no seguinte formato, sem formatação markdown ad
                 const lbl = document.getElementById(`lbl-${key}`);
                 if (lista.length > 0) {
                     BANCO_GLOBAL.push(...lista.map(i => ({ ...i, ValorNum: Number(i.ValorNum || parseCurrency(i.Valor)), OrigemDb: key })));
-                    if (lbl) lbl.innerHTML = `${lista.length} u.`;
+                    if (lbl) lbl.innerHTML = `${dataAt}`; // Agora exibe a data ao invés das unidades
                 } else { if (lbl) lbl.innerText = 'Vazio'; }
             } catch(e) { }
         }
