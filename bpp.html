@@ -15,9 +15,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 
+    <!-- Dependências -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
         :root {
@@ -57,20 +59,31 @@
         }
         .ml-logo { height: 22px; object-fit: contain; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15)); flex-shrink: 0; }
         .header-center { flex: 1 1 auto; text-align: center; font-size: 0.85rem; font-weight: 900; color: #2D3277 !important; letter-spacing: 0.5px; text-transform: uppercase; margin: 0 10px; line-height: 1.2; }
-        .header-right { display: flex; align-items: center; gap: 4px; justify-content: flex-end; flex-wrap: wrap; flex-shrink: 0; }
+        .header-right { display: flex; align-items: center; gap: 6px; justify-content: flex-end; flex-wrap: wrap; flex-shrink: 0; }
         
         .status-badge { font-size: .65rem; font-weight: 800; color: #333 !important; background: rgba(255,255,255,0.8); border: 1px solid rgba(0,0,0,0.1); padding: 4px 8px; border-radius: 4px; white-space: nowrap; }
 
-        .btn { background: #ffffff; color: #333333; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px; padding: 4px 8px; font-size: .65rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px; transition: all .2s ease; text-transform: uppercase; font-family: 'Inter', sans-serif; white-space: nowrap; }
-        .btn:hover:not(:disabled) { background: #f1f1f1; transform: translateY(-1px); }
-        .btn-blue { background: var(--accent-blue) !important; color: #fff !important; border-color: var(--accent-blue) !important; }
-        .btn-blue:hover:not(:disabled) { background: #226fe6 !important; }
+        /* --- BOTÕES CLEAN --- */
+        .btn-clean { 
+            background: #ffffff !important; color: #2D3277 !important; border: 1px solid rgba(0,0,0,0.1) !important; 
+            border-radius: 6px; padding: 6px 10px; font-size: 0.70rem; font-weight: 900; cursor: pointer; 
+            display: inline-flex; align-items: center; gap: 4px; 
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05) !important; transition: all 0.2s ease !important; 
+            text-transform: uppercase; font-family: 'Inter', sans-serif; white-space: nowrap;
+        }
+        .btn-clean:hover:not(:disabled) { 
+            transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,0.15) !important; border-color: #3483FA !important; color: #3483FA !important;
+        }
+        .btn-clean:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .btn-camera { color: var(--accent-green) !important; }
+        .btn-camera:hover:not(:disabled) { border-color: var(--accent-green) !important; color: var(--accent-green) !important; }
 
         .upload-wrapper { position: relative; overflow: hidden; display: inline-flex; }
         .upload-wrapper input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
 
         /* --- FILTROS --- */
-        .filters-container { padding: 12px 15px; display: flex; flex-direction: column; gap: 8px; flex: 0 0 auto; }
+        .filters-container { padding: 10px 15px; display: flex; flex-direction: column; gap: 8px; flex: 0 0 auto; }
         .filters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; align-items: end; }
         .field label { display: block; color: var(--text-muted); font-size: .65rem; font-weight: 900; margin-bottom: 4px; text-transform: uppercase; }
         .field select, .field input { 
@@ -90,9 +103,9 @@
         /* --- CORPO PRINCIPAL --- */
         .main-content { display: flex; flex-direction: column; gap: 10px; flex: 1; min-height: 0; }
         
-        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 10px; flex: 0 0 45%; min-height: 250px;}
-        .chart-box { padding: 10px; display: flex; flex-direction: column; position: relative;}
-        .chart-title { font-size: 0.75rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; text-align: center;}
+        .charts-row { display: flex; gap: 10px; height: 35vh; min-height: 250px; flex: 0 0 auto; }
+        .chart-box { padding: 10px; display: flex; flex-direction: column; position: relative; flex: 1; min-width: 0;}
+        .chart-title { font-size: 0.70rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; text-align: center;}
         .chart-wrapper { flex: 1; min-height: 0; position: relative; cursor: pointer; }
 
         .table-wrapper { flex: 1; min-height: 120px; overflow: auto; border-radius: 10px; transform: translateZ(0); }
@@ -106,6 +119,11 @@
 
         .col-id { font-weight: 900; color: var(--accent-blue); }
         .col-val { font-weight: 900; color: var(--accent-green); }
+
+        /* --- EXPORTAÇÃO (FOTO 4K) --- */
+        .exporting .header-right, .exporting .filters-container { display: none !important; }
+        .exporting .table-wrapper { overflow: hidden !important; border-bottom-left-radius: 0; border-bottom-right-radius: 0;}
+        .exporting body { height: auto; }
 
         /* --- MODAL --- */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(6px); padding: 16px;}
@@ -121,7 +139,7 @@
         ::-webkit-scrollbar-thumb { background: var(--border-card); border-radius: 3px; }
     </style>
 </head>
-<body data-theme="light">
+<body data-theme="light" id="dashboard-body">
 
     <div class="top-header">
         <img src="https://upload.wikimedia.org/wikipedia/pt/0/04/Logotipo_MercadoLivre.png" class="ml-logo" alt="Mercado Livre">
@@ -130,8 +148,9 @@
         
         <div class="header-right">
             <span class="status-badge" id="data-status">Conectando...</span>
+            <button class="btn-clean btn-camera" onclick="baixarImagemSnapshot()" id="btn-print">📸 Foto 4K</button>
             <div class="upload-wrapper" id="upload-dados-wrapper">
-                <button class="btn btn-blue">📤 Carregar CSV</button>
+                <button class="btn-clean">📤 Carregar CSV</button>
                 <input type="file" id="csvFileInput" accept=".csv">
             </div>
         </div>
@@ -143,6 +162,7 @@
             <div class="field"><label>Responsabilidade</label><select id="filter-resp" onchange="aplicarFiltros()"></select></div>
             <div class="field"><label>Turno</label><select id="filter-turno" onchange="aplicarFiltros()"></select></div>
             <div class="field"><label>Status</label><select id="filter-status" onchange="aplicarFiltros()"></select></div>
+            <div class="field"><label>Semana</label><select id="filter-semana" onchange="aplicarFiltros()"></select></div>
             <div class="field"><label>Perfil</label><select id="filter-perfil" onchange="aplicarFiltros()"></select></div>
             <div class="field"><label>Busca Específica</label><input type="text" id="search-input" placeholder="ID, Observação..." oninput="aplicarFiltros()"></div>
         </div>
@@ -155,12 +175,11 @@
     </div>
 
     <div class="main-content">
-        <!-- 4 Gráficos -->
-        <div class="charts-grid">
-            <div class="chart-box glass-panel"><div class="chart-title">Qtd Pacotes por Responsabilidade</div><div class="chart-wrapper"><canvas id="chartRespQtd"></canvas></div></div>
-            <div class="chart-box glass-panel"><div class="chart-title">Valor (R$) por Responsabilidade</div><div class="chart-wrapper"><canvas id="chartRespVal"></canvas></div></div>
-            <div class="chart-box glass-panel"><div class="chart-title">Qtd Pacotes por Turno</div><div class="chart-wrapper"><canvas id="chartTurnoQtd"></canvas></div></div>
-            <div class="chart-box glass-panel"><div class="chart-title">Valor (R$) por Turno</div><div class="chart-wrapper"><canvas id="chartTurnoVal"></canvas></div></div>
+        <!-- 3 Gráficos Mistos lado a lado -->
+        <div class="charts-row">
+            <div class="chart-box glass-panel"><div class="chart-title">Responsabilidade (Qtd e R$)</div><div class="chart-wrapper"><canvas id="chartResp"></canvas></div></div>
+            <div class="chart-box glass-panel"><div class="chart-title">Turno (Qtd e R$)</div><div class="chart-wrapper"><canvas id="chartTurno"></canvas></div></div>
+            <div class="chart-box glass-panel"><div class="chart-title">Evolução (Últimas 7 Bases de Dados)</div><div class="chart-wrapper"><canvas id="chartEvolucao"></canvas></div></div>
         </div>
         
         <!-- Tabela -->
@@ -210,22 +229,24 @@
     <script>
         Chart.register(ChartDataLabels);
 
+        // NOVA Base de Dados V2 para evitar a sujeira anterior.
         const FIREBASE_URL_BASE = "https://reportes-bdb0a-default-rtdb.firebaseio.com/";
-        const FIREBASE_NODE = "bpp_inventariado";
+        const FIREBASE_NODE = "bpp_inventariado_v2";
 
         let BD_COMPLETO = {};
         let DADOS_ATUAIS = [];
         let DADOS_FILTRADOS = [];
         
-        let cRQ = null, cRV = null, cTQ = null, cTV = null;
+        let cResp = null, cTurn = null, cEvol = null;
 
         function syncTheme() { const theme = localStorage.getItem('themePreference') || 'light'; document.body.setAttribute('data-theme', theme); }
         syncTheme();
         window.addEventListener('message', (event) => { 
-            if (event.data.type === 'THEME_CHANGED') { document.body.setAttribute('data-theme', event.data.theme); renderGraficos(); } 
+            if (event.data.type === 'THEME_CHANGED') { document.body.setAttribute('data-theme', event.data.theme); renderGraficos(); renderGraficoEvolucao(); } 
         });
 
         function getChartTextColor() { return document.body.getAttribute('data-theme') === 'light' ? '#334155' : '#EBEBEB'; }
+        function getGridColor() { return document.body.getAttribute('data-theme') === 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)'; }
         
         function parseCurrency(valStr) { 
             if (!valStr) return 0; 
@@ -256,7 +277,7 @@
             return chave;
         }
 
-        // --- LEITURA DO CSV CIRÚRGICA ---
+        // --- LEITURA DO CSV (PAPA PARSE) ---
         document.getElementById('csvFileInput').addEventListener('change', function(e) {
             const file = e.target.files[0]; if (!file) return;
             setStatus('Processando CSV...');
@@ -272,7 +293,6 @@
                         rows.forEach(row => {
                             const rowKeys = Object.keys(row);
                             
-                            // 1º tenta correspondência exata, depois inclui
                             const getCol = (keywords) => {
                                 const lowerKW = keywords.map(kw => kw.toLowerCase());
                                 let exact = rowKeys.find(k => lowerKW.includes(k.trim().toLowerCase()));
@@ -284,11 +304,9 @@
                             const inventariado = getCol(['inventariado']);
                             const txtInventariado = String(inventariado).trim().toLowerCase();
                             
-                            // Filtro Rigoroso
                             if (txtInventariado === 'pendente' || txtInventariado === 'pendentes') {
                                 countPendentes++;
                                 
-                                // A data está SEMPRE na coluna 2 (index 1) na sua planilha (B: DATA)
                                 let dataRef = rowKeys.length > 1 ? row[rowKeys[1]] : getCol(['data']);
                                 let chaveFb = formatarDataChave(dataRef);
 
@@ -300,11 +318,12 @@
                                     Turno: getCol(['turno']),
                                     Observacao: getCol(['observações', 'observação']),
                                     Status: getCol(['subs tatus']),
+                                    Semana: getCol(['semana']),
                                     Perfil: getCol(['perfil']),
                                     Poka: getCol(['poka']),
                                     UltimaDataMov: getCol(['ultima data']),
                                     TurnoUltOp: getCol(['turno ult/ op', 'turno ult / op']),
-                                    Valor: getCol(['valores real']),
+                                    Valor: getCol(['valores real', 'valor em real']),
                                     ValorUSD: getCol(['valores usd']),
                                     Aging: getCol(['aging'])
                                 });
@@ -328,7 +347,7 @@
                         } catch(err) { console.error("Erro", err); }
                     }
 
-                    alert(`Sucesso! ${countPendentes} pacotes pendentes atualizados.`);
+                    alert(`Sucesso! ${countPendentes} pacotes pendentes atualizados (V2).`);
                     e.target.value = ''; carregarDoFirebase();
                 }
             });
@@ -346,6 +365,7 @@
 
                 document.getElementById('filter-data').innerHTML = datas.map(d => `<option value="${d}">${formatarDataBR(d)}</option>`).join('');
                 carregarData();
+                renderGraficoEvolucao();
             } catch(e) { setStatus('Erro na Rede', true); }
         }
 
@@ -368,6 +388,7 @@
             setSelectOptions('filter-resp', 'Responsabilidade');
             setSelectOptions('filter-turno', 'Turno');
             setSelectOptions('filter-status', 'Status');
+            setSelectOptions('filter-semana', 'Semana');
             setSelectOptions('filter-perfil', 'Perfil');
         }
 
@@ -375,6 +396,7 @@
             const resp = document.getElementById('filter-resp').value;
             const turno = document.getElementById('filter-turno').value;
             const status = document.getElementById('filter-status').value;
+            const sem = document.getElementById('filter-semana').value;
             const perfil = document.getElementById('filter-perfil').value;
             const busca = document.getElementById('search-input').value.toLowerCase();
 
@@ -383,6 +405,7 @@
                 return (resp === 'Todos' || item.Responsabilidade === resp) &&
                        (turno === 'Todos' || item.Turno === turno) &&
                        (status === 'Todos' || item.Status === status) &&
+                       (sem === 'Todos' || item.Semana === sem) &&
                        (perfil === 'Todos' || item.Perfil === perfil) &&
                        (!busca || bTxt.includes(busca));
             });
@@ -408,7 +431,7 @@
             if (DADOS_FILTRADOS.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px; color: var(--accent-red); font-weight: bold;">Nenhum pacote encontrado.</td></tr>`;
             } else {
-                tbody.innerHTML = DADOS_FILTRADOS.slice(0, 150).map(i => `
+                tbody.innerHTML = DADOS_FILTRADOS.slice(0, 100).map(i => `
                     <tr class="clickable-row">
                         <td class="col-id">${i.ID || '-'}</td>
                         <td>${i.Responsabilidade || '-'}</td>
@@ -416,34 +439,82 @@
                         <td>${i.Status || '-'}</td>
                         <td>${i.Perfil || '-'}</td>
                         <td style="text-align:center; font-weight:bold;">${i.Aging || 0}</td>
-                        <td style="font-size: 0.70rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px;">${i.Observacao || '-'}</td>
-                        <td class="col-val">${i.Valor || 'R$ 0,00'}</td>
+                        <td style="font-size: 0.70rem; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${i.Observacao || '-'}</td>
+                        <td class="col-val">${i.Valor || '0'}</td>
                     </tr>
                 `).join('');
-                if(DADOS_FILTRADOS.length > 150) tbody.innerHTML += `<tr><td colspan="8" style="text-align:center; font-size:0.75rem; color:var(--text-muted);">Mostrando Top 150. Ocultos: ${DADOS_FILTRADOS.length - 150}</td></tr>`;
             }
             renderGraficos();
         }
 
-        function createChart(ctxId, type, lbls, dataArr, color, formatterStr, onClkKey) {
+        // --- EXPORTAR FOTO 4K ---
+        function baixarImagemSnapshot() {
+            const btn = document.getElementById('btn-print');
+            btn.innerHTML = "⏳ Aguarde..."; btn.disabled = true;
+            document.body.classList.add('exporting');
+            
+            setTimeout(() => {
+                const bodyH = document.body.scrollHeight;
+                const bodyW = document.body.clientWidth; 
+                html2canvas(document.body, { 
+                    scale: 3, useCORS: true, 
+                    width: bodyW, windowWidth: bodyW, windowHeight: bodyH, 
+                    backgroundColor: document.body.getAttribute('data-theme') === 'light' ? '#f1f5f9' : '#0b121f' 
+                }).then(canvas => {
+                    document.body.classList.remove('exporting'); 
+                    btn.innerHTML = "📸 Foto 4K"; btn.disabled = false; 
+                    let link = document.createElement('a'); 
+                    let dtSelect = document.getElementById('filter-data'); 
+                    let dt = dtSelect.options.length > 0 && dtSelect.selectedIndex >= 0 ? dtSelect.options[dtSelect.selectedIndex].text.replace(/\//g, '-') : 'Geral';
+                    link.download = `Snapshot_BPP_${dt}.png`; 
+                    link.href = canvas.toDataURL('image/png'); 
+                    link.click();
+                });
+            }, 800); 
+        }
+
+        // --- LÓGICA DE GRÁFICOS MISTOS (Qtd + Valor) ---
+        function createMixedChart(ctxId, lbls, dataQtd, dataVal, onClkKey) {
             const ctx = document.getElementById(ctxId).getContext('2d');
             return new Chart(ctx, {
-                type: type,
-                data: { labels: lbls, datasets: [{ data: dataArr, backgroundColor: color, borderRadius: 4 }] },
+                type: 'bar',
+                data: { 
+                    labels: lbls, 
+                    datasets: [
+                        { type: 'bar', label: 'Volume (Qtd)', data: dataQtd, backgroundColor: '#3483FA', yAxisID: 'y', borderRadius: 4 },
+                        { type: 'line', label: 'Valor (R$)', data: dataVal, borderColor: '#FF5252', backgroundColor: '#FF5252', borderWidth: 3, pointRadius: 4, yAxisID: 'y1' }
+                    ] 
+                },
                 options: {
-                    responsive: true, maintainAspectRatio: false, indexAxis: type === 'bar' && ctxId.includes('Turno') ? 'y' : 'x',
+                    responsive: true, maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
                     plugins: { 
-                        legend: { display: false },
-                        datalabels: { color: type==='bar'&&ctxId.includes('Turno')?'#333':'#fff', font: {weight: 'bold', size: 9}, anchor: type==='bar'&&ctxId.includes('Turno')?'end':'center', align: type==='bar'&&ctxId.includes('Turno')?'left':'center', formatter: (v) => v > 0 ? (formatterStr === 'R$' ? "R$ " + (v/1000).toFixed(1) + "k" : v) : '' }
+                        legend: { position: 'top', labels: { font: { weight: 'bold'}, color: getChartTextColor() } },
+                        datalabels: { 
+                            color: (context) => context.dataset.type === 'bar' ? '#fff' : '#FF5252',
+                            font: { weight: '900', size: 9 },
+                            align: (context) => context.dataset.type === 'bar' ? 'center' : 'top',
+                            anchor: 'center',
+                            formatter: (v, context) => {
+                                if (v === 0) return '';
+                                if (context.dataset.type === 'line') return "R$ " + (v/1000).toFixed(1) + "k";
+                                return v;
+                            }
+                        }
                     },
-                    scales: { x: { display: !(type==='bar'&&ctxId.includes('Turno')), grid: {display:false}, ticks: {font: {weight: 'bold'}}}, y: { display: type==='bar'&&ctxId.includes('Turno'), grid: {display:false}, ticks: {font: {weight: 'bold'}}} },
-                    onClick: (e, els) => { if(els.length > 0) abrirDetalhes(lbls[els[0].index], onClkKey); }
+                    scales: { 
+                        x: { grid: { display: false }, ticks: { font: {weight: 'bold'}, color: getChartTextColor() } }, 
+                        y: { position: 'left', grid: { color: getGridColor() }, ticks: { color: getChartTextColor() } },
+                        y1: { position: 'right', grid: { display: false }, ticks: { color: getChartTextColor() } }
+                    },
+                    onClick: (e, els) => { if(els.length > 0 && onClkKey) abrirDetalhes(lbls[els[0].index], onClkKey); }
                 }
             });
         }
 
         function renderGraficos() {
             Chart.defaults.color = getChartTextColor(); Chart.defaults.font.family = "'Inter', sans-serif";
+            
             let vResp = {}, qResp = {}, vTurn = {}, qTurn = {};
             DADOS_FILTRADOS.forEach(i => {
                 let r = i.Responsabilidade || 'N/A'; let t = i.Turno || 'N/A'; let v = parseCurrency(i.Valor);
@@ -451,17 +522,39 @@
                 vTurn[t] = (vTurn[t] || 0) + v; qTurn[t] = (qTurn[t] || 0) + 1;
             });
 
-            const lRQ = Object.keys(qResp).sort((a,b)=>qResp[b]-qResp[a]); const dRQ = lRQ.map(k=>qResp[k]);
-            const lRV = Object.keys(vResp).sort((a,b)=>vResp[b]-vResp[a]); const dRV = lRV.map(k=>vResp[k]);
-            const lTQ = Object.keys(qTurn).sort((a,b)=>qTurn[b]-qTurn[a]); const dTQ = lTQ.map(k=>qTurn[k]);
-            const lTV = Object.keys(vTurn).sort((a,b)=>vTurn[b]-vTurn[a]); const dTV = lTV.map(k=>vTurn[k]);
+            const lResp = Object.keys(qResp).sort((a,b)=>qResp[b]-qResp[a]); 
+            const dRespQ = lResp.map(k=>qResp[k]); const dRespV = lResp.map(k=>vResp[k]);
+            
+            const lTurn = Object.keys(qTurn).sort((a,b)=>qTurn[b]-qTurn[a]); 
+            const dTurnQ = lTurn.map(k=>qTurn[k]); const dTurnV = lTurn.map(k=>vTurn[k]);
 
-            if(cRQ) cRQ.destroy(); cRQ = createChart('chartRespQtd', 'bar', lRQ, dRQ, '#6366f1', 'Qtd', 'Responsabilidade');
-            if(cRV) cRV.destroy(); cRV = createChart('chartRespVal', 'bar', lRV, dRV, '#3483FA', 'R$', 'Responsabilidade');
-            if(cTQ) cTQ.destroy(); cTQ = createChart('chartTurnoQtd', 'bar', lTQ, dTQ, '#FFB000', 'Qtd', 'Turno');
-            if(cTV) cTV.destroy(); cTV = createChart('chartTurnoVal', 'bar', lTV, dTV, '#00A650', 'R$', 'Turno');
+            if(cResp) cResp.destroy(); cResp = createMixedChart('chartResp', lResp, dRespQ, dRespV, 'Responsabilidade');
+            if(cTurn) cTurn.destroy(); cTurn = createMixedChart('chartTurno', lTurn, dTurnQ, dTurnV, 'Turno');
         }
 
+        // --- GRÁFICO 3 (ÚLTIMOS 7 DIAS INTACTO) ---
+        function renderGraficoEvolucao() {
+            Chart.defaults.color = getChartTextColor(); Chart.defaults.font.family = "'Inter', sans-serif";
+            
+            // Pega até os 7 dias mais recentes registrados em ordem cronológica
+            const datasDec = Object.keys(BD_COMPLETO).sort().reverse().slice(0, 7).reverse();
+            let labelsEvol = [], dataVolEvol = [], dataValEvol = [];
+
+            datasDec.forEach(dt => {
+                labelsEvol.push(formatarDataBR(dt));
+                let lista = BD_COMPLETO[dt].lista || [];
+                let vols = lista.length;
+                let vals = lista.reduce((acc, curr) => acc + parseCurrency(curr.Valor), 0);
+                dataVolEvol.push(vols);
+                dataValEvol.push(vals);
+            });
+
+            if(cEvol) cEvol.destroy();
+            // Cria usando a mesma estrutura de MixedChart, porém sem modal de clique
+            cEvol = createMixedChart('chartEvolucao', labelsEvol, dataVolEvol, dataValEvol, null);
+        }
+
+        // --- MODAL DE DETALHES ---
         function abrirDetalhes(labelValor, propriedade) {
             document.getElementById('modal-titulo').innerText = `DADOS COMPLETOS: ${propriedade} = ${labelValor}`;
             const targetData = DADOS_FILTRADOS.filter(i => (i[propriedade] || 'N/A') === labelValor);
