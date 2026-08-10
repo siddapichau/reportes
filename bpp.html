@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BPP - Inventário Pendente</title>
+
+    <!-- Sistema Anti-acesso direto -->
+    <script>
+        if (window === window.top) {
+            const paginaAtual = window.location.pathname.split('/').pop() || 'bpp.html';
+            window.location.replace('index.html?page=' + paginaAtual);
+        }
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Dependências -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <style>
+        :root {
+            --bg-input: rgba(15, 23, 42, 0.6);
+            --border-input: rgba(255, 255, 255, 0.2);
+        }
+        [data-theme="light"] {
+            --bg-input: #ffffff;
+            --border-input: #cbd5e1;
+        }
+
+        body { 
+            padding: 15px; display: flex; flex-direction: column; gap: 15px; 
+            height: 100vh; overflow: hidden; background: transparent !important;
+        }
+
+        .glass-panel { 
+            background: var(--bg-card); 
+            border: 1px solid var(--border-card); 
+            border-radius: 12px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05); 
+            transition: 0.3s; 
+        }
+
+        /* --- BOTÕES CLEAN --- */
+        .top-header { 
+            background: var(--bg-card); padding: 12px 20px; display: flex; justify-content: space-between; 
+            align-items: center; gap: 10px; border-radius: 12px; border: 1px solid var(--border-card);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); flex: 0 0 auto; 
+        }
+        
+        .header-title { font-size: 1.1rem; font-weight: 900; color: var(--text-title); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px;}
+        
+        .btn-clean { 
+            background: #ffffff !important; color: #334155 !important; border: 1px solid #cbd5e1 !important; 
+            border-radius: 8px; padding: 8px 14px; font-size: 0.75rem; font-weight: 800; cursor: pointer; 
+            display: inline-flex; align-items: center; gap: 6px; 
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04) !important; transition: all 0.2s ease !important; 
+            text-transform: uppercase; letter-spacing: 0.5px; font-family: 'Inter', sans-serif;
+        }
+        .btn-clean:hover:not(:disabled) { 
+            transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.1) !important; border-color: #94a3b8 !important; color: #0f172a !important;
+        }
+        .btn-clean:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .upload-wrapper { position: relative; overflow: hidden; display: inline-flex; }
+        .upload-wrapper input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+
+        /* --- FILTROS --- */
+        .filters-container { padding: 15px; display: flex; flex-direction: column; gap: 12px; flex: 0 0 auto; }
+        .filters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; align-items: end; }
+        .field label { display: block; color: var(--text-muted); font-size: .65rem; font-weight: 900; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px;}
+        .field select, .field input { 
+            width: 100%; background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border-input); 
+            border-radius: 6px; padding: 8px 10px; outline: none; font-size: .80rem; font-weight: 600; transition: 0.2s;
+        }
+        .field select:focus, .field input:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(52, 131, 250, 0.1); }
+
+        /* --- KPIs --- */
+        .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; flex: 0 0 auto; }
+        .summary-card { padding: 15px; border-left: 6px solid var(--accent-blue); display: flex; flex-direction: column; justify-content: center; }
+        .summary-card.green { border-left-color: var(--accent-green); }
+        .summary-card.warn { border-left-color: var(--accent-warn); }
+        .summary-title { color: var(--text-muted); font-size: .75rem; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
+        .summary-value { color: var(--text-title); font-size: 1.6rem; font-weight: 900; }
+
+        /* --- CORPO PRINCIPAL (Gráficos e Tabela) --- */
+        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; flex: 1; min-height: 0; }
+        
+        .charts-column { display: flex; flex-direction: column; gap: 15px; min-height: 0; }
+        .chart-box { flex: 1; min-height: 0; padding: 15px; display: flex; flex-direction: column; position: relative;}
+        .chart-title { font-size: 0.8rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; text-align: center;}
+        .chart-wrapper { flex: 1; min-height: 0; position: relative; cursor: pointer; }
+
+        .table-wrapper { flex: 1; min-height: 0; overflow: auto; padding: 0; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; text-align: left; }
+        th, td { padding: 10px 15px; border-bottom: 1px solid var(--border-card); font-size: .80rem; color: var(--text-main); }
+        th { background: rgba(0,0,0,0.03); color: var(--text-title); text-transform: uppercase; font-size: .70rem; font-weight: 900; position: sticky; top: 0; z-index: 2; backdrop-filter: blur(5px); }
+        [data-theme="dark"] th { background: rgba(255,255,255,0.05); }
+        .col-id { font-weight: 900; color: var(--accent-blue); }
+        .col-val { font-weight: 900; color: var(--accent-green); }
+
+        /* --- MODAL DE DETALHES --- */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(5px); padding: 20px;}
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: var(--bg-card); width: 100%; max-width: 800px; max-height: 85vh; border-radius: 12px; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 1px solid var(--border-card);}
+        .modal-header { padding: 15px 20px; border-bottom: 1px solid var(--border-card); display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h3 { font-size: 1rem; color: var(--text-title); font-weight: 900; text-transform: uppercase;}
+        .btn-close { background: transparent; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; font-weight: bold; }
+        .modal-body { padding: 0; overflow-y: auto; flex: 1; }
+        
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-card); border-radius: 3px; }
+    </style>
+</head>
+<body data-theme="light">
+
+    <div class="top-header">
+        <div class="header-title">📦 Painel BPP (Inventariado: Pendentes)</div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <span id="data-status" style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted);">Aguardando banco...</span>
+            <div class="upload-wrapper" id="upload-dados-wrapper">
+                <button class="btn-clean">📤 Carregar CSV</button>
+                <!-- O input aceita especificamente o padrão do arquivo -->
+                <input type="file" id="csvFileInput" accept=".csv">
+            </div>
+        </div>
+    </div>
+
+    <div class="filters-container glass-panel">
+        <div class="filters-grid">
+            <div class="field"><label>Data Referência</label><select id="filter-data" onchange="carregarData()"></select></div>
+            <div class="field"><label>Responsabilidade</label><select id="filter-resp" onchange="aplicarFiltros()"></select></div>
+            <div class="field"><label>Turno</label><select id="filter-turno" onchange="aplicarFiltros()"></select></div>
+            <div class="field"><label>Status</label><select id="filter-status" onchange="aplicarFiltros()"></select></div>
+            <div class="field"><label>Perfil</label><select id="filter-perfil" onchange="aplicarFiltros()"></select></div>
+            <div class="field"><label>Semana</label><select id="filter-semana" onchange="aplicarFiltros()"></select></div>
+            <div class="field"><label>Mês</label><select id="filter-mes" onchange="aplicarFiltros()"></select></div>
+            <div class="field"><label>Busca Específica</label><input type="text" id="search-input" placeholder="ID, Observação..." oninput="aplicarFiltros()"></div>
+        </div>
+    </div>
+
+    <div class="summary">
+        <div class="summary-card glass-panel"><div class="summary-title">Pacotes Pendentes</div><div class="summary-value" id="kpi-qtd">0</div></div>
+        <div class="summary-card green glass-panel"><div class="summary-title">Valor Retido Total</div><div class="summary-value" id="kpi-valor">R$ 0,00</div></div>
+        <div class="summary-card warn glass-panel"><div class="summary-title">Média Aging</div><div class="summary-value" id="kpi-aging">0 dias</div></div>
+    </div>
+
+    <div class="main-grid">
+        <div class="charts-column">
+            <div class="chart-box glass-panel">
+                <div class="chart-title">Valor (R$) por Responsabilidade</div>
+                <div class="chart-wrapper"><canvas id="chartResp"></canvas></div>
+            </div>
+            <div class="chart-box glass-panel">
+                <div class="chart-title">Volume (Qtd) por Turno</div>
+                <div class="chart-wrapper"><canvas id="chartTurno"></canvas></div>
+            </div>
+        </div>
+        
+        <div class="table-wrapper glass-panel">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID do Pacote</th><th>Resp.</th><th>Turno</th><th>Status</th><th>Valor (R$)</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-dados">
+                    <tr><td colspan="5" style="text-align:center; padding:30px;">Sem dados para exibir.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MODAL CLICK GRÁFICO -->
+    <div class="modal-overlay" id="detalhesModal" onclick="fecharModalExterno(event)">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-titulo">Detalhes do Segmento</h3>
+                <button class="btn-close" onclick="fecharModal()">&times;</button>
+            </div>
+            <div class="modal-body table-wrapper" style="border-radius: 0 0 12px 12px; border:none; box-shadow:none;">
+                <table style="min-width: 100%;">
+                    <thead><tr><th>ID</th><th>Responsabilidade</th><th>Turno</th><th>Observação</th><th>Valor</th></tr></thead>
+                    <tbody id="modal-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        Chart.register(ChartDataLabels);
+
+        const FIREBASE_URL_BASE = "https://reportes-bdb0a-default-rtdb.firebaseio.com/";
+        const FIREBASE_NODE = "bpp_inventariado";
+
+        let BD_COMPLETO = {};
+        let DADOS_ATUAIS = [];
+        let DADOS_FILTRADOS = [];
+        
+        let chartR = null;
+        let chartT = null;
+
+        // --- SISTEMA DE TEMA ---
+        function syncTheme() { const theme = localStorage.getItem('themePreference') || 'light'; document.body.setAttribute('data-theme', theme); }
+        syncTheme();
+        window.addEventListener('message', (event) => { 
+            if (event.data.type === 'THEME_CHANGED') { 
+                document.body.setAttribute('data-theme', event.data.theme); 
+                Chart.defaults.color = getChartTextColor();
+                renderGraficos();
+            } 
+        });
+
+        function getChartTextColor() { return document.body.getAttribute('data-theme') === 'light' ? '#334155' : '#EBEBEB'; }
+        function parseCurrency(valStr) { if (!valStr) return 0; let s = String(valStr).replace('R$', '').replace(/\./g, '').replace(',', '.').trim(); return parseFloat(s) || 0; }
+        function formatCurrency(valNum) { return valNum.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+        function setStatus(txt) { document.getElementById('data-status').innerText = txt; }
+
+        // Formata data da Coluna B para chave (Ex: 10/08/2026 -> 2026-08-10)
+        function formatarDataChave(str) {
+            if(!str) return 'Geral';
+            let pt = str.split(' ')[0].split('/'); // Pega só a data se tiver hora
+            if(pt.length === 3) return `${pt[2]}-${pt[1]}-${pt[0]}`; 
+            return str.replace(/[^a-zA-Z0-9-]/g, '_'); // fallback
+        }
+
+        function formatarDataBR(chave) {
+            if(chave.includes('-')) {
+                const pt = chave.split('-');
+                if(pt.length === 3) return `${pt[2]}/${pt[1]}/${pt[0]}`;
+            }
+            return chave;
+        }
+
+        // --- LEITURA DO CSV ---
+        document.getElementById('csvFileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0]; if (!file) return;
+            setStatus('Processando arquivo...');
+            
+            Papa.parse(file, {
+                header: true, skipEmptyLines: true,
+                complete: async function(results) {
+                    const rows = results.data;
+                    let groupedByData = {};
+                    let countPendentes = 0;
+
+                    rows.forEach(row => {
+                        const keys = Object.keys(row);
+                        const getVal = (nomes) => {
+                            for(let k of keys) { if (nomes.includes(k.trim().toLowerCase())) return row[k]; }
+                            return '';
+                        };
+
+                        const inventariado = getVal(['inventariado']);
+                        // 100% Ignorar o que não for Pendentes (Regra exigida)
+                        if (String(inventariado).trim().toLowerCase() === 'pendentes') {
+                            countPendentes++;
+                            
+                            // Coleta a data da Coluna B (index 1 das chaves)
+                            let dataReferencia = row[keys[1]] || 'SemData';
+                            let chaveFb = formatarDataChave(dataReferencia);
+
+                            if(!groupedByData[chaveFb]) groupedByData[chaveFb] = [];
+
+                            groupedByData[chaveFb].push({
+                                ID: getVal(['ids de pacotes', 'id']),
+                                Responsabilidade: getVal(['area responsavel', 'responsabilidade']),
+                                Turno: getVal(['turno']),
+                                Observacao: getVal(['observação', 'observacao']),
+                                Status: getVal(['subs tatus', 'status']),
+                                Perfil: getVal(['perfil']),
+                                Semana: getVal(['semana']),
+                                Mes: getVal(['mes', 'mês']),
+                                Valor: getVal(['valor em real', 'valor']),
+                                Aging: getVal(['aging'])
+                            });
+                        }
+                    });
+
+                    if(countPendentes === 0) {
+                        alert("Nenhuma linha encontrada com INVENTARIADO = 'Pendentes'. O arquivo foi ignorado.");
+                        setStatus('Leitura cancelada.');
+                        return;
+                    }
+
+                    setStatus('Salvando no Banco de Dados...');
+                    for (let chaveData in groupedByData) {
+                        const itens = groupedByData[chaveData];
+                        const payload = { atualizadoEm: new Date().toLocaleString('pt-BR'), lista: itens };
+                        try {
+                            await fetch(`${FIREBASE_URL_BASE}${FIREBASE_NODE}/${chaveData}.json`, { 
+                                method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) 
+                            });
+                        } catch(e) { console.error("Erro ao salvar data:", chaveData); }
+                    }
+
+                    alert(`Sucesso! ${countPendentes} pacotes pendentes salvos e indexados por Data.`);
+                    e.target.value = ''; // reseta input
+                    carregarDoFirebase();
+                }
+            });
+        });
+
+        // --- FIREBASE READ ---
+        async function carregarDoFirebase() {
+            setStatus('Conectando ao DB...');
+            try {
+                const res = await fetch(`${FIREBASE_URL_BASE}${FIREBASE_NODE}.json`);
+                BD_COMPLETO = (await res.json()) || {};
+                
+                const datas = Object.keys(BD_COMPLETO).sort().reverse();
+                if(datas.length === 0) {
+                    setStatus('Banco Vazio.');
+                    document.getElementById('filter-data').innerHTML = '<option>Sem dados</option>';
+                    return;
+                }
+
+                document.getElementById('filter-data').innerHTML = datas.map(d => `<option value="${d}">${formatarDataBR(d)}</option>`).join('');
+                carregarData();
+
+            } catch(e) { setStatus('Erro ao carregar banco.'); }
+        }
+
+        function carregarData() {
+            const dataSelecionada = document.getElementById('filter-data').value;
+            DADOS_ATUAIS = BD_COMPLETO[dataSelecionada] ? BD_COMPLETO[dataSelecionada].lista : [];
+            setStatus(`Base: ${formatarDataBR(dataSelecionada)} (${DADOS_ATUAIS.length} registros)`);
+            preencherFiltrosDrop();
+            aplicarFiltros();
+        }
+
+        // --- PREENCHIMENTO E APLICAÇÃO DE FILTROS ---
+        function setSelectOptions(id, property) {
+            const select = document.getElementById(id);
+            const valAtual = select.value;
+            const uniqueVals = [...new Set(DADOS_ATUAIS.map(i => i[property]))].filter(Boolean).sort();
+            select.innerHTML = `<option value="Todos">Todos</option>` + uniqueVals.map(v => `<option value="${v}">${v}</option>`).join('');
+            if ([...select.options].some(o => o.value === valAtual)) select.value = valAtual;
+        }
+
+        function preencherFiltrosDrop() {
+            setSelectOptions('filter-resp', 'Responsabilidade');
+            setSelectOptions('filter-turno', 'Turno');
+            setSelectOptions('filter-status', 'Status');
+            setSelectOptions('filter-perfil', 'Perfil');
+            setSelectOptions('filter-semana', 'Semana');
+            setSelectOptions('filter-mes', 'Mes');
+        }
+
+        function aplicarFiltros() {
+            const resp = document.getElementById('filter-resp').value;
+            const turno = document.getElementById('filter-turno').value;
+            const status = document.getElementById('filter-status').value;
+            const perfil = document.getElementById('filter-perfil').value;
+            const sem = document.getElementById('filter-semana').value;
+            const mes = document.getElementById('filter-mes').value;
+            const busca = document.getElementById('search-input').value.toLowerCase();
+
+            DADOS_FILTRADOS = DADOS_ATUAIS.filter(item => {
+                const bTxt = [item.ID, item.Observacao].join(' ').toLowerCase();
+                return (resp === 'Todos' || item.Responsabilidade === resp) &&
+                       (turno === 'Todos' || item.Turno === turno) &&
+                       (status === 'Todos' || item.Status === status) &&
+                       (perfil === 'Todos' || item.Perfil === perfil) &&
+                       (sem === 'Todos' || item.Semana === sem) &&
+                       (mes === 'Todos' || item.Mes === mes) &&
+                       (!busca || bTxt.includes(busca));
+            });
+
+            // Regra principal: Classificar do Mais Caro ao Mais Barato sempre.
+            DADOS_FILTRADOS.sort((a,b) => parseCurrency(b.Valor) - parseCurrency(a.Valor));
+
+            atualizarTela();
+        }
+
+        function atualizarTela() {
+            // 1. KPIs
+            let somaVal = 0, somaAging = 0;
+            DADOS_FILTRADOS.forEach(i => { somaVal += parseCurrency(i.Valor); somaAging += parseInt(i.Aging) || 0; });
+            
+            document.getElementById('kpi-qtd').innerText = DADOS_FILTRADOS.length;
+            document.getElementById('kpi-valor').innerText = formatCurrency(somaVal);
+            document.getElementById('kpi-aging').innerText = DADOS_FILTRADOS.length ? Math.round(somaAging / DADOS_FILTRADOS.length) + " dias" : "0 dias";
+
+            // 2. Tabela Principal
+            const tbody = document.getElementById('tbody-dados');
+            if (DADOS_FILTRADOS.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px;">Nenhum pacote encontrado com os filtros atuais.</td></tr>`;
+            } else {
+                tbody.innerHTML = DADOS_FILTRADOS.slice(0, 100).map(i => `
+                    <tr>
+                        <td class="col-id">${i.ID || '-'}</td>
+                        <td>${i.Responsabilidade || '-'}</td>
+                        <td>${i.Turno || '-'}</td>
+                        <td>${i.Status || '-'}</td>
+                        <td class="col-val">${i.Valor || 'R$ 0,00'}</td>
+                    </tr>
+                `).join('');
+                if(DADOS_FILTRADOS.length > 100) tbody.innerHTML += `<tr><td colspan="5" style="text-align:center; font-size:0.75rem; color:var(--text-muted);">Mostrando os top 100 mais caros. Total: ${DADOS_FILTRADOS.length}</td></tr>`;
+            }
+
+            // 3. Gráficos
+            renderGraficos();
+        }
+
+        // --- GRÁFICOS (Chart.js) COM INTERATIVIDADE ---
+        function renderGraficos() {
+            Chart.defaults.color = getChartTextColor();
+            Chart.defaults.font.family = "'Inter', sans-serif";
+
+            // Agrupamentos
+            let valPorResp = {}; let qtdPorTurno = {};
+            DADOS_FILTRADOS.forEach(i => {
+                let r = i.Responsabilidade || 'N/A';
+                let t = i.Turno || 'N/A';
+                valPorResp[r] = (valPorResp[r] || 0) + parseCurrency(i.Valor);
+                qtdPorTurno[t] = (qtdPorTurno[t] || 0) + 1;
+            });
+
+            // Ordenações
+            let lblResp = Object.keys(valPorResp).sort((a,b) => valPorResp[b] - valPorResp[a]);
+            let dataResp = lblResp.map(l => valPorResp[l]);
+
+            let lblTurno = Object.keys(qtdPorTurno).sort((a,b) => qtdPorTurno[b] - qtdPorTurno[a]);
+            let dataTurno = lblTurno.map(l => qtdPorTurno[l]);
+
+            // Chart 1: Responsabilidade (Valor)
+            if(chartR) chartR.destroy();
+            chartR = new Chart(document.getElementById('chartResp').getContext('2d'), {
+                type: 'bar',
+                data: { labels: lblResp, datasets: [{ label: 'Valor Retido (R$)', data: dataResp, backgroundColor: '#3483FA', borderRadius: 6 }] },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { display: false },
+                        datalabels: { color: '#fff', font: {weight: 'bold', size: 9}, formatter: (v) => v > 0 ? "R$ " + (v/1000).toFixed(1) + "k" : '' }
+                    },
+                    scales: { x: { grid: { display: false } }, y: { display: false } },
+                    onClick: (e, activeEls) => { if(activeEls.length > 0) abrirDetalhes(lblResp[activeEls[0].index], 'Responsabilidade'); }
+                }
+            });
+
+            // Chart 2: Turno (Volume)
+            if(chartT) chartT.destroy();
+            chartT = new Chart(document.getElementById('chartTurno').getContext('2d'), {
+                type: 'bar',
+                data: { labels: lblTurno, datasets: [{ label: 'Qtd Pacotes', data: dataTurno, backgroundColor: '#FFB000', borderRadius: 6 }] },
+                options: {
+                    responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+                    plugins: { 
+                        legend: { display: false },
+                        datalabels: { color: '#333', font: {weight: '900', size: 10}, anchor: 'end', align: 'left', formatter: (v) => v }
+                    },
+                    scales: { x: { display: false }, y: { grid: { display: false } } },
+                    onClick: (e, activeEls) => { if(activeEls.length > 0) abrirDetalhes(lblTurno[activeEls[0].index], 'Turno'); }
+                }
+            });
+        }
+
+        // --- LÓGICA DO POP-UP (MODAL DE DETALHES) ---
+        function abrirDetalhes(labelValor, propriedade) {
+            document.getElementById('modal-titulo').innerText = `Detalhes: ${propriedade} = ${labelValor}`;
+            const targetData = DADOS_FILTRADOS.filter(i => (i[propriedade] || 'N/A') === labelValor);
+            
+            const tbody = document.getElementById('modal-tbody');
+            if(targetData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Nenhum dado encontrado.</td></tr>`;
+            } else {
+                tbody.innerHTML = targetData.map(i => `
+                    <tr>
+                        <td class="col-id">${i.ID}</td>
+                        <td>${i.Responsabilidade}</td>
+                        <td>${i.Turno}</td>
+                        <td style="font-size: 0.75rem;">${i.Observacao || '-'}</td>
+                        <td class="col-val">${i.Valor}</td>
+                    </tr>
+                `).join('');
+            }
+            document.getElementById('detalhesModal').classList.add('active');
+        }
+
+        function fecharModal() { document.getElementById('detalhesModal').classList.remove('active'); }
+        function fecharModalExterno(e) { if(e.target.id === 'detalhesModal') fecharModal(); }
+
+        // Init
+        window.onload = carregarDoFirebase;
+    </script>
+</body>
+</html>
