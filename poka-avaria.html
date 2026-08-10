@@ -156,14 +156,12 @@
     </div>
 
     <div class="filter-bar glass-panel">
-        <!-- FILTRO DE PERÍODO NOVO -->
         <div class="filter-group">
             <label>Período:</label>
             <input type="date" id="filter-data-inicio" onchange="aplicarFiltros()">
             <span class="date-divider">a</span>
             <input type="date" id="filter-data-fim" onchange="aplicarFiltros()">
         </div>
-        
         <div class="filter-group"><label>Semana do Ano:</label><select id="filter-semana"><option value="Todos">Todos</option></select></div>
         <div class="filter-group"><label>Categoria:</label><select id="filter-categoria"><option value="Todos">Todos</option></select></div>
         <div class="filter-group"><label>Problem Solver:</label><select id="filter-ps"><option value="Todos">Todos</option></select></div>
@@ -214,8 +212,8 @@
 
     <script>
         const FIREBASE_URL = "https://reportes-bdb0a-default-rtdb.firebaseio.com/";
-        // NOVO NÓ V2 PARA INICIAR LIMPO
-        const FIREBASE_NODE = "poka_avarias_consolidado_v2";
+        // NOVO NÓ V3 PARA INICIAR LIMPO E SEM SUJEIRA
+        const FIREBASE_NODE = "poka_avarias_consolidado_v3";
         
         let BANCO_GLOBAL = []; let DADOS_FILTRADOS = []; let chartInstances = {};
         let colSemanaNome = 'Semana do ano'; let psTopLabels = []; 
@@ -255,7 +253,6 @@
         function parseCurrency(valStr) { if (!valStr) return 0; let s = String(valStr).replace('R$', '').replace(/\./g, '').replace(',', '.').trim(); return parseFloat(s) || 0; }
         function escapeHtml(v) { return String(v ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;'); }
         
-        // Parse da string de Data para Objeto Date
         function parseDateBR(dateStr) {
             if(!dateStr) return null;
             let parts = dateStr.split(' ')[0].split('/');
@@ -275,6 +272,19 @@
                 return `${m}/${y}`;
             }
             return 'Desconhecido';
+        }
+
+        // Função Robusta para Normalizar o Dia da Semana
+        function getNormalizedDay(row) {
+            let dRaw = (row['Dia da Semana'] || row['Dia'] || '').toString().toLowerCase().trim();
+            if (dRaw.includes('dom')) return 'Domingo';
+            if (dRaw.includes('seg')) return 'Segunda-feira';
+            if (dRaw.includes('ter')) return 'Terça-feira';
+            if (dRaw.includes('qua')) return 'Quarta-feira';
+            if (dRaw.includes('qui')) return 'Quinta-feira';
+            if (dRaw.includes('sex')) return 'Sexta-feira';
+            if (dRaw.includes('sab') || dRaw.includes('sáb')) return 'Sábado';
+            return '';
         }
 
         window.onload = async function() {
@@ -325,7 +335,6 @@
             setStatus(`Salvando (${qtdNovos} novos, ${qtdAtualizados} atualizados)...`, '#3483FA');
             
             try {
-                // SALVA COM CARIMBO DE TEMPO NO NÓ PRINCIPAL
                 const payload = {
                     atualizadoEm: new Date().toLocaleString('pt-BR'),
                     lista: bancoAtualizado
@@ -358,9 +367,12 @@
         function preencherDropdowns() {
             let psSet = new Set(), turnoSet = new Set(), diaSet = new Set(), semanaSet = new Set(), catSet = new Set();
             BANCO_GLOBAL.forEach(row => {
-                if (row['Problem Solver']) psSet.add(row['Problem Solver']); if (row['Turno']) turnoSet.add(row['Turno']);
-                if (row['Dia da Semana']) diaSet.add(row['Dia da Semana']); if (row['Categoria']) catSet.add(row['Categoria']);
+                if (row['Problem Solver']) psSet.add(row['Problem Solver']); 
+                if (row['Turno']) turnoSet.add(row['Turno']);
+                if (row['Categoria']) catSet.add(row['Categoria']);
                 if (row[colSemanaNome]) semanaSet.add(row[colSemanaNome]);
+                let diaNorm = getNormalizedDay(row);
+                if (diaNorm) diaSet.add(diaNorm);
             });
             function popSel(id, vals, def) { let s = document.getElementById(id); let a = s.value; s.innerHTML = `<option value="Todos">${def}</option>`; vals.forEach(v => { if(v&&v.toString().trim()!=='') s.innerHTML += `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`; }); if([...s.options].some(o=>o.value===a)) s.value=a; }
 
@@ -396,20 +408,22 @@
                     if (start && rDate < start) inRange = false;
                     if (end && rDate > end) inRange = false;
                 }
+                
+                let diaRow = getNormalizedDay(row);
 
                 return inRange &&
                        (fSem === 'Todos' || row[colSemanaNome] == fSem) && 
                        (fCat === 'Todos' || row['Categoria'] === fCat) && 
                        (fPS === 'Todos' || row['Problem Solver'] === fPS) && 
                        (fTurno === 'Todos' || row['Turno'] === fTurno) && 
-                       (fDia === 'Todos' || row['Dia da Semana'] === fDia);
+                       (fDia === 'Todos' || diaRow === fDia);
             });
             renderizarDashboard(DADOS_FILTRADOS);
         }
 
         function getChartTextColor() { return document.body.getAttribute('data-theme') === 'light' ? '#334155' : '#EBEBEB'; }
 
-        // Gráficos Donut AGORA EXIBINDO PORCENTAGEM
+        // Gráficos de Donut mais limpos - Exibe as Porcentagens e Quantidades SOMENTE na Legenda
         function getDonutOptions(series, labels, chartTypeStr) {
             return {
                 series: series, labels: labels, 
@@ -418,13 +432,18 @@
                     events: { dataPointSelection: function(e, c, config) { abrirModalLista(chartTypeStr, config.w.config.labels[config.dataPointIndex]); } } 
                 },
                 colors: mlColors, stroke: { colors: ['transparent'], width: 0 }, 
-                dataLabels: { 
-                    enabled: true, 
-                    formatter: function (val) { return val.toFixed(1) + "%"; },
-                    dropShadow: { enabled: true, top: 1, left: 1, blur: 1, opacity: 0.5 }
-                },
+                dataLabels: { enabled: false }, // Retirado números embolados de dentro do gráfico
                 theme: { mode: document.body.getAttribute('data-theme') === 'light' ? 'light' : 'dark' },
-                legend: { show: true, position: 'bottom', fontSize: '11px', fontFamily: 'Inter', labels: { colors: getChartTextColor() }, formatter: function(sn, opts) { return sn + " (" + opts.w.globals.series[opts.seriesIndex] + ")"; } }
+                legend: { 
+                    show: true, position: 'bottom', fontSize: '11px', fontFamily: 'Inter', 
+                    labels: { colors: getChartTextColor() }, 
+                    formatter: function(sn, opts) {
+                        let val = opts.w.globals.series[opts.seriesIndex];
+                        let total = opts.w.globals.seriesTotals.reduce((a, b) => a + b, 0);
+                        let percent = total > 0 ? ((val / total) * 100).toFixed(1) + "%" : "0%";
+                        return sn + " (" + val + " un | " + percent + ")"; 
+                    } 
+                }
             };
         }
 
@@ -439,7 +458,10 @@
                 let r = row['Status de resolução'] || row['Resolução'] || 'Outros'; dadosResolucao[r] = (dadosResolucao[r] || 0) + 1;
                 let o = row['Origem de dano'] || 'Outros'; dadosOrigem[o] = (dadosOrigem[o] || 0) + 1;
                 let c = row['Categoria'] || 'OUTROS'; if(!dadosCategoria[c]) dadosCategoria[c] = { valor: 0, qtd: 0 }; dadosCategoria[c].valor += v; dadosCategoria[c].qtd += 1;
-                let d = row['Dia da Semana'] || ''; if (dadosDias[d]) { dadosDias[d].qtd += 1; dadosDias[d].valor += v; }
+                
+                // Aplicando normalização robusta do Dia da Semana
+                let d = getNormalizedDay(row); 
+                if (d && dadosDias[d]) { dadosDias[d].qtd += 1; dadosDias[d].valor += v; }
             });
 
             document.getElementById('main-dynamic-title').innerText = `AVARIAS LANÇADAS E APROVADAS | VALOR TOTAL: ${totalValor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} DE ${data.length} VOLUMES`;
@@ -464,7 +486,9 @@
                 xaxis: { categories: catOrd.map(c => c[0]), labels: { show: false }, axisBorder:{show:false}, axisTicks:{show:false} }, yaxis: { labels: { style: { colors: getChartTextColor(), fontWeight: 'bold' } } }, colors: ['#3483FA'], grid: { show: false }
             }); chartInstances.categoria.render();
 
-            const dLabels = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado']; const dValores = dLabels.map(d => Math.round(dadosDias[d].valor)); const dQtds = dLabels.map(d => dadosDias[d].qtd);
+            const dLabels = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado']; 
+            const dValores = dLabels.map(d => Math.round(dadosDias[d].valor)); 
+            const dQtds = dLabels.map(d => dadosDias[d].qtd);
             chartInstances.dias = new ApexCharts(document.querySelector("#chart-dias"), {
                 series: [ { name: 'Valor Lançado (R$)', type: 'column', data: dValores }, { name: 'Quantidade', type: 'line', data: dQtds } ],
                 chart: { type: 'line', height: '100%', background: 'transparent', events: { dataPointSelection: function(e, c, config) { abrirModalLista('Dia', dLabels[config.dataPointIndex]); } } },
@@ -485,7 +509,7 @@
                 DADOS_MODAL_BASE = DADOS_FILTRADOS.filter(row => {
                     if (filtroKey === 'Turno') return row['Turno'] === filtroVal; if (filtroKey === 'Resolucao') return (row['Status de resolução'] || row['Resolução'] || 'Outros') === filtroVal;
                     if (filtroKey === 'Origem') return (row['Origem de dano'] || 'Outros') === filtroVal; if (filtroKey === 'Categoria') return (row['Categoria'] || 'OUTROS') === filtroVal;
-                    if (filtroKey === 'Dia') return row['Dia da Semana'] === filtroVal; if (filtroKey === 'PS') return filtroVal === 'Outros' ? !psTopLabels.includes(row['Problem Solver']) : row['Problem Solver'] === filtroVal; return true;
+                    if (filtroKey === 'Dia') return getNormalizedDay(row) === filtroVal; if (filtroKey === 'PS') return filtroVal === 'Outros' ? !psTopLabels.includes(row['Problem Solver']) : row['Problem Solver'] === filtroVal; return true;
                 }); titulo = `Lista Detalhada - ${filtroKey}: ${filtroVal}`;
             }
             document.getElementById('modal-titulo').innerText = titulo + ` (${DADOS_MODAL_BASE.length} pacotes)`; document.getElementById('modal-search-input').value = ''; 
@@ -511,8 +535,10 @@
                 let linkFoto = idAvaria !== '' ? `https://envios.adminml.com/logistics/problem-solving/detail/${escapeHtml(idAvaria)}` : '#';
                 let fotoHtml = idAvaria !== '' ? `<a href="${linkFoto}" target="_blank" class="photo-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></a>` : '';
                 
+                let diaNorm = getNormalizedDay(item) || '-';
+                
                 html += `<tr><td class="col-id"><div style="display:flex; gap:8px; margin-right: 5px;">${lupaHtml}${fotoHtml}</div><span>${escapeHtml(idPacote)}</span></td>
-                    <td class="center">${escapeHtml(item['Data de criação'] || item['Data'] || '-')}</td><td>${escapeHtml(item['Dia da Semana'] || '-')} / ${escapeHtml(item['Turno'] || '-')}</td><td>${escapeHtml(item['Problem Solver'] || '-')}</td><td>${escapeHtml(item['Categoria'] || '-')}</td><td>${escapeHtml(item['Status de resolução'] || item['Resolução'] || '-')}</td><td class="col-val">R$ ${parseCurrency(item['Valor']).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td></tr>`;
+                    <td class="center">${escapeHtml(item['Data de criação'] || item['Data'] || '-')}</td><td>${escapeHtml(diaNorm)} / ${escapeHtml(item['Turno'] || '-')}</td><td>${escapeHtml(item['Problem Solver'] || '-')}</td><td>${escapeHtml(item['Categoria'] || '-')}</td><td>${escapeHtml(item['Status de resolução'] || item['Resolução'] || '-')}</td><td class="col-val">R$ ${parseCurrency(item['Valor']).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td></tr>`;
             });
             document.getElementById('tbody-pacotes').insertAdjacentHTML('beforeend', html);
         }
