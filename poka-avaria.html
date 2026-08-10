@@ -75,8 +75,9 @@
         /* BARRA DE FILTROS */
         .filter-bar { display: flex; gap: 15px; padding: 12px 16px; align-items: center; flex: 0 0 auto; flex-wrap: wrap; justify-content: center; }
         .filter-group { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
-        .filter-group select { background-color: var(--bg-input); color: var(--text-main); border: 1px solid var(--border-card); padding: 6px 10px; border-radius: 6px; font-family: 'Inter', sans-serif; outline: none; cursor: pointer; min-width: 120px; font-size: 0.85rem; font-weight: 600; transition: 0.3s; }
-        .filter-group select:focus { border-color: var(--accent-blue); }
+        .filter-group select, .filter-group input[type="date"] { background-color: var(--bg-input); color: var(--text-main); border: 1px solid var(--border-card); padding: 6px 10px; border-radius: 6px; font-family: 'Inter', sans-serif; outline: none; cursor: pointer; min-width: 120px; font-size: 0.85rem; font-weight: 600; transition: 0.3s; }
+        .filter-group select:focus, .filter-group input[type="date"]:focus { border-color: var(--accent-blue); }
+        .date-divider { color: var(--text-muted); font-weight: bold; }
         
         .btn-clear { background-color: transparent; color: var(--accent-red); border: 1px solid var(--accent-red); padding: 6px 12px; border-radius: 6px; font-weight: 800; cursor: pointer; transition: 0.2s; margin-left: auto; font-size: 0.8rem; display: flex; align-items: center; gap: 4px; }
         .btn-clear:hover { background-color: rgba(255, 82, 82, 0.15); }
@@ -127,9 +128,10 @@
 
     <div class="top-header glass-panel">
         <div class="header-left"><img src="https://upload.wikimedia.org/wikipedia/pt/0/04/Logotipo_MercadoLivre.png" alt="Mercado Livre" class="ml-logo"></div>
-        <div class="header-center" id="main-dynamic-title">AVARIAS LANÇADAS E APROVADAS MENSAIS</div>
+        <div class="header-center" id="main-dynamic-title">AVARIAS LANÇADAS E APROVADAS</div>
         
         <div class="header-actions">
+            <!-- SELO DE ATUALIZAÇÃO -->
             <span class="status-badge" id="data-status">Conectando...</span>
             
             <button class="btn" onclick="abrirModalMensal()" title="Comparativo Mensal">
@@ -154,7 +156,14 @@
     </div>
 
     <div class="filter-bar glass-panel">
-        <div class="filter-group"><label>Mês:</label><select id="filter-mes"><option value="Todos">Todos</option></select></div>
+        <!-- FILTRO DE PERÍODO NOVO -->
+        <div class="filter-group">
+            <label>Período:</label>
+            <input type="date" id="filter-data-inicio" onchange="aplicarFiltros()">
+            <span class="date-divider">a</span>
+            <input type="date" id="filter-data-fim" onchange="aplicarFiltros()">
+        </div>
+        
         <div class="filter-group"><label>Semana do Ano:</label><select id="filter-semana"><option value="Todos">Todos</option></select></div>
         <div class="filter-group"><label>Categoria:</label><select id="filter-categoria"><option value="Todos">Todos</option></select></div>
         <div class="filter-group"><label>Problem Solver:</label><select id="filter-ps"><option value="Todos">Todos</option></select></div>
@@ -205,7 +214,8 @@
 
     <script>
         const FIREBASE_URL = "https://reportes-bdb0a-default-rtdb.firebaseio.com/";
-        const FIREBASE_NODE = "poka_avarias_consolidado";
+        // NOVO NÓ V2 PARA INICIAR LIMPO
+        const FIREBASE_NODE = "poka_avarias_consolidado_v2";
         
         let BANCO_GLOBAL = []; let DADOS_FILTRADOS = []; let chartInstances = {};
         let colSemanaNome = 'Semana do ano'; let psTopLabels = []; 
@@ -218,7 +228,7 @@
             if (event.data.type === 'THEME_CHANGED') { 
                 document.body.setAttribute('data-theme', event.data.theme); 
                 window.Apex = { theme: { mode: event.data.theme } };
-                if(globalData && globalData.length > 0) renderizarDashboard(DADOS_FILTRADOS);
+                if(DADOS_FILTRADOS && DADOS_FILTRADOS.length > 0) renderizarDashboard(DADOS_FILTRADOS);
             } 
         });
 
@@ -244,23 +254,49 @@
         function extrairIdAvaria(row) { return getVal(row, ['id', 'id avaria', 'id_avaria', 'avaria', 'id. avaria', 'id da avaria']); }
         function parseCurrency(valStr) { if (!valStr) return 0; let s = String(valStr).replace('R$', '').replace(/\./g, '').replace(',', '.').trim(); return parseFloat(s) || 0; }
         function escapeHtml(v) { return String(v ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;'); }
-        function formatarMesAno(dataStr) { if (!dataStr) return 'Desconhecido'; let parts = dataStr.split('/'); if (parts.length >= 3) return `${parts[1]}/${parts[2]}`; if (dataStr.includes('-')) { let p = dataStr.split('-'); if (p.length >= 3) return `${p[1]}/${p[0]}`; } return 'Desconhecido'; }
+        
+        // Parse da string de Data para Objeto Date
+        function parseDateBR(dateStr) {
+            if(!dateStr) return null;
+            let parts = dateStr.split(' ')[0].split('/');
+            if(parts.length === 3) return new Date(parts[2], parts[1]-1, parts[0]);
+            if(dateStr.includes('-')) {
+                let p = dateStr.split(' ')[0].split('-');
+                if(p.length === 3 && p[0].length === 4) return new Date(p[0], p[1]-1, p[2]);
+            }
+            return null;
+        }
+
+        function formatarMesAno(dataStr) { 
+            let d = parseDateBR(dataStr);
+            if(d) {
+                let m = String(d.getMonth() + 1).padStart(2, '0');
+                let y = d.getFullYear();
+                return `${m}/${y}`;
+            }
+            return 'Desconhecido';
+        }
 
         window.onload = async function() {
             try {
                 const response = await fetch(`${FIREBASE_URL}${FIREBASE_NODE}.json`);
                 const dbData = await response.json();
                 
-                // Correção poderosa para puxar os dados, seja Array ou Object.
                 if(dbData) {
-                    if (Array.isArray(dbData)) BANCO_GLOBAL = dbData;
-                    else if (dbData.lista) BANCO_GLOBAL = Array.isArray(dbData.lista) ? dbData.lista : Object.values(dbData.lista);
-                    else BANCO_GLOBAL = Object.values(dbData);
+                    let dataAtualizacao = "Desconhecido";
+                    if (Array.isArray(dbData)) {
+                        BANCO_GLOBAL = dbData;
+                    } else if (dbData.lista) {
+                        BANCO_GLOBAL = Array.isArray(dbData.lista) ? dbData.lista : Object.values(dbData.lista);
+                        dataAtualizacao = dbData.atualizadoEm || "Desconhecido";
+                    } else {
+                        BANCO_GLOBAL = Object.values(dbData);
+                    }
 
                     if(BANCO_GLOBAL.length > 0) {
                         let cols = Object.keys(BANCO_GLOBAL[0]);
                         colSemanaNome = cols.find(k => k.toLowerCase().trim() === 'semana do ano' || k.toLowerCase().trim() === 'semana') || 'Semana do ano';
-                        setStatus(`Sincronizado: ${BANCO_GLOBAL.length} registros`, '#00A650');
+                        setStatus(`Atualizado em: ${dataAtualizacao}`, '#00A650');
                         preencherDropdowns(); aplicarFiltros();
                     } else {
                         setStatus('Banco vazio. Suba a primeira planilha.', '#FFB000');
@@ -284,16 +320,22 @@
                 }
             });
 
-            if (qtdNovos === 0 && qtdAtualizados === 0) { alert("Nenhum pacote reconhecido na planilha."); setStatus(`Sincronizado: ${BANCO_GLOBAL.length} registros`, '#00A650'); return; }
+            if (qtdNovos === 0 && qtdAtualizados === 0) { alert("Nenhum pacote reconhecido na planilha."); return; }
             let bancoAtualizado = Array.from(mapExistentes.values());
             setStatus(`Salvando (${qtdNovos} novos, ${qtdAtualizados} atualizados)...`, '#3483FA');
             
             try {
-                await fetch(`${FIREBASE_URL}${FIREBASE_NODE}.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(bancoAtualizado) });
+                // SALVA COM CARIMBO DE TEMPO NO NÓ PRINCIPAL
+                const payload = {
+                    atualizadoEm: new Date().toLocaleString('pt-BR'),
+                    lista: bancoAtualizado
+                };
+                await fetch(`${FIREBASE_URL}${FIREBASE_NODE}.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                 await registrarLogFirebase("Avarias Mensal", "Sincronizou a base de dados consolidada via CSV.");
+                
                 BANCO_GLOBAL = bancoAtualizado; preencherDropdowns(); aplicarFiltros();
                 alert(`Sucesso! ${qtdNovos} pacotes novos adicionados e ${qtdAtualizados} pacotes existentes atualizados.`);
-                setStatus(`Sincronizado: ${BANCO_GLOBAL.length} registros`, '#00A650');
+                setStatus(`Atualizado em: ${payload.atualizadoEm}`, '#00A650');
             } catch (err) { alert("Erro ao salvar na nuvem."); setStatus('Erro ao salvar', '#FF5252'); }
         }
 
@@ -314,46 +356,79 @@
         });
 
         function preencherDropdowns() {
-            let psSet = new Set(), turnoSet = new Set(), diaSet = new Set(), semanaSet = new Set(), catSet = new Set(), mesSet = new Set();
+            let psSet = new Set(), turnoSet = new Set(), diaSet = new Set(), semanaSet = new Set(), catSet = new Set();
             BANCO_GLOBAL.forEach(row => {
                 if (row['Problem Solver']) psSet.add(row['Problem Solver']); if (row['Turno']) turnoSet.add(row['Turno']);
                 if (row['Dia da Semana']) diaSet.add(row['Dia da Semana']); if (row['Categoria']) catSet.add(row['Categoria']);
                 if (row[colSemanaNome]) semanaSet.add(row[colSemanaNome]);
-                let mesAno = formatarMesAno(row['Data de criação'] || row['Data']); if(mesAno !== 'Desconhecido') mesSet.add(mesAno);
             });
             function popSel(id, vals, def) { let s = document.getElementById(id); let a = s.value; s.innerHTML = `<option value="Todos">${def}</option>`; vals.forEach(v => { if(v&&v.toString().trim()!=='') s.innerHTML += `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`; }); if([...s.options].some(o=>o.value===a)) s.value=a; }
 
             let arrS = Array.from(semanaSet).filter(s => s && !isNaN(parseInt(s))).sort((a,b)=> parseInt(b) - parseInt(a));
-            let arrM = Array.from(mesSet).sort((a,b)=> { let [mA,yA]=a.split('/'); let [mB,yB]=b.split('/'); if(yA!==yB) return parseInt(yA)-parseInt(yB); return parseInt(mA)-parseInt(mB); });
-            popSel('filter-mes', arrM, 'Todos'); popSel('filter-semana', arrS, 'Todos'); popSel('filter-categoria', Array.from(catSet).sort(), 'Todos');
+            popSel('filter-semana', arrS, 'Todos'); popSel('filter-categoria', Array.from(catSet).sort(), 'Todos');
             popSel('filter-ps', Array.from(psSet).sort(), 'Todos'); popSel('filter-turno', Array.from(turnoSet).sort(), 'Todos');
             popSel('filter-dia', ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'].filter(d=>diaSet.has(d)), 'Todos');
         }
 
-        function limparFiltros() { ['filter-mes','filter-semana','filter-categoria','filter-ps','filter-turno','filter-dia'].forEach(id => document.getElementById(id).value = 'Todos'); aplicarFiltros(); }
+        function limparFiltros() { 
+            document.getElementById('filter-data-inicio').value = '';
+            document.getElementById('filter-data-fim').value = '';
+            ['filter-semana','filter-categoria','filter-ps','filter-turno','filter-dia'].forEach(id => document.getElementById(id).value = 'Todos'); 
+            aplicarFiltros(); 
+        }
 
         function aplicarFiltros() {
-            let fMes = document.getElementById('filter-mes').value; let fSem = document.getElementById('filter-semana').value; let fCat = document.getElementById('filter-categoria').value; let fPS = document.getElementById('filter-ps').value; let fTurno = document.getElementById('filter-turno').value; let fDia = document.getElementById('filter-dia').value;
+            let startDtStr = document.getElementById('filter-data-inicio').value;
+            let endDtStr = document.getElementById('filter-data-fim').value;
+            let fSem = document.getElementById('filter-semana').value; 
+            let fCat = document.getElementById('filter-categoria').value; 
+            let fPS = document.getElementById('filter-ps').value; 
+            let fTurno = document.getElementById('filter-turno').value; 
+            let fDia = document.getElementById('filter-dia').value;
+
+            let start = startDtStr ? new Date(startDtStr + 'T00:00:00') : null;
+            let end = endDtStr ? new Date(endDtStr + 'T23:59:59') : null;
+
             DADOS_FILTRADOS = BANCO_GLOBAL.filter(row => {
-                let m = formatarMesAno(row['Data de criação'] || row['Data']);
-                return (fMes === 'Todos' || m === fMes) && (fSem === 'Todos' || row[colSemanaNome] == fSem) && (fCat === 'Todos' || row['Categoria'] === fCat) && (fPS === 'Todos' || row['Problem Solver'] === fPS) && (fTurno === 'Todos' || row['Turno'] === fTurno) && (fDia === 'Todos' || row['Dia da Semana'] === fDia);
+                let rDate = parseDateBR(row['Data de criação'] || row['Data']);
+                let inRange = true;
+                if(rDate) {
+                    if (start && rDate < start) inRange = false;
+                    if (end && rDate > end) inRange = false;
+                }
+
+                return inRange &&
+                       (fSem === 'Todos' || row[colSemanaNome] == fSem) && 
+                       (fCat === 'Todos' || row['Categoria'] === fCat) && 
+                       (fPS === 'Todos' || row['Problem Solver'] === fPS) && 
+                       (fTurno === 'Todos' || row['Turno'] === fTurno) && 
+                       (fDia === 'Todos' || row['Dia da Semana'] === fDia);
             });
             renderizarDashboard(DADOS_FILTRADOS);
         }
 
         function getChartTextColor() { return document.body.getAttribute('data-theme') === 'light' ? '#334155' : '#EBEBEB'; }
 
+        // Gráficos Donut AGORA EXIBINDO PORCENTAGEM
         function getDonutOptions(series, labels, chartTypeStr) {
             return {
-                series: series, labels: labels, chart: { type: 'donut', height: '100%', background: 'transparent', events: { dataPointSelection: function(e, c, config) { abrirModalLista(chartTypeStr, config.w.config.labels[config.dataPointIndex]); } } },
-                colors: mlColors, stroke: { colors: ['transparent'], width: 0 }, dataLabels: { enabled: false },
+                series: series, labels: labels, 
+                chart: { 
+                    type: 'donut', height: '100%', background: 'transparent', 
+                    events: { dataPointSelection: function(e, c, config) { abrirModalLista(chartTypeStr, config.w.config.labels[config.dataPointIndex]); } } 
+                },
+                colors: mlColors, stroke: { colors: ['transparent'], width: 0 }, 
+                dataLabels: { 
+                    enabled: true, 
+                    formatter: function (val) { return val.toFixed(1) + "%"; },
+                    dropShadow: { enabled: true, top: 1, left: 1, blur: 1, opacity: 0.5 }
+                },
                 theme: { mode: document.body.getAttribute('data-theme') === 'light' ? 'light' : 'dark' },
                 legend: { show: true, position: 'bottom', fontSize: '11px', fontFamily: 'Inter', labels: { colors: getChartTextColor() }, formatter: function(sn, opts) { return sn + " (" + opts.w.globals.series[opts.seriesIndex] + ")"; } }
             };
         }
 
         function renderizarDashboard(data) {
-            globalData = data;
             let totalValor = 0; let dadosTurno = {}, dadosPS = {}, dadosResolucao = {}, dadosOrigem = {}, dadosCategoria = {};
             let dadosDias = { 'Domingo': {qtd:0,valor:0}, 'Segunda-feira': {qtd:0,valor:0}, 'Terça-feira': {qtd:0,valor:0}, 'Quarta-feira': {qtd:0,valor:0}, 'Quinta-feira': {qtd:0,valor:0}, 'Sexta-feira': {qtd:0,valor:0}, 'Sábado': {qtd:0,valor:0} };
 
@@ -367,7 +442,7 @@
                 let d = row['Dia da Semana'] || ''; if (dadosDias[d]) { dadosDias[d].qtd += 1; dadosDias[d].valor += v; }
             });
 
-            document.getElementById('main-dynamic-title').innerText = `AVARIAS LANÇADAS E APROVADAS MENSAIS | VALOR TOTAL: ${totalValor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} DE ${data.length} VOLUMES`;
+            document.getElementById('main-dynamic-title').innerText = `AVARIAS LANÇADAS E APROVADAS | VALOR TOTAL: ${totalValor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} DE ${data.length} VOLUMES`;
             Object.keys(chartInstances).forEach(key => { if(chartInstances[key]) chartInstances[key].destroy(); });
 
             if (data.length === 0) { ['chart-turno','chart-ps','chart-resolucao','chart-origem','chart-categoria','chart-dias'].forEach(id => document.getElementById(id).innerHTML = 'Nenhum dado.'); return; }
