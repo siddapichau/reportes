@@ -32,7 +32,7 @@
         }
 
         body { 
-            padding: 15px; display: flex; flex-direction: column; gap: 15px; 
+            padding: 10px; display: flex; flex-direction: column; gap: 10px; 
             height: 100vh; overflow: hidden; background: transparent !important;
         }
 
@@ -44,24 +44,34 @@
             transition: 0.3s; 
         }
 
-        /* --- BOTÕES CLEAN --- */
+        /* --- CABEÇALHO PADRÃO MELI --- */
         .top-header { 
-            background: var(--bg-card); padding: 12px 20px; display: flex; justify-content: space-between; 
-            align-items: center; gap: 10px; border-radius: 12px; border: 1px solid var(--border-card);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); flex: 0 0 auto; 
+            background-color: #FFF159 !important; 
+            padding: 8px 10px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            gap: 8px; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+            flex: 0 0 auto; 
         }
+        .ml-logo { height: 22px; object-fit: contain; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15)); flex-shrink: 0; }
+        .header-center { flex: 1 1 auto; text-align: center; font-size: 0.85rem; font-weight: 900; color: #2D3277 !important; letter-spacing: 0.5px; text-transform: uppercase; margin: 0 10px; line-height: 1.2; }
+        .header-right { display: flex; align-items: center; gap: 4px; justify-content: flex-end; flex-wrap: wrap; flex-shrink: 0; }
         
-        .header-title { font-size: 1.1rem; font-weight: 900; color: var(--text-title); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px;}
-        
+        .status-badge { font-size: .65rem; font-weight: 800; color: #333 !important; background: rgba(255,255,255,0.8); border: 1px solid rgba(0,0,0,0.1); padding: 4px 8px; border-radius: 4px; white-space: nowrap; }
+
+        /* --- BOTÕES CLEAN --- */
         .btn-clean { 
-            background: #ffffff !important; color: #334155 !important; border: 1px solid #cbd5e1 !important; 
-            border-radius: 8px; padding: 8px 14px; font-size: 0.75rem; font-weight: 800; cursor: pointer; 
-            display: inline-flex; align-items: center; gap: 6px; 
-            box-shadow: 0 2px 6px rgba(0,0,0,0.04) !important; transition: all 0.2s ease !important; 
-            text-transform: uppercase; letter-spacing: 0.5px; font-family: 'Inter', sans-serif;
+            background: #ffffff !important; color: #2D3277 !important; border: 1px solid rgba(0,0,0,0.1) !important; 
+            border-radius: 4px; padding: 4px 8px; font-size: 0.65rem; font-weight: 900; cursor: pointer; 
+            display: inline-flex; align-items: center; gap: 4px; 
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05) !important; transition: all 0.2s ease !important; 
+            text-transform: uppercase; font-family: 'Inter', sans-serif; white-space: nowrap;
         }
         .btn-clean:hover:not(:disabled) { 
-            transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.1) !important; border-color: #94a3b8 !important; color: #0f172a !important;
+            transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important; border-color: #3483FA !important; color: #3483FA !important;
         }
         .btn-clean:disabled { opacity: 0.6; cursor: not-allowed; }
 
@@ -69,7 +79,7 @@
         .upload-wrapper input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
 
         /* --- FILTROS --- */
-        .filters-container { padding: 15px; display: flex; flex-direction: column; gap: 12px; flex: 0 0 auto; }
+        .filters-container { padding: 12px 15px; display: flex; flex-direction: column; gap: 12px; flex: 0 0 auto; }
         .filters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; align-items: end; }
         .field label { display: block; color: var(--text-muted); font-size: .65rem; font-weight: 900; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px;}
         .field select, .field input { 
@@ -79,24 +89,24 @@
         .field select:focus, .field input:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(52, 131, 250, 0.1); }
 
         /* --- KPIs --- */
-        .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; flex: 0 0 auto; }
-        .summary-card { padding: 15px; border-left: 6px solid var(--accent-blue); display: flex; flex-direction: column; justify-content: center; }
+        .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; flex: 0 0 auto; }
+        .summary-card { padding: 12px; border-left: 6px solid var(--accent-blue); display: flex; flex-direction: column; justify-content: center; }
         .summary-card.green { border-left-color: var(--accent-green); }
         .summary-card.warn { border-left-color: var(--accent-warn); }
         .summary-title { color: var(--text-muted); font-size: .75rem; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
         .summary-value { color: var(--text-title); font-size: 1.6rem; font-weight: 900; }
 
         /* --- CORPO PRINCIPAL (Gráficos e Tabela) --- */
-        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; flex: 1; min-height: 0; }
+        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex: 1; min-height: 0; }
         
-        .charts-column { display: flex; flex-direction: column; gap: 15px; min-height: 0; }
-        .chart-box { flex: 1; min-height: 0; padding: 15px; display: flex; flex-direction: column; position: relative;}
-        .chart-title { font-size: 0.8rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; text-align: center;}
+        .charts-column { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+        .chart-box { flex: 1; min-height: 0; padding: 10px; display: flex; flex-direction: column; position: relative;}
+        .chart-title { font-size: 0.8rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; text-align: center;}
         .chart-wrapper { flex: 1; min-height: 0; position: relative; cursor: pointer; }
 
         .table-wrapper { flex: 1; min-height: 0; overflow: auto; padding: 0; }
         table { width: 100%; border-collapse: collapse; min-width: 800px; text-align: left; }
-        th, td { padding: 10px 15px; border-bottom: 1px solid var(--border-card); font-size: .80rem; color: var(--text-main); }
+        th, td { padding: 8px 12px; border-bottom: 1px solid var(--border-card); font-size: .80rem; color: var(--text-main); }
         th { background: rgba(0,0,0,0.03); color: var(--text-title); text-transform: uppercase; font-size: .70rem; font-weight: 900; position: sticky; top: 0; z-index: 2; backdrop-filter: blur(5px); }
         [data-theme="dark"] th { background: rgba(255,255,255,0.05); }
         .col-id { font-weight: 900; color: var(--accent-blue); }
@@ -106,10 +116,10 @@
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(5px); padding: 20px;}
         .modal-overlay.active { display: flex; }
         .modal-content { background: var(--bg-card); width: 100%; max-width: 800px; max-height: 85vh; border-radius: 12px; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 1px solid var(--border-card);}
-        .modal-header { padding: 15px 20px; border-bottom: 1px solid var(--border-card); display: flex; justify-content: space-between; align-items: center; }
-        .modal-header h3 { font-size: 1rem; color: var(--text-title); font-weight: 900; text-transform: uppercase;}
-        .btn-close { background: transparent; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; font-weight: bold; }
-        .modal-body { padding: 0; overflow-y: auto; flex: 1; }
+        .modal-header { padding: 15px 20px; border-bottom: 1px solid var(--border-card); display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.03);}
+        .modal-header h3 { font-size: 1rem; color: var(--text-title); font-weight: 900; text-transform: uppercase; margin: 0;}
+        .btn-close { background: transparent; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; font-weight: bold; line-height: 1;}
+        .modal-body { padding: 0; overflow-y: auto; flex: 1; border-radius: 0 0 12px 12px; }
         
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -119,12 +129,13 @@
 <body data-theme="light">
 
     <div class="top-header">
-        <div class="header-title">📦 Painel BPP (Inventariado: Pendentes)</div>
-        <div style="display: flex; gap: 10px; align-items: center;">
-            <span id="data-status" style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted);">Aguardando banco...</span>
+        <img src="https://upload.wikimedia.org/wikipedia/pt/0/04/Logotipo_MercadoLivre.png" class="ml-logo" alt="Mercado Livre">
+        <div class="header-center" id="main-title">Painel BPP (Inventariado: Pendentes)</div>
+        
+        <div class="header-right">
+            <span class="status-badge" id="data-status">Conectando...</span>
             <div class="upload-wrapper" id="upload-dados-wrapper">
                 <button class="btn-clean">📤 Carregar CSV</button>
-                <!-- O input aceita especificamente o padrão do arquivo -->
                 <input type="file" id="csvFileInput" accept=".csv">
             </div>
         </div>
@@ -177,12 +188,12 @@
 
     <!-- MODAL CLICK GRÁFICO -->
     <div class="modal-overlay" id="detalhesModal" onclick="fecharModalExterno(event)">
-        <div class="modal-content">
+        <div class="modal-content" onclick="event.stopPropagation();">
             <div class="modal-header">
                 <h3 id="modal-titulo">Detalhes do Segmento</h3>
                 <button class="btn-close" onclick="fecharModal()">&times;</button>
             </div>
-            <div class="modal-body table-wrapper" style="border-radius: 0 0 12px 12px; border:none; box-shadow:none;">
+            <div class="modal-body table-wrapper">
                 <table style="min-width: 100%;">
                     <thead><tr><th>ID</th><th>Responsabilidade</th><th>Turno</th><th>Observação</th><th>Valor</th></tr></thead>
                     <tbody id="modal-tbody"></tbody>
@@ -218,14 +229,18 @@
         function getChartTextColor() { return document.body.getAttribute('data-theme') === 'light' ? '#334155' : '#EBEBEB'; }
         function parseCurrency(valStr) { if (!valStr) return 0; let s = String(valStr).replace('R$', '').replace(/\./g, '').replace(',', '.').trim(); return parseFloat(s) || 0; }
         function formatCurrency(valNum) { return valNum.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
-        function setStatus(txt) { document.getElementById('data-status').innerText = txt; }
+        
+        function setStatus(txt, isError = false) { 
+            const badge = document.getElementById('data-status');
+            badge.innerText = txt; 
+            badge.style.color = isError ? '#FF5252' : '#333';
+        }
 
-        // Formata data da Coluna B para chave (Ex: 10/08/2026 -> 2026-08-10)
         function formatarDataChave(str) {
             if(!str) return 'Geral';
-            let pt = str.split(' ')[0].split('/'); // Pega só a data se tiver hora
+            let pt = str.split(' ')[0].split('/'); 
             if(pt.length === 3) return `${pt[2]}-${pt[1]}-${pt[0]}`; 
-            return str.replace(/[^a-zA-Z0-9-]/g, '_'); // fallback
+            return str.replace(/[^a-zA-Z0-9-]/g, '_'); 
         }
 
         function formatarDataBR(chave) {
@@ -236,10 +251,10 @@
             return chave;
         }
 
-        // --- LEITURA DO CSV ---
+        // --- LEITURA DO CSV (AGORA INTELIGENTE) ---
         document.getElementById('csvFileInput').addEventListener('change', function(e) {
             const file = e.target.files[0]; if (!file) return;
-            setStatus('Processando arquivo...');
+            setStatus('Processando...');
             
             Papa.parse(file, {
                 header: true, skipEmptyLines: true,
@@ -248,46 +263,52 @@
                     let groupedByData = {};
                     let countPendentes = 0;
 
-                    rows.forEach(row => {
-                        const keys = Object.keys(row);
-                        const getVal = (nomes) => {
-                            for(let k of keys) { if (nomes.includes(k.trim().toLowerCase())) return row[k]; }
-                            return '';
-                        };
-
-                        const inventariado = getVal(['inventariado']);
-                        // 100% Ignorar o que não for Pendentes (Regra exigida)
-                        if (String(inventariado).trim().toLowerCase() === 'pendentes') {
-                            countPendentes++;
+                    if(rows.length > 0) {
+                        rows.forEach(row => {
+                            const rowKeys = Object.keys(row);
                             
-                            // Coleta a data da Coluna B (index 1 das chaves)
-                            let dataReferencia = row[keys[1]] || 'SemData';
-                            let chaveFb = formatarDataChave(dataReferencia);
+                            // Função robusta de busca para evitar erros de digitação ou espaços nas colunas
+                            const getCol = (keywords) => {
+                                let match = rowKeys.find(k => keywords.some(kw => k.trim().toLowerCase().includes(kw)));
+                                return match ? row[match] : '';
+                            };
 
-                            if(!groupedByData[chaveFb]) groupedByData[chaveFb] = [];
+                            // Busca a coluna de INVENTARIADO independente de espaços
+                            const inventariado = getCol(['inventariado', 'inventario']);
+                            
+                            if (String(inventariado).trim().toLowerCase() === 'pendentes') {
+                                countPendentes++;
+                                
+                                // A data da Coluna B (index 1) - caso haja
+                                let dataReferencia = rowKeys.length > 1 ? row[rowKeys[1]] : 'SemData';
+                                let chaveFb = formatarDataChave(dataReferencia);
 
-                            groupedByData[chaveFb].push({
-                                ID: getVal(['ids de pacotes', 'id']),
-                                Responsabilidade: getVal(['area responsavel', 'responsabilidade']),
-                                Turno: getVal(['turno']),
-                                Observacao: getVal(['observação', 'observacao']),
-                                Status: getVal(['subs tatus', 'status']),
-                                Perfil: getVal(['perfil']),
-                                Semana: getVal(['semana']),
-                                Mes: getVal(['mes', 'mês']),
-                                Valor: getVal(['valor em real', 'valor']),
-                                Aging: getVal(['aging'])
-                            });
-                        }
-                    });
+                                if(!groupedByData[chaveFb]) groupedByData[chaveFb] = [];
+
+                                groupedByData[chaveFb].push({
+                                    ID: getCol(['id', 'pacote']),
+                                    Responsabilidade: getCol(['responsavel', 'responsabilidade']),
+                                    Turno: getCol(['turno']),
+                                    Observacao: getCol(['observação', 'observacao', 'obs']),
+                                    Status: getCol(['subs tatus', 'status']),
+                                    Perfil: getCol(['perfil', 'volumoso']),
+                                    Semana: getCol(['semana']),
+                                    Mes: getCol(['mes', 'mês']),
+                                    Valor: getCol(['valor em real', 'valor real', 'valor']),
+                                    Aging: getCol(['aging'])
+                                });
+                            }
+                        });
+                    }
 
                     if(countPendentes === 0) {
-                        alert("Nenhuma linha encontrada com INVENTARIADO = 'Pendentes'. O arquivo foi ignorado.");
-                        setStatus('Leitura cancelada.');
+                        alert("Não foram encontradas linhas onde a coluna 'INVENTARIADO' seja 'Pendentes'. Verifique o arquivo.");
+                        setStatus('Leitura cancelada.', true);
+                        e.target.value = '';
                         return;
                     }
 
-                    setStatus('Salvando no Banco de Dados...');
+                    setStatus('Salvando DB...');
                     for (let chaveData in groupedByData) {
                         const itens = groupedByData[chaveData];
                         const payload = { atualizadoEm: new Date().toLocaleString('pt-BR'), lista: itens };
@@ -295,11 +316,11 @@
                             await fetch(`${FIREBASE_URL_BASE}${FIREBASE_NODE}/${chaveData}.json`, { 
                                 method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) 
                             });
-                        } catch(e) { console.error("Erro ao salvar data:", chaveData); }
+                        } catch(err) { console.error("Erro ao salvar.", err); }
                     }
 
-                    alert(`Sucesso! ${countPendentes} pacotes pendentes salvos e indexados por Data.`);
-                    e.target.value = ''; // reseta input
+                    alert(`Sucesso! ${countPendentes} pacotes pendentes atualizados.`);
+                    e.target.value = ''; 
                     carregarDoFirebase();
                 }
             });
@@ -307,7 +328,7 @@
 
         // --- FIREBASE READ ---
         async function carregarDoFirebase() {
-            setStatus('Conectando ao DB...');
+            setStatus('Sincronizando...');
             try {
                 const res = await fetch(`${FIREBASE_URL_BASE}${FIREBASE_NODE}.json`);
                 BD_COMPLETO = (await res.json()) || {};
@@ -321,14 +342,13 @@
 
                 document.getElementById('filter-data').innerHTML = datas.map(d => `<option value="${d}">${formatarDataBR(d)}</option>`).join('');
                 carregarData();
-
-            } catch(e) { setStatus('Erro ao carregar banco.'); }
+            } catch(e) { setStatus('Erro na Rede', true); }
         }
 
         function carregarData() {
             const dataSelecionada = document.getElementById('filter-data').value;
             DADOS_ATUAIS = BD_COMPLETO[dataSelecionada] ? BD_COMPLETO[dataSelecionada].lista : [];
-            setStatus(`Base: ${formatarDataBR(dataSelecionada)} (${DADOS_ATUAIS.length} registros)`);
+            setStatus(`Status Base: OK`);
             preencherFiltrosDrop();
             aplicarFiltros();
         }
@@ -386,10 +406,15 @@
             document.getElementById('kpi-valor').innerText = formatCurrency(somaVal);
             document.getElementById('kpi-aging').innerText = DADOS_FILTRADOS.length ? Math.round(somaAging / DADOS_FILTRADOS.length) + " dias" : "0 dias";
 
+            // Atualiza Título do Cabeçalho com dados ao vivo
+            const dataSelect = document.getElementById('filter-data');
+            const tituloData = dataSelect.options.length > 0 ? formatarDataBR(dataSelect.value) : '';
+            document.getElementById('main-title').innerText = `Painel BPP (${tituloData}) | Valor Total: ${formatCurrency(somaVal)}`;
+
             // 2. Tabela Principal
             const tbody = document.getElementById('tbody-dados');
             if (DADOS_FILTRADOS.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px;">Nenhum pacote encontrado com os filtros atuais.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px; color: var(--accent-red);">Nenhum pacote encontrado com os filtros atuais.</td></tr>`;
             } else {
                 tbody.innerHTML = DADOS_FILTRADOS.slice(0, 100).map(i => `
                     <tr>
@@ -400,7 +425,7 @@
                         <td class="col-val">${i.Valor || 'R$ 0,00'}</td>
                     </tr>
                 `).join('');
-                if(DADOS_FILTRADOS.length > 100) tbody.innerHTML += `<tr><td colspan="5" style="text-align:center; font-size:0.75rem; color:var(--text-muted);">Mostrando os top 100 mais caros. Total: ${DADOS_FILTRADOS.length}</td></tr>`;
+                if(DADOS_FILTRADOS.length > 100) tbody.innerHTML += `<tr><td colspan="5" style="text-align:center; font-size:0.75rem; color:var(--text-muted);">Mostrando os top 100 mais caros. Total Oculto: ${DADOS_FILTRADOS.length - 100}</td></tr>`;
             }
 
             // 3. Gráficos
