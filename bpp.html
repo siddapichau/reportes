@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BPP - Inventário Pendente</title>
 
-    <!-- Sistema Anti-acesso direto -->
     <script>
         if (window === window.top) {
             const paginaAtual = window.location.pathname.split('/').pop() || 'bpp.html';
@@ -16,7 +15,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 
-    <!-- Dependências -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
@@ -45,7 +43,7 @@
             transition: 0.3s; 
         }
 
-        /* --- CABEÇALHO IDÊNTICO AO PARADO NO PERCURSO --- */
+        /* --- CABEÇALHO PADRÃO ML --- */
         .top-header { 
             background-color: #FFF159 !important; 
             padding: 8px 10px; 
@@ -63,11 +61,10 @@
         
         .status-badge { font-size: .65rem; font-weight: 800; color: #333 !important; background: rgba(255,255,255,0.8); border: 1px solid rgba(0,0,0,0.1); padding: 4px 8px; border-radius: 4px; white-space: nowrap; }
 
-        .btn { background: #ffffff; color: #333333; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px; padding: 4px 8px; font-size: .65rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px; transition: all .2s ease; text-decoration: none; font-family: 'Inter', sans-serif; white-space: nowrap; }
+        .btn { background: #ffffff; color: #333333; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px; padding: 4px 8px; font-size: .65rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px; transition: all .2s ease; text-transform: uppercase; font-family: 'Inter', sans-serif; white-space: nowrap; }
         .btn:hover:not(:disabled) { background: #f1f1f1; transform: translateY(-1px); }
         .btn-blue { background: var(--accent-blue) !important; color: #fff !important; border-color: var(--accent-blue) !important; }
         .btn-blue:hover:not(:disabled) { background: #226fe6 !important; }
-        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
         .upload-wrapper { position: relative; overflow: hidden; display: inline-flex; }
         .upload-wrapper input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
@@ -75,35 +72,33 @@
         /* --- FILTROS --- */
         .filters-container { padding: 12px 15px; display: flex; flex-direction: column; gap: 8px; flex: 0 0 auto; }
         .filters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; align-items: end; }
-        .field label { display: block; color: var(--text-muted); font-size: .70rem; font-weight: 800; margin-bottom: 4px; text-transform: uppercase; }
+        .field label { display: block; color: var(--text-muted); font-size: .65rem; font-weight: 900; margin-bottom: 4px; text-transform: uppercase; }
         .field select, .field input { 
             width: 100%; background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border-input); 
             border-radius: 6px; padding: 6px 10px; outline: none; font-family: 'Inter', sans-serif; font-size: .80rem; font-weight: 600;
         }
         .field select:focus, .field input:focus { border-color: var(--accent-blue); }
-        .field select option { background: #1e293b; color: #fff; } 
-        [data-theme="light"] .field select option { background: #fff; color: #000; }
 
         /* --- KPIs --- */
         .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; flex: 0 0 auto; }
         .summary-card { padding: 12px; border-left: 6px solid var(--accent-blue); display: flex; flex-direction: column; justify-content: center; text-align: center;}
         .summary-card.green { border-left-color: var(--accent-green); }
         .summary-card.warn { border-left-color: var(--accent-warn); }
-        .summary-title { color: var(--text-muted); font-size: .75rem; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
-        .summary-value { color: var(--text-title); font-size: 1.8rem; font-weight: 900; }
+        .summary-title { color: var(--text-muted); font-size: .70rem; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
+        .summary-value { color: var(--text-title); font-size: 1.6rem; font-weight: 900; }
 
-        /* --- CORPO PRINCIPAL (Gráficos e Tabela) --- */
-        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex: 1; min-height: 0; }
+        /* --- CORPO PRINCIPAL --- */
+        .main-content { display: flex; flex-direction: column; gap: 10px; flex: 1; min-height: 0; }
         
-        .charts-column { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
-        .chart-box { flex: 1; min-height: 0; padding: 10px; display: flex; flex-direction: column; position: relative;}
-        .chart-title { font-size: 0.85rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; text-align: center; letter-spacing: 0.5px;}
-        .chart-wrapper { flex: 1; min-height: 0; position: relative; cursor: pointer; display: flex; justify-content: center; align-items: center;}
+        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 10px; flex: 0 0 45%; min-height: 250px;}
+        .chart-box { padding: 10px; display: flex; flex-direction: column; position: relative;}
+        .chart-title { font-size: 0.75rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; text-align: center;}
+        .chart-wrapper { flex: 1; min-height: 0; position: relative; cursor: pointer; }
 
         .table-wrapper { flex: 1; min-height: 120px; overflow: auto; border-radius: 10px; transform: translateZ(0); }
-        table { width: 100%; border-collapse: collapse; min-width: 800px; text-align: left; }
-        th, td { padding: 8px 12px; border-bottom: 1px solid var(--border-card); font-size: .85rem; vertical-align: middle; color: var(--text-main); }
-        th { background: rgba(0,0,0,0.6); color: var(--text-title); text-transform: uppercase; font-size: .75rem; font-weight: 900; position: sticky; top: 0; z-index: 2; backdrop-filter: blur(10px); }
+        table { width: 100%; border-collapse: collapse; min-width: 1000px; text-align: left; }
+        th, td { padding: 8px 12px; border-bottom: 1px solid var(--border-card); font-size: .80rem; vertical-align: middle; color: var(--text-main); }
+        th { background: rgba(0,0,0,0.6); color: var(--text-title); text-transform: uppercase; font-size: .70rem; font-weight: 900; position: sticky; top: 0; z-index: 2; backdrop-filter: blur(10px); }
         [data-theme="light"] th { background: rgba(255,255,255,0.9); }
         tr.clickable-row { cursor: pointer; transition: background 0.2s; }
         tr.clickable-row:hover td { background: rgba(255,255,255,0.08) !important; }
@@ -112,13 +107,13 @@
         .col-id { font-weight: 900; color: var(--accent-blue); }
         .col-val { font-weight: 900; color: var(--accent-green); }
 
-        /* --- MODAL DE DETALHES --- */
+        /* --- MODAL --- */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(6px); padding: 16px;}
         .modal-overlay.active { display: flex; }
-        .modal-content { background: var(--bg-card); width: 100%; max-width: 700px; max-height: 90vh; border-radius: 12px; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0,0,0,0.5); border: 1px solid var(--border-card); backdrop-filter: blur(20px);}
+        .modal-content { background: var(--bg-card); width: 100%; max-width: 1200px; max-height: 90vh; border-radius: 12px; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0,0,0,0.5); border: 1px solid var(--border-card);}
         .modal-header { padding: 15px 20px; border-bottom: 1px solid var(--border-card); display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2);}
-        .modal-header h3 { font-size: 1.1rem; color: var(--text-title); font-weight: 900; text-transform: uppercase; margin: 0;}
-        .btn-close { background: none; border: none; font-size: 1.6rem; color: var(--text-muted); cursor: pointer; font-weight: bold; line-height: 1; display: inline-flex;}
+        .modal-header h3 { font-size: 1rem; color: var(--text-title); font-weight: 900; text-transform: uppercase; margin: 0;}
+        .btn-close { background: none; border: none; font-size: 1.6rem; color: var(--text-muted); cursor: pointer; font-weight: bold; line-height: 1;}
         .modal-body { padding: 0; overflow-y: auto; flex: 1; border-radius: 0 0 12px 12px; }
         
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -131,7 +126,7 @@
     <div class="top-header">
         <img src="https://upload.wikimedia.org/wikipedia/pt/0/04/Logotipo_MercadoLivre.png" class="ml-logo" alt="Mercado Livre">
         
-        <div class="header-center" id="main-title">Painel BPP (Inventariado: Pendentes)</div>
+        <div class="header-center" id="main-title">PAINEL BPP (INVENTARIADO: PENDENTES)</div>
         
         <div class="header-right">
             <span class="status-badge" id="data-status">Conectando...</span>
@@ -159,37 +154,38 @@
         <div class="summary-card warn glass-panel"><div class="summary-title">Média Aging</div><div class="summary-value" id="kpi-aging">0 dias</div></div>
     </div>
 
-    <div class="main-grid">
-        <div class="charts-column">
-            <div class="chart-box glass-panel">
-                <div class="chart-title">Valor (R$) por Responsabilidade</div>
-                <div class="chart-wrapper"><canvas id="chartResp"></canvas></div>
-            </div>
-            <div class="chart-box glass-panel">
-                <div class="chart-title">Volume (Qtd) por Turno</div>
-                <div class="chart-wrapper"><canvas id="chartTurno"></canvas></div>
-            </div>
+    <div class="main-content">
+        <!-- 4 Gráficos -->
+        <div class="charts-grid">
+            <div class="chart-box glass-panel"><div class="chart-title">Qtd Pacotes por Responsabilidade</div><div class="chart-wrapper"><canvas id="chartRespQtd"></canvas></div></div>
+            <div class="chart-box glass-panel"><div class="chart-title">Valor (R$) por Responsabilidade</div><div class="chart-wrapper"><canvas id="chartRespVal"></canvas></div></div>
+            <div class="chart-box glass-panel"><div class="chart-title">Qtd Pacotes por Turno</div><div class="chart-wrapper"><canvas id="chartTurnoQtd"></canvas></div></div>
+            <div class="chart-box glass-panel"><div class="chart-title">Valor (R$) por Turno</div><div class="chart-wrapper"><canvas id="chartTurnoVal"></canvas></div></div>
         </div>
         
+        <!-- Tabela -->
         <div class="table-wrapper glass-panel">
             <table>
                 <thead>
                     <tr>
-                        <th style="width:20%;">ID do Pacote</th>
-                        <th style="width:20%;">Responsabilidade</th>
-                        <th style="width:10%;">Turno</th>
-                        <th style="width:30%;">Observação</th>
-                        <th style="width:20%;">Valor (R$)</th>
+                        <th style="width:15%;">ID do Pacote</th>
+                        <th style="width:15%;">Responsabilidade</th>
+                        <th style="width:8%;">Turno</th>
+                        <th style="width:10%;">Status</th>
+                        <th style="width:10%;">Perfil</th>
+                        <th style="width:8%; text-align:center;">Aging</th>
+                        <th style="width:20%;">Observação</th>
+                        <th style="width:14%;">Valor (R$)</th>
                     </tr>
                 </thead>
                 <tbody id="tbody-dados">
-                    <tr><td colspan="5" style="text-align:center; padding:30px;">Sem dados para exibir.</td></tr>
+                    <tr><td colspan="8" style="text-align:center; padding:30px;">Sem dados para exibir.</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- MODAL CLICK GRÁFICO -->
+    <!-- MODAL CLICK GRÁFICO (DADOS COMPLETOS) -->
     <div class="modal-overlay" id="detalhesModal" onclick="fecharModalExterno(event)">
         <div class="modal-content" onclick="event.stopPropagation();">
             <div class="modal-header">
@@ -198,7 +194,13 @@
             </div>
             <div class="modal-body table-wrapper">
                 <table style="min-width: 100%;">
-                    <thead><tr><th>ID</th><th>Resp.</th><th>Turno</th><th>Observação</th><th>Valor</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>ID</th><th>Responsabilidade</th><th>Turno</th><th>Status</th><th>Poka</th>
+                            <th>Últ. Mov (Data)</th><th>Operador (Ult OP)</th><th style="text-align:center;">Aging</th>
+                            <th>Observação</th><th>Valor R$</th><th>Valor USD</th>
+                        </tr>
+                    </thead>
                     <tbody id="modal-tbody"></tbody>
                 </table>
             </div>
@@ -215,36 +217,28 @@
         let DADOS_ATUAIS = [];
         let DADOS_FILTRADOS = [];
         
-        let chartR = null;
-        let chartT = null;
+        let cRQ = null, cRV = null, cTQ = null, cTV = null;
 
-        // --- SISTEMA DE TEMA ---
         function syncTheme() { const theme = localStorage.getItem('themePreference') || 'light'; document.body.setAttribute('data-theme', theme); }
         syncTheme();
         window.addEventListener('message', (event) => { 
-            if (event.data.type === 'THEME_CHANGED') { 
-                document.body.setAttribute('data-theme', event.data.theme); 
-                Chart.defaults.color = getChartTextColor();
-                renderGraficos();
-            } 
+            if (event.data.type === 'THEME_CHANGED') { document.body.setAttribute('data-theme', event.data.theme); renderGraficos(); } 
         });
 
         function getChartTextColor() { return document.body.getAttribute('data-theme') === 'light' ? '#334155' : '#EBEBEB'; }
         
-        // Limpa string BRL para Número Real (Ex: "R$ 2.589,98" -> 2589.98)
         function parseCurrency(valStr) { 
             if (!valStr) return 0; 
-            let s = String(valStr).replace('R$', '').trim();
-            // Remove pontos de milhar, troca vírgula por ponto decimal
-            s = s.replace(/\./g, '').replace(',', '.');
+            let s = String(valStr).replace('R$', '').replace('$', '').trim();
+            if(s.includes(',') && s.includes('.')) { s = s.replace(/\./g, '').replace(',', '.'); } 
+            else if(s.includes(',')) { s = s.replace(',', '.'); }
             return parseFloat(s) || 0; 
         }
         function formatCurrency(valNum) { return valNum.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
         
         function setStatus(txt, isError = false) { 
             const badge = document.getElementById('data-status');
-            badge.innerText = txt; 
-            badge.style.color = isError ? '#FF5252' : '#333';
+            badge.innerText = txt; badge.style.color = isError ? '#FF5252' : '#333';
         }
 
         function formatarDataChave(str) {
@@ -262,10 +256,10 @@
             return chave;
         }
 
-        // --- LEITURA DO CSV (AJUSTADO PARA "PENDENTE") ---
+        // --- LEITURA DO CSV CIRÚRGICA ---
         document.getElementById('csvFileInput').addEventListener('change', function(e) {
             const file = e.target.files[0]; if (!file) return;
-            setStatus('Processando...');
+            setStatus('Processando CSV...');
             
             Papa.parse(file, {
                 header: true, skipEmptyLines: true,
@@ -278,34 +272,40 @@
                         rows.forEach(row => {
                             const rowKeys = Object.keys(row);
                             
-                            // Procura a coluna exata ignorando case/espaços
+                            // 1º tenta correspondência exata, depois inclui
                             const getCol = (keywords) => {
-                                let match = rowKeys.find(k => keywords.some(kw => k.trim().toLowerCase().includes(kw)));
-                                return match ? row[match] : '';
+                                const lowerKW = keywords.map(kw => kw.toLowerCase());
+                                let exact = rowKeys.find(k => lowerKW.includes(k.trim().toLowerCase()));
+                                if (exact) return row[exact];
+                                let partial = rowKeys.find(k => lowerKW.some(kw => k.trim().toLowerCase().includes(kw)));
+                                return partial ? row[partial] : '';
                             };
 
-                            const inventariado = getCol(['inventariado', 'inventario']);
+                            const inventariado = getCol(['inventariado']);
                             const txtInventariado = String(inventariado).trim().toLowerCase();
                             
-                            // Aceita tanto Pendente quanto Pendentes
+                            // Filtro Rigoroso
                             if (txtInventariado === 'pendente' || txtInventariado === 'pendentes') {
                                 countPendentes++;
                                 
-                                // A data costuma estar na coluna "DATA" (geralmente index 1 ou nome explícito)
-                                let dataRef = getCol(['data']);
-                                if(!dataRef && rowKeys.length > 1) dataRef = row[rowKeys[1]]; // fallback para a 2ª coluna
-
+                                // A data está SEMPRE na coluna 2 (index 1) na sua planilha (B: DATA)
+                                let dataRef = rowKeys.length > 1 ? row[rowKeys[1]] : getCol(['data']);
                                 let chaveFb = formatarDataChave(dataRef);
+
                                 if(!groupedByData[chaveFb]) groupedByData[chaveFb] = [];
 
                                 groupedByData[chaveFb].push({
-                                    ID: getCol(['id', 'pacote']),
-                                    Responsabilidade: getCol(['responsabilidade', 'area responsavel', 'responsavel']),
+                                    ID: getCol(['id']),
+                                    Responsabilidade: getCol(['responsabilidade']),
                                     Turno: getCol(['turno']),
-                                    Observacao: getCol(['observação', 'observações', 'observacao', 'obs']),
-                                    Status: getCol(['subs tatus', 'status']),
+                                    Observacao: getCol(['observações', 'observação']),
+                                    Status: getCol(['subs tatus']),
                                     Perfil: getCol(['perfil']),
-                                    Valor: getCol(['valor em real', 'valor real', 'valor']),
+                                    Poka: getCol(['poka']),
+                                    UltimaDataMov: getCol(['ultima data']),
+                                    TurnoUltOp: getCol(['turno ult/ op', 'turno ult / op']),
+                                    Valor: getCol(['valores real']),
+                                    ValorUSD: getCol(['valores usd']),
                                     Aging: getCol(['aging'])
                                 });
                             }
@@ -313,10 +313,8 @@
                     }
 
                     if(countPendentes === 0) {
-                        alert("Não foram encontradas linhas onde a coluna 'INVENTARIADO' seja 'Pendente' ou 'Pendentes'. Verifique o arquivo CSV.");
-                        setStatus('Leitura cancelada.', true);
-                        e.target.value = '';
-                        return;
+                        alert("Não foram encontrados pacotes pendentes. Verifique o arquivo.");
+                        setStatus('Leitura cancelada.', true); e.target.value = ''; return;
                     }
 
                     setStatus('Salvando DB...');
@@ -327,12 +325,11 @@
                             await fetch(`${FIREBASE_URL_BASE}${FIREBASE_NODE}/${chaveData}.json`, { 
                                 method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) 
                             });
-                        } catch(err) { console.error("Erro ao salvar.", err); }
+                        } catch(err) { console.error("Erro", err); }
                     }
 
-                    alert(`Sucesso! ${countPendentes} pacotes pendentes atualizados no banco de dados.`);
-                    e.target.value = ''; 
-                    carregarDoFirebase();
+                    alert(`Sucesso! ${countPendentes} pacotes pendentes atualizados.`);
+                    e.target.value = ''; carregarDoFirebase();
                 }
             });
         });
@@ -345,11 +342,7 @@
                 BD_COMPLETO = (await res.json()) || {};
                 
                 const datas = Object.keys(BD_COMPLETO).sort().reverse();
-                if(datas.length === 0) {
-                    setStatus('Banco Vazio.');
-                    document.getElementById('filter-data').innerHTML = '<option>Sem dados</option>';
-                    return;
-                }
+                if(datas.length === 0) { setStatus('Banco Vazio.'); document.getElementById('filter-data').innerHTML = '<option>Sem dados</option>'; return; }
 
                 document.getElementById('filter-data').innerHTML = datas.map(d => `<option value="${d}">${formatarDataBR(d)}</option>`).join('');
                 carregarData();
@@ -357,14 +350,12 @@
         }
 
         function carregarData() {
-            const dataSelecionada = document.getElementById('filter-data').value;
-            DADOS_ATUAIS = BD_COMPLETO[dataSelecionada] ? BD_COMPLETO[dataSelecionada].lista : [];
+            const dtSel = document.getElementById('filter-data').value;
+            DADOS_ATUAIS = BD_COMPLETO[dtSel] ? BD_COMPLETO[dtSel].lista : [];
             setStatus(`Status Base: OK`);
-            preencherFiltrosDrop();
-            aplicarFiltros();
+            preencherFiltrosDrop(); aplicarFiltros();
         }
 
-        // --- PREENCHIMENTO E APLICAÇÃO DE FILTROS ---
         function setSelectOptions(id, property) {
             const select = document.getElementById(id);
             const valAtual = select.value;
@@ -396,14 +387,12 @@
                        (!busca || bTxt.includes(busca));
             });
 
-            // Regra Ouro: Classificar do Mais Caro ao Mais Barato sempre.
+            // Ordem: Mais Caro > Mais Barato
             DADOS_FILTRADOS.sort((a,b) => parseCurrency(b.Valor) - parseCurrency(a.Valor));
-
             atualizarTela();
         }
 
         function atualizarTela() {
-            // 1. KPIs
             let somaVal = 0, somaAging = 0;
             DADOS_FILTRADOS.forEach(i => { somaVal += parseCurrency(i.Valor); somaAging += parseInt(i.Aging) || 0; });
             
@@ -411,102 +400,81 @@
             document.getElementById('kpi-valor').innerText = formatCurrency(somaVal);
             document.getElementById('kpi-aging').innerText = DADOS_FILTRADOS.length ? Math.round(somaAging / DADOS_FILTRADOS.length) + " dias" : "0 dias";
 
-            // Atualiza Título do Cabeçalho com dados ao vivo e visual exato
-            const dataSelect = document.getElementById('filter-data');
-            const tituloData = dataSelect.options.length > 0 ? dataSelect.options[dataSelect.selectedIndex].text : '';
-            document.getElementById('main-title').innerText = `Painel BPP (${tituloData}) | Total: ${formatCurrency(somaVal)} em ${DADOS_FILTRADOS.length} Vols`;
+            const dtSel = document.getElementById('filter-data');
+            const titDt = dtSel.options.length > 0 ? dtSel.options[dtSel.selectedIndex].text : '';
+            document.getElementById('main-title').innerText = `PAINEL BPP (${titDt}) | TOTAL: ${formatCurrency(somaVal)} EM ${DADOS_FILTRADOS.length} VOLS`;
 
-            // 2. Tabela Principal
             const tbody = document.getElementById('tbody-dados');
             if (DADOS_FILTRADOS.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:40px; color: var(--accent-red); font-weight: bold;">Nenhum pacote encontrado com os filtros atuais.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px; color: var(--accent-red); font-weight: bold;">Nenhum pacote encontrado.</td></tr>`;
             } else {
-                tbody.innerHTML = DADOS_FILTRADOS.slice(0, 100).map(i => `
+                tbody.innerHTML = DADOS_FILTRADOS.slice(0, 150).map(i => `
                     <tr class="clickable-row">
                         <td class="col-id">${i.ID || '-'}</td>
                         <td>${i.Responsabilidade || '-'}</td>
                         <td>${i.Turno || '-'}</td>
-                        <td style="font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px;">${i.Observacao || '-'}</td>
+                        <td>${i.Status || '-'}</td>
+                        <td>${i.Perfil || '-'}</td>
+                        <td style="text-align:center; font-weight:bold;">${i.Aging || 0}</td>
+                        <td style="font-size: 0.70rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px;">${i.Observacao || '-'}</td>
                         <td class="col-val">${i.Valor || 'R$ 0,00'}</td>
                     </tr>
                 `).join('');
-                if(DADOS_FILTRADOS.length > 100) tbody.innerHTML += `<tr><td colspan="5" style="text-align:center; font-size:0.75rem; color:var(--text-muted);">Mostrando os top 100 mais caros. Total Oculto: ${DADOS_FILTRADOS.length - 100}</td></tr>`;
+                if(DADOS_FILTRADOS.length > 150) tbody.innerHTML += `<tr><td colspan="8" style="text-align:center; font-size:0.75rem; color:var(--text-muted);">Mostrando Top 150. Ocultos: ${DADOS_FILTRADOS.length - 150}</td></tr>`;
             }
-
-            // 3. Gráficos
             renderGraficos();
         }
 
-        // --- GRÁFICOS (Chart.js) COM INTERATIVIDADE ---
-        function renderGraficos() {
-            Chart.defaults.color = getChartTextColor();
-            Chart.defaults.font.family = "'Inter', sans-serif";
-
-            // Agrupamentos
-            let valPorResp = {}; let qtdPorTurno = {};
-            DADOS_FILTRADOS.forEach(i => {
-                let r = i.Responsabilidade || 'N/A';
-                let t = i.Turno || 'N/A';
-                valPorResp[r] = (valPorResp[r] || 0) + parseCurrency(i.Valor);
-                qtdPorTurno[t] = (qtdPorTurno[t] || 0) + 1;
-            });
-
-            // Ordenações
-            let lblResp = Object.keys(valPorResp).sort((a,b) => valPorResp[b] - valPorResp[a]);
-            let dataResp = lblResp.map(l => valPorResp[l]);
-
-            let lblTurno = Object.keys(qtdPorTurno).sort((a,b) => qtdPorTurno[b] - qtdPorTurno[a]);
-            let dataTurno = lblTurno.map(l => qtdPorTurno[l]);
-
-            // Chart 1: Responsabilidade (Valor)
-            if(chartR) chartR.destroy();
-            chartR = new Chart(document.getElementById('chartResp').getContext('2d'), {
-                type: 'bar',
-                data: { labels: lblResp, datasets: [{ label: 'Valor Retido (R$)', data: dataResp, backgroundColor: '#3483FA', borderRadius: 6 }] },
+        function createChart(ctxId, type, lbls, dataArr, color, formatterStr, onClkKey) {
+            const ctx = document.getElementById(ctxId).getContext('2d');
+            return new Chart(ctx, {
+                type: type,
+                data: { labels: lbls, datasets: [{ data: dataArr, backgroundColor: color, borderRadius: 4 }] },
                 options: {
-                    responsive: true, maintainAspectRatio: false,
+                    responsive: true, maintainAspectRatio: false, indexAxis: type === 'bar' && ctxId.includes('Turno') ? 'y' : 'x',
                     plugins: { 
                         legend: { display: false },
-                        datalabels: { color: '#fff', font: {weight: '900', size: 10}, formatter: (v) => v > 0 ? "R$ " + (v/1000).toFixed(1) + "k" : '' }
+                        datalabels: { color: type==='bar'&&ctxId.includes('Turno')?'#333':'#fff', font: {weight: 'bold', size: 9}, anchor: type==='bar'&&ctxId.includes('Turno')?'end':'center', align: type==='bar'&&ctxId.includes('Turno')?'left':'center', formatter: (v) => v > 0 ? (formatterStr === 'R$' ? "R$ " + (v/1000).toFixed(1) + "k" : v) : '' }
                     },
-                    scales: { x: { grid: { display: false }, ticks: { font: {weight: 'bold'} } }, y: { display: false } },
-                    onClick: (e, activeEls) => { if(activeEls.length > 0) abrirDetalhes(lblResp[activeEls[0].index], 'Responsabilidade'); }
-                }
-            });
-
-            // Chart 2: Turno (Volume)
-            if(chartT) chartT.destroy();
-            chartT = new Chart(document.getElementById('chartTurno').getContext('2d'), {
-                type: 'bar',
-                data: { labels: lblTurno, datasets: [{ label: 'Qtd Pacotes', data: dataTurno, backgroundColor: '#FFB000', borderRadius: 6 }] },
-                options: {
-                    responsive: true, maintainAspectRatio: false, indexAxis: 'y',
-                    plugins: { 
-                        legend: { display: false },
-                        datalabels: { color: '#333', font: {weight: '900', size: 10}, anchor: 'end', align: 'left', formatter: (v) => v }
-                    },
-                    scales: { x: { display: false }, y: { grid: { display: false }, ticks: { font: {weight: 'bold'} } } },
-                    onClick: (e, activeEls) => { if(activeEls.length > 0) abrirDetalhes(lblTurno[activeEls[0].index], 'Turno'); }
+                    scales: { x: { display: !(type==='bar'&&ctxId.includes('Turno')), grid: {display:false}, ticks: {font: {weight: 'bold'}}}, y: { display: type==='bar'&&ctxId.includes('Turno'), grid: {display:false}, ticks: {font: {weight: 'bold'}}} },
+                    onClick: (e, els) => { if(els.length > 0) abrirDetalhes(lbls[els[0].index], onClkKey); }
                 }
             });
         }
 
-        // --- LÓGICA DO POP-UP (MODAL DE DETALHES) ---
+        function renderGraficos() {
+            Chart.defaults.color = getChartTextColor(); Chart.defaults.font.family = "'Inter', sans-serif";
+            let vResp = {}, qResp = {}, vTurn = {}, qTurn = {};
+            DADOS_FILTRADOS.forEach(i => {
+                let r = i.Responsabilidade || 'N/A'; let t = i.Turno || 'N/A'; let v = parseCurrency(i.Valor);
+                vResp[r] = (vResp[r] || 0) + v; qResp[r] = (qResp[r] || 0) + 1;
+                vTurn[t] = (vTurn[t] || 0) + v; qTurn[t] = (qTurn[t] || 0) + 1;
+            });
+
+            const lRQ = Object.keys(qResp).sort((a,b)=>qResp[b]-qResp[a]); const dRQ = lRQ.map(k=>qResp[k]);
+            const lRV = Object.keys(vResp).sort((a,b)=>vResp[b]-vResp[a]); const dRV = lRV.map(k=>vResp[k]);
+            const lTQ = Object.keys(qTurn).sort((a,b)=>qTurn[b]-qTurn[a]); const dTQ = lTQ.map(k=>qTurn[k]);
+            const lTV = Object.keys(vTurn).sort((a,b)=>vTurn[b]-vTurn[a]); const dTV = lTV.map(k=>vTurn[k]);
+
+            if(cRQ) cRQ.destroy(); cRQ = createChart('chartRespQtd', 'bar', lRQ, dRQ, '#6366f1', 'Qtd', 'Responsabilidade');
+            if(cRV) cRV.destroy(); cRV = createChart('chartRespVal', 'bar', lRV, dRV, '#3483FA', 'R$', 'Responsabilidade');
+            if(cTQ) cTQ.destroy(); cTQ = createChart('chartTurnoQtd', 'bar', lTQ, dTQ, '#FFB000', 'Qtd', 'Turno');
+            if(cTV) cTV.destroy(); cTV = createChart('chartTurnoVal', 'bar', lTV, dTV, '#00A650', 'R$', 'Turno');
+        }
+
         function abrirDetalhes(labelValor, propriedade) {
-            document.getElementById('modal-titulo').innerText = `Detalhes: ${propriedade} = ${labelValor}`;
+            document.getElementById('modal-titulo').innerText = `DADOS COMPLETOS: ${propriedade} = ${labelValor}`;
             const targetData = DADOS_FILTRADOS.filter(i => (i[propriedade] || 'N/A') === labelValor);
-            
             const tbody = document.getElementById('modal-tbody');
-            if(targetData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Nenhum dado encontrado.</td></tr>`;
-            } else {
+            if(targetData.length === 0) { tbody.innerHTML = `<tr><td colspan="11" style="text-align:center;">Sem dados.</td></tr>`; } 
+            else {
                 tbody.innerHTML = targetData.map(i => `
                     <tr class="clickable-row">
-                        <td class="col-id">${i.ID}</td>
-                        <td>${i.Responsabilidade}</td>
-                        <td class="center">${i.Turno}</td>
-                        <td style="font-size: 0.75rem;">${i.Observacao || '-'}</td>
-                        <td class="col-val">${i.Valor}</td>
+                        <td class="col-id">${i.ID}</td><td>${i.Responsabilidade}</td><td>${i.Turno}</td><td>${i.Status}</td>
+                        <td>${i.Poka || '-'}</td><td>${i.UltimaDataMov || '-'}</td><td>${i.TurnoUltOp || '-'}</td>
+                        <td style="text-align:center; font-weight:bold;">${i.Aging || 0}</td>
+                        <td style="font-size: 0.70rem; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${i.Observacao || '-'}</td>
+                        <td class="col-val">${i.Valor || '0'}</td><td style="color:var(--text-muted); font-weight:bold;">${i.ValorUSD || '0'}</td>
                     </tr>
                 `).join('');
             }
@@ -516,7 +484,6 @@
         function fecharModal() { document.getElementById('detalhesModal').classList.remove('active'); }
         function fecharModalExterno(e) { if(e.target.id === 'detalhesModal') fecharModal(); }
 
-        // Init
         window.onload = carregarDoFirebase;
     </script>
 </body>
