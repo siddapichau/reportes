@@ -124,7 +124,7 @@
             <button class="btn-header btn-ia-style" id="btn-ia-3" onclick="abrirModalIA('v3')" title="Google Gemini" style="display:none;">🤖 IA 3</button>
             <button class="btn-header btn-ia-purple" id="btn-ia-4" onclick="abrirModalIA('v4')" title="OpenRouter / Custom" style="display:none;">🤖 IA 4</button>
             
-            <button class="btn-header" id="btn-memoria" onclick="abrirModalMemoria()" title="Ver aprendizado da IA">🧠 Memória</button>
+            <button class="btn-header" id="btn-memoria" onclick="abrirModalMemoria()" title="Ver aprendizado da IA" style="display:none;">🧠 Memória</button>
             
             <!-- Upload direto e Múltiplo -->
             <input type="file" id="upload-multiplo" multiple accept=".csv" style="display:none;" onchange="processarMultiUpload(this)">
@@ -327,7 +327,10 @@
     const canEdit = currentUser?.cargo === 'admin' || currentUser?.cargo === 'editor';
 
     if (canEdit) document.getElementById('btn-gerenciar').style.display = 'inline-flex';
-    if (isAdmin) document.getElementById('btn-gerenciar-ia').style.display = 'inline-flex';
+    if (isAdmin) { 
+        document.getElementById('btn-gerenciar-ia').style.display = 'inline-flex';
+        document.getElementById('btn-memoria').style.display = 'inline-flex';
+    }
 
     async function carregarIAsBanco() {
         try {
@@ -491,9 +494,12 @@
                         <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                             <div style="flex:1;">
                                 <div style="font-weight:800; color:var(--accent-blue);">🔍 Busca Base: "${ex.termo || 'Link ML'}"</div>
-                                <div style="font-size:0.8rem; color:var(--text-main);">📦 Descrição ID: ${ex.descricao || '-'}</div>
-                                <div style="font-size:0.6rem; color:var(--text-muted); text-align:right;">${dataStr}</div>
+                                <div style="font-size:0.8rem; color:var(--text-main); font-weight: 700; margin-top:2px;">📦 ID: ${ex.idPacote || '-'}</div>
+                                <div style="font-size:0.8rem; color:var(--text-main);">📄 Descrição: ${ex.descricao || '-'}</div>
+                                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">📌 Status: ${ex.status || '-'} | Sub: ${ex.substatus || '-'} | 💰 R$ ${ex.valor || 0}</div>
+                                <div style="font-size:0.6rem; color:var(--text-muted); text-align:right; margin-top:4px;">${dataStr}</div>
                             </div>
+                            <button class="btn" style="padding:4px 8px; font-size:0.65rem; background:#e11d48; color:#fff; border:none; margin-left:10px; cursor:pointer;" onclick="removerMemoria('${ex.key}')">🗑️ Remover</button>
                         </div>
                     </div>
                 `;
@@ -502,6 +508,17 @@
         } catch(e) { box.innerHTML = `<span style="color:#FF5252;">Erro ao ler memórias.</span>`; }
     }
 
+    window.removerMemoria = async function(key) {
+        if(!confirm('Deseja realmente remover este aprendizado da IA?')) return;
+        try {
+            await fetch(`${FIREBASE_URL}salvados_aprendizado/${key}.json`, { method: 'DELETE' });
+            await atualizarIndicadorMemoria();
+            abrirModalMemoria(); // Atualiza a modal na hora
+        } catch(e) { 
+            alert("Erro ao remover"); 
+        }
+    };
+
     window.marcarComoEncontrado = async function(id) {
         if (!confirm(`Tem certeza que deseja marcar o pacote ${id} como ENCONTRADO?`)) return;
         let idLimpo = String(id).toLowerCase().trim().replace(/[.#$\[\]]/g, "_");
@@ -509,7 +526,16 @@
             const item = BANCO_GLOBAL.find(i => String(i.ID).toLowerCase().trim() === String(id).toLowerCase().trim());
             const termoAtual = document.getElementById('search-input').value.trim() || 'Busca IA Exata';
             
-            const aprendizagem = { termo: termoAtual, descricao: item?.Descricao || '', timestamp: Date.now() };
+            const aprendizagem = { 
+                termo: termoAtual, 
+                idPacote: item?.ID || '',
+                descricao: item?.Descricao || '', 
+                status: item?.Status || '',
+                substatus: item?.Substatus || '',
+                valor: item?.ValorNum || 0,
+                timestamp: Date.now() 
+            };
+            
             await fetch(`${FIREBASE_URL}salvados_aprendizado.json`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(aprendizagem) });
 
             await fetch(`${FIREBASE_URL}salvados_encontrados/${idLimpo}.json`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ data: Date.now(), user: userName }) });
@@ -606,7 +632,7 @@
 
     function renderizarLinha(i, ehExato) {
         const id = i.ID || '-'; const idUrl = encodeURIComponent(id);
-        const linkHtml = id !== '-' ? `<div style="display:flex;gap:4px;align-items:center;"><button class="action-icon check" onclick="marcarComoEncontrado('${escapeJsAttr(id)}')" title="Marcar como Encontrado">✅</button><a href="https://envios.adminml.com/logistics/package-management/package/${idUrl}" target="_blank" class="action-icon">🔍</a></div>` : '';
+        const linkHtml = id !== '-' ? `<div style="display:flex;gap:4px;align-items:center;"><button class="action-icon check" onclick="marcarComoEncontrado('${escapeJsAttr(id)}')" title="Marcar como Encontrado">✅</button><a href="https://envios.adminml.com/logistics/package-management/package/${idUrl}" target="_blank" class="action-icon">🔍</a><a href="https://shipping-bo.adminml.com/sauron/shipments/shipment/${idUrl}" target="_blank" class="action-icon sauron">📋</a></div>` : '';
         let badges = (i.OrigensDb||[]).map(o => { const [n,c] = getClassOrigem(o); return `<span class="badge ${c}">${n}</span>`; }).join('');
         if (i.Aging) badges += `<span class="badge badge-aging">⏳ ${escapeHtml(i.Aging)} Dias</span>`;
         const val = Number(i.ValorNum||0);
