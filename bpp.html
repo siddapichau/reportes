@@ -28,7 +28,7 @@
         }
         [data-theme="light"] {
             --bg-input: #ffffff;
-            --border-input: #cbd5e1;
+            --border-input: rgba(0, 0, 0, 0.15);
         }
 
         body { 
@@ -38,13 +38,14 @@
 
         .glass-panel { 
             background: var(--bg-card); 
+            backdrop-filter: blur(16px); 
             border: 1px solid var(--border-card); 
-            border-radius: 12px; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05); 
+            border-radius: 10px; 
+            box-shadow: var(--shadow-card); 
             transition: 0.3s; 
         }
 
-        /* --- CABEÇALHO PADRÃO MELI --- */
+        /* --- CABEÇALHO IDÊNTICO AO PARADO NO PERCURSO --- */
         .top-header { 
             background-color: #FFF159 !important; 
             padding: 8px 10px; 
@@ -62,63 +63,62 @@
         
         .status-badge { font-size: .65rem; font-weight: 800; color: #333 !important; background: rgba(255,255,255,0.8); border: 1px solid rgba(0,0,0,0.1); padding: 4px 8px; border-radius: 4px; white-space: nowrap; }
 
-        /* --- BOTÕES CLEAN --- */
-        .btn-clean { 
-            background: #ffffff !important; color: #2D3277 !important; border: 1px solid rgba(0,0,0,0.1) !important; 
-            border-radius: 4px; padding: 4px 8px; font-size: 0.65rem; font-weight: 900; cursor: pointer; 
-            display: inline-flex; align-items: center; gap: 4px; 
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05) !important; transition: all 0.2s ease !important; 
-            text-transform: uppercase; font-family: 'Inter', sans-serif; white-space: nowrap;
-        }
-        .btn-clean:hover:not(:disabled) { 
-            transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important; border-color: #3483FA !important; color: #3483FA !important;
-        }
-        .btn-clean:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn { background: #ffffff; color: #333333; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px; padding: 4px 8px; font-size: .65rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px; transition: all .2s ease; text-decoration: none; font-family: 'Inter', sans-serif; white-space: nowrap; }
+        .btn:hover:not(:disabled) { background: #f1f1f1; transform: translateY(-1px); }
+        .btn-blue { background: var(--accent-blue) !important; color: #fff !important; border-color: var(--accent-blue) !important; }
+        .btn-blue:hover:not(:disabled) { background: #226fe6 !important; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
         .upload-wrapper { position: relative; overflow: hidden; display: inline-flex; }
         .upload-wrapper input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
 
         /* --- FILTROS --- */
-        .filters-container { padding: 12px 15px; display: flex; flex-direction: column; gap: 12px; flex: 0 0 auto; }
-        .filters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; align-items: end; }
-        .field label { display: block; color: var(--text-muted); font-size: .65rem; font-weight: 900; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px;}
+        .filters-container { padding: 12px 15px; display: flex; flex-direction: column; gap: 8px; flex: 0 0 auto; }
+        .filters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; align-items: end; }
+        .field label { display: block; color: var(--text-muted); font-size: .70rem; font-weight: 800; margin-bottom: 4px; text-transform: uppercase; }
         .field select, .field input { 
             width: 100%; background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border-input); 
-            border-radius: 6px; padding: 8px 10px; outline: none; font-size: .80rem; font-weight: 600; transition: 0.2s;
+            border-radius: 6px; padding: 6px 10px; outline: none; font-family: 'Inter', sans-serif; font-size: .80rem; font-weight: 600;
         }
-        .field select:focus, .field input:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(52, 131, 250, 0.1); }
+        .field select:focus, .field input:focus { border-color: var(--accent-blue); }
+        .field select option { background: #1e293b; color: #fff; } 
+        [data-theme="light"] .field select option { background: #fff; color: #000; }
 
         /* --- KPIs --- */
         .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; flex: 0 0 auto; }
-        .summary-card { padding: 12px; border-left: 6px solid var(--accent-blue); display: flex; flex-direction: column; justify-content: center; }
+        .summary-card { padding: 12px; border-left: 6px solid var(--accent-blue); display: flex; flex-direction: column; justify-content: center; text-align: center;}
         .summary-card.green { border-left-color: var(--accent-green); }
         .summary-card.warn { border-left-color: var(--accent-warn); }
         .summary-title { color: var(--text-muted); font-size: .75rem; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
-        .summary-value { color: var(--text-title); font-size: 1.6rem; font-weight: 900; }
+        .summary-value { color: var(--text-title); font-size: 1.8rem; font-weight: 900; }
 
         /* --- CORPO PRINCIPAL (Gráficos e Tabela) --- */
         .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex: 1; min-height: 0; }
         
         .charts-column { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
         .chart-box { flex: 1; min-height: 0; padding: 10px; display: flex; flex-direction: column; position: relative;}
-        .chart-title { font-size: 0.8rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; text-align: center;}
-        .chart-wrapper { flex: 1; min-height: 0; position: relative; cursor: pointer; }
+        .chart-title { font-size: 0.85rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; text-align: center; letter-spacing: 0.5px;}
+        .chart-wrapper { flex: 1; min-height: 0; position: relative; cursor: pointer; display: flex; justify-content: center; align-items: center;}
 
-        .table-wrapper { flex: 1; min-height: 0; overflow: auto; padding: 0; }
+        .table-wrapper { flex: 1; min-height: 120px; overflow: auto; border-radius: 10px; transform: translateZ(0); }
         table { width: 100%; border-collapse: collapse; min-width: 800px; text-align: left; }
-        th, td { padding: 8px 12px; border-bottom: 1px solid var(--border-card); font-size: .80rem; color: var(--text-main); }
-        th { background: rgba(0,0,0,0.03); color: var(--text-title); text-transform: uppercase; font-size: .70rem; font-weight: 900; position: sticky; top: 0; z-index: 2; backdrop-filter: blur(5px); }
-        [data-theme="dark"] th { background: rgba(255,255,255,0.05); }
+        th, td { padding: 8px 12px; border-bottom: 1px solid var(--border-card); font-size: .85rem; vertical-align: middle; color: var(--text-main); }
+        th { background: rgba(0,0,0,0.6); color: var(--text-title); text-transform: uppercase; font-size: .75rem; font-weight: 900; position: sticky; top: 0; z-index: 2; backdrop-filter: blur(10px); }
+        [data-theme="light"] th { background: rgba(255,255,255,0.9); }
+        tr.clickable-row { cursor: pointer; transition: background 0.2s; }
+        tr.clickable-row:hover td { background: rgba(255,255,255,0.08) !important; }
+        [data-theme="light"] tr.clickable-row:hover td { background: rgba(0,0,0,0.04) !important; }
+
         .col-id { font-weight: 900; color: var(--accent-blue); }
         .col-val { font-weight: 900; color: var(--accent-green); }
 
         /* --- MODAL DE DETALHES --- */
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(5px); padding: 20px;}
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(6px); padding: 16px;}
         .modal-overlay.active { display: flex; }
-        .modal-content { background: var(--bg-card); width: 100%; max-width: 800px; max-height: 85vh; border-radius: 12px; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 1px solid var(--border-card);}
-        .modal-header { padding: 15px 20px; border-bottom: 1px solid var(--border-card); display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.03);}
-        .modal-header h3 { font-size: 1rem; color: var(--text-title); font-weight: 900; text-transform: uppercase; margin: 0;}
-        .btn-close { background: transparent; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; font-weight: bold; line-height: 1;}
+        .modal-content { background: var(--bg-card); width: 100%; max-width: 700px; max-height: 90vh; border-radius: 12px; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0,0,0,0.5); border: 1px solid var(--border-card); backdrop-filter: blur(20px);}
+        .modal-header { padding: 15px 20px; border-bottom: 1px solid var(--border-card); display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2);}
+        .modal-header h3 { font-size: 1.1rem; color: var(--text-title); font-weight: 900; text-transform: uppercase; margin: 0;}
+        .btn-close { background: none; border: none; font-size: 1.6rem; color: var(--text-muted); cursor: pointer; font-weight: bold; line-height: 1; display: inline-flex;}
         .modal-body { padding: 0; overflow-y: auto; flex: 1; border-radius: 0 0 12px 12px; }
         
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -130,12 +130,13 @@
 
     <div class="top-header">
         <img src="https://upload.wikimedia.org/wikipedia/pt/0/04/Logotipo_MercadoLivre.png" class="ml-logo" alt="Mercado Livre">
+        
         <div class="header-center" id="main-title">Painel BPP (Inventariado: Pendentes)</div>
         
         <div class="header-right">
             <span class="status-badge" id="data-status">Conectando...</span>
             <div class="upload-wrapper" id="upload-dados-wrapper">
-                <button class="btn-clean">📤 Carregar CSV</button>
+                <button class="btn btn-blue">📤 Carregar CSV</button>
                 <input type="file" id="csvFileInput" accept=".csv">
             </div>
         </div>
@@ -148,8 +149,6 @@
             <div class="field"><label>Turno</label><select id="filter-turno" onchange="aplicarFiltros()"></select></div>
             <div class="field"><label>Status</label><select id="filter-status" onchange="aplicarFiltros()"></select></div>
             <div class="field"><label>Perfil</label><select id="filter-perfil" onchange="aplicarFiltros()"></select></div>
-            <div class="field"><label>Semana</label><select id="filter-semana" onchange="aplicarFiltros()"></select></div>
-            <div class="field"><label>Mês</label><select id="filter-mes" onchange="aplicarFiltros()"></select></div>
             <div class="field"><label>Busca Específica</label><input type="text" id="search-input" placeholder="ID, Observação..." oninput="aplicarFiltros()"></div>
         </div>
     </div>
@@ -176,7 +175,11 @@
             <table>
                 <thead>
                     <tr>
-                        <th>ID do Pacote</th><th>Resp.</th><th>Turno</th><th>Status</th><th>Valor (R$)</th>
+                        <th style="width:20%;">ID do Pacote</th>
+                        <th style="width:20%;">Responsabilidade</th>
+                        <th style="width:10%;">Turno</th>
+                        <th style="width:30%;">Observação</th>
+                        <th style="width:20%;">Valor (R$)</th>
                     </tr>
                 </thead>
                 <tbody id="tbody-dados">
@@ -195,7 +198,7 @@
             </div>
             <div class="modal-body table-wrapper">
                 <table style="min-width: 100%;">
-                    <thead><tr><th>ID</th><th>Responsabilidade</th><th>Turno</th><th>Observação</th><th>Valor</th></tr></thead>
+                    <thead><tr><th>ID</th><th>Resp.</th><th>Turno</th><th>Observação</th><th>Valor</th></tr></thead>
                     <tbody id="modal-tbody"></tbody>
                 </table>
             </div>
@@ -227,7 +230,15 @@
         });
 
         function getChartTextColor() { return document.body.getAttribute('data-theme') === 'light' ? '#334155' : '#EBEBEB'; }
-        function parseCurrency(valStr) { if (!valStr) return 0; let s = String(valStr).replace('R$', '').replace(/\./g, '').replace(',', '.').trim(); return parseFloat(s) || 0; }
+        
+        // Limpa string BRL para Número Real (Ex: "R$ 2.589,98" -> 2589.98)
+        function parseCurrency(valStr) { 
+            if (!valStr) return 0; 
+            let s = String(valStr).replace('R$', '').trim();
+            // Remove pontos de milhar, troca vírgula por ponto decimal
+            s = s.replace(/\./g, '').replace(',', '.');
+            return parseFloat(s) || 0; 
+        }
         function formatCurrency(valNum) { return valNum.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
         
         function setStatus(txt, isError = false) { 
@@ -244,14 +255,14 @@
         }
 
         function formatarDataBR(chave) {
-            if(chave.includes('-')) {
+            if(chave && chave.includes('-')) {
                 const pt = chave.split('-');
                 if(pt.length === 3) return `${pt[2]}/${pt[1]}/${pt[0]}`;
             }
             return chave;
         }
 
-        // --- LEITURA DO CSV (AGORA INTELIGENTE) ---
+        // --- LEITURA DO CSV (AJUSTADO PARA "PENDENTE") ---
         document.getElementById('csvFileInput').addEventListener('change', function(e) {
             const file = e.target.files[0]; if (!file) return;
             setStatus('Processando...');
@@ -267,33 +278,33 @@
                         rows.forEach(row => {
                             const rowKeys = Object.keys(row);
                             
-                            // Função robusta de busca para evitar erros de digitação ou espaços nas colunas
+                            // Procura a coluna exata ignorando case/espaços
                             const getCol = (keywords) => {
                                 let match = rowKeys.find(k => keywords.some(kw => k.trim().toLowerCase().includes(kw)));
                                 return match ? row[match] : '';
                             };
 
-                            // Busca a coluna de INVENTARIADO independente de espaços
                             const inventariado = getCol(['inventariado', 'inventario']);
+                            const txtInventariado = String(inventariado).trim().toLowerCase();
                             
-                            if (String(inventariado).trim().toLowerCase() === 'pendentes') {
+                            // Aceita tanto Pendente quanto Pendentes
+                            if (txtInventariado === 'pendente' || txtInventariado === 'pendentes') {
                                 countPendentes++;
                                 
-                                // A data da Coluna B (index 1) - caso haja
-                                let dataReferencia = rowKeys.length > 1 ? row[rowKeys[1]] : 'SemData';
-                                let chaveFb = formatarDataChave(dataReferencia);
+                                // A data costuma estar na coluna "DATA" (geralmente index 1 ou nome explícito)
+                                let dataRef = getCol(['data']);
+                                if(!dataRef && rowKeys.length > 1) dataRef = row[rowKeys[1]]; // fallback para a 2ª coluna
 
+                                let chaveFb = formatarDataChave(dataRef);
                                 if(!groupedByData[chaveFb]) groupedByData[chaveFb] = [];
 
                                 groupedByData[chaveFb].push({
                                     ID: getCol(['id', 'pacote']),
-                                    Responsabilidade: getCol(['responsavel', 'responsabilidade']),
+                                    Responsabilidade: getCol(['responsabilidade', 'area responsavel', 'responsavel']),
                                     Turno: getCol(['turno']),
-                                    Observacao: getCol(['observação', 'observacao', 'obs']),
+                                    Observacao: getCol(['observação', 'observações', 'observacao', 'obs']),
                                     Status: getCol(['subs tatus', 'status']),
-                                    Perfil: getCol(['perfil', 'volumoso']),
-                                    Semana: getCol(['semana']),
-                                    Mes: getCol(['mes', 'mês']),
+                                    Perfil: getCol(['perfil']),
                                     Valor: getCol(['valor em real', 'valor real', 'valor']),
                                     Aging: getCol(['aging'])
                                 });
@@ -302,7 +313,7 @@
                     }
 
                     if(countPendentes === 0) {
-                        alert("Não foram encontradas linhas onde a coluna 'INVENTARIADO' seja 'Pendentes'. Verifique o arquivo.");
+                        alert("Não foram encontradas linhas onde a coluna 'INVENTARIADO' seja 'Pendente' ou 'Pendentes'. Verifique o arquivo CSV.");
                         setStatus('Leitura cancelada.', true);
                         e.target.value = '';
                         return;
@@ -319,7 +330,7 @@
                         } catch(err) { console.error("Erro ao salvar.", err); }
                     }
 
-                    alert(`Sucesso! ${countPendentes} pacotes pendentes atualizados.`);
+                    alert(`Sucesso! ${countPendentes} pacotes pendentes atualizados no banco de dados.`);
                     e.target.value = ''; 
                     carregarDoFirebase();
                 }
@@ -367,8 +378,6 @@
             setSelectOptions('filter-turno', 'Turno');
             setSelectOptions('filter-status', 'Status');
             setSelectOptions('filter-perfil', 'Perfil');
-            setSelectOptions('filter-semana', 'Semana');
-            setSelectOptions('filter-mes', 'Mes');
         }
 
         function aplicarFiltros() {
@@ -376,8 +385,6 @@
             const turno = document.getElementById('filter-turno').value;
             const status = document.getElementById('filter-status').value;
             const perfil = document.getElementById('filter-perfil').value;
-            const sem = document.getElementById('filter-semana').value;
-            const mes = document.getElementById('filter-mes').value;
             const busca = document.getElementById('search-input').value.toLowerCase();
 
             DADOS_FILTRADOS = DADOS_ATUAIS.filter(item => {
@@ -386,12 +393,10 @@
                        (turno === 'Todos' || item.Turno === turno) &&
                        (status === 'Todos' || item.Status === status) &&
                        (perfil === 'Todos' || item.Perfil === perfil) &&
-                       (sem === 'Todos' || item.Semana === sem) &&
-                       (mes === 'Todos' || item.Mes === mes) &&
                        (!busca || bTxt.includes(busca));
             });
 
-            // Regra principal: Classificar do Mais Caro ao Mais Barato sempre.
+            // Regra Ouro: Classificar do Mais Caro ao Mais Barato sempre.
             DADOS_FILTRADOS.sort((a,b) => parseCurrency(b.Valor) - parseCurrency(a.Valor));
 
             atualizarTela();
@@ -406,22 +411,22 @@
             document.getElementById('kpi-valor').innerText = formatCurrency(somaVal);
             document.getElementById('kpi-aging').innerText = DADOS_FILTRADOS.length ? Math.round(somaAging / DADOS_FILTRADOS.length) + " dias" : "0 dias";
 
-            // Atualiza Título do Cabeçalho com dados ao vivo
+            // Atualiza Título do Cabeçalho com dados ao vivo e visual exato
             const dataSelect = document.getElementById('filter-data');
-            const tituloData = dataSelect.options.length > 0 ? formatarDataBR(dataSelect.value) : '';
-            document.getElementById('main-title').innerText = `Painel BPP (${tituloData}) | Valor Total: ${formatCurrency(somaVal)}`;
+            const tituloData = dataSelect.options.length > 0 ? dataSelect.options[dataSelect.selectedIndex].text : '';
+            document.getElementById('main-title').innerText = `Painel BPP (${tituloData}) | Total: ${formatCurrency(somaVal)} em ${DADOS_FILTRADOS.length} Vols`;
 
             // 2. Tabela Principal
             const tbody = document.getElementById('tbody-dados');
             if (DADOS_FILTRADOS.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px; color: var(--accent-red);">Nenhum pacote encontrado com os filtros atuais.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:40px; color: var(--accent-red); font-weight: bold;">Nenhum pacote encontrado com os filtros atuais.</td></tr>`;
             } else {
                 tbody.innerHTML = DADOS_FILTRADOS.slice(0, 100).map(i => `
-                    <tr>
+                    <tr class="clickable-row">
                         <td class="col-id">${i.ID || '-'}</td>
                         <td>${i.Responsabilidade || '-'}</td>
                         <td>${i.Turno || '-'}</td>
-                        <td>${i.Status || '-'}</td>
+                        <td style="font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px;">${i.Observacao || '-'}</td>
                         <td class="col-val">${i.Valor || 'R$ 0,00'}</td>
                     </tr>
                 `).join('');
@@ -462,9 +467,9 @@
                     responsive: true, maintainAspectRatio: false,
                     plugins: { 
                         legend: { display: false },
-                        datalabels: { color: '#fff', font: {weight: 'bold', size: 9}, formatter: (v) => v > 0 ? "R$ " + (v/1000).toFixed(1) + "k" : '' }
+                        datalabels: { color: '#fff', font: {weight: '900', size: 10}, formatter: (v) => v > 0 ? "R$ " + (v/1000).toFixed(1) + "k" : '' }
                     },
-                    scales: { x: { grid: { display: false } }, y: { display: false } },
+                    scales: { x: { grid: { display: false }, ticks: { font: {weight: 'bold'} } }, y: { display: false } },
                     onClick: (e, activeEls) => { if(activeEls.length > 0) abrirDetalhes(lblResp[activeEls[0].index], 'Responsabilidade'); }
                 }
             });
@@ -480,7 +485,7 @@
                         legend: { display: false },
                         datalabels: { color: '#333', font: {weight: '900', size: 10}, anchor: 'end', align: 'left', formatter: (v) => v }
                     },
-                    scales: { x: { display: false }, y: { grid: { display: false } } },
+                    scales: { x: { display: false }, y: { grid: { display: false }, ticks: { font: {weight: 'bold'} } } },
                     onClick: (e, activeEls) => { if(activeEls.length > 0) abrirDetalhes(lblTurno[activeEls[0].index], 'Turno'); }
                 }
             });
@@ -496,10 +501,10 @@
                 tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Nenhum dado encontrado.</td></tr>`;
             } else {
                 tbody.innerHTML = targetData.map(i => `
-                    <tr>
+                    <tr class="clickable-row">
                         <td class="col-id">${i.ID}</td>
                         <td>${i.Responsabilidade}</td>
-                        <td>${i.Turno}</td>
+                        <td class="center">${i.Turno}</td>
                         <td style="font-size: 0.75rem;">${i.Observacao || '-'}</td>
                         <td class="col-val">${i.Valor}</td>
                     </tr>
