@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TDM - Inventário</title>
+
+    <!-- SISTEMA ANTI-ACESSO DIRETO -->
+    <script>
+        if (window === window.top) {
+            const paginaAtual = window.location.pathname.split('/').pop() || 'tdm.html';
+            window.location.replace('index.html?page=' + paginaAtual);
+        }
+    </script>
+
+    <link rel="icon" href="https://cdn.iconscout.com/icon/free/png-256/free-mercado-livre-icon-svg-download-png-14549372.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        :root {
+            --border-light: rgba(255, 255, 255, 0.2);
+            --bg-header: rgba(15, 23, 42, 0.6);
+        }
+        [data-theme="light"] {
+            --border-light: rgba(0, 0, 0, 0.1);
+        }
+
+        html, body { width: 100%; min-height: 100%; background: transparent !important; }
+        body { padding: 10px; display: flex; flex-direction: column; gap: 12px; height: 100vh; overflow: hidden; font-size: 1.0rem; }
+
+        .glass-panel { background-color: var(--bg-card); backdrop-filter: blur(12px); border: 1px solid var(--border-card); border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+
+        /* CABEÇALHO */
+        .header { padding: 12px 20px; flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 20px; background-color: #FFF159 !important; border: none; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .header-title-wrapper { flex: 1; text-align: center; color: #2D3277 !important; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; font-size: 1.15rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .ml-logo { height: 32px; width: auto; object-fit: contain; }
+        .header-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+        .btn-header { padding: 9px 14px; border: none; border-radius: 8px; font-weight: 800; font-size: 0.8rem; cursor: pointer; transition: 0.2s; color: #fff; text-transform: uppercase; letter-spacing: 0.3px; display: flex; align-items: center; gap: 6px; }
+        .btn-blue { background: var(--accent-blue); }
+        .btn-green { background: var(--accent-green); }
+        .btn-dark { background: #2D3277; }
+        .btn-header:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+
+        /* BARRA DE DATA */
+        .date-bar { flex: 0 0 auto; display: flex; align-items: center; gap: 12px; padding: 10px 20px; flex-wrap: wrap; }
+        .date-bar label { font-weight: 800; color: var(--text-muted); text-transform: uppercase; font-size: 0.8rem; }
+        .date-bar input[type="date"] { padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-light); background: var(--bg-card); color: var(--text-main); font-weight: 600; font-family: 'Inter'; }
+        .date-bar .info-user { margin-left: auto; font-size: 0.8rem; color: var(--text-muted); font-weight: 700; }
+
+        /* GRID DE TDM */
+        .cards-scroll { flex: 1; overflow-y: auto; padding: 4px; }
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+
+        .tdm-card { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+        .tdm-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+        .tdm-card-head .nome { font-size: 1.1rem; font-weight: 900; color: var(--text-title); line-height: 1.2; }
+        .badge-cargo { display: inline-block; background: var(--accent-blue); color: #fff; padding: 3px 10px; border-radius: 20px; font-size: 0.68rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.3px; }
+        .badge-backup { display: inline-block; background: var(--bg-body); color: var(--text-muted); border: 1px solid var(--border-card); padding: 3px 10px; border-radius: 20px; font-size: 0.68rem; font-weight: 700; }
+
+        .tdm-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .tdm-label { font-size: 0.72rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; }
+
+        .status-group { display: flex; gap: 5px; flex-wrap: wrap; }
+        .status-btn { padding: 5px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 800; border: 1px solid var(--border-card); background: var(--bg-body); color: var(--text-muted); cursor: pointer; transition: 0.15s; }
+        .status-btn:hover { transform: translateY(-1px); }
+        .status-btn.active-presente { background: var(--accent-green); color: #fff; border-color: var(--accent-green); }
+        .status-btn.active-falta { background: var(--accent-red); color: #fff; border-color: var(--accent-red); }
+        .status-btn.active-atestado { background: var(--accent-warn); color: #fff; border-color: var(--accent-warn); }
+        .status-btn.active-ferias { background: #8E44AD; color: #fff; border-color: #8E44AD; }
+        .status-btn.disabled { cursor: not-allowed; opacity: 0.7; }
+
+        .hora-input { padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border-light); background: var(--bg-body); color: var(--text-main); font-weight: 600; font-family: 'Inter'; }
+
+        .checklist { display: flex; flex-direction: column; gap: 5px; max-height: 220px; overflow-y: auto; padding-right: 4px; border-top: 1px solid var(--border-card); padding-top: 10px; }
+        .check-item { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; font-size: 0.82rem; color: var(--text-main); }
+        .check-item input { margin-top: 2px; width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent-green); flex-shrink: 0; }
+        .check-item.done span { text-decoration: line-through; color: var(--text-muted); }
+        .check-item.locked { cursor: not-allowed; opacity: 0.75; }
+        .check-item.locked input { cursor: not-allowed; }
+        .check-empty { font-size: 0.8rem; color: var(--text-muted); font-style: italic; padding: 6px 0; }
+
+        .conta-box { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; background: var(--bg-body); border: 1px dashed var(--border-card); border-radius: 8px; padding: 8px 10px; }
+        .conta-box select { padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border-light); background: var(--bg-card); color: var(--text-main); font-weight: 600; font-family: 'Inter'; max-width: 200px; }
+
+        .card-actions { display: flex; gap: 6px; justify-content: flex-end; border-top: 1px solid var(--border-card); padding-top: 10px; }
+        .mini-btn { padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border-card); background: var(--bg-body); color: var(--text-main); font-size: 0.72rem; font-weight: 800; cursor: pointer; transition: 0.15s; }
+        .mini-btn:hover { transform: translateY(-1px); }
+        .mini-btn.danger { color: var(--accent-red); border-color: var(--accent-red); }
+
+        .saved-toast { position: fixed; bottom: 20px; right: 20px; background: var(--accent-green); color: #fff; padding: 12px 18px; border-radius: 8px; font-weight: 800; box-shadow: 0 6px 20px rgba(0,0,0,0.25); z-index: 99999; opacity: 0; transform: translateY(10px); transition: 0.3s; pointer-events: none; }
+        .saved-toast.show { opacity: 1; transform: translateY(0); }
+
+        /* MODAL */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-overlay.active { display: flex; }
+        .modal-box { background: var(--bg-card); width: 95%; max-width: 640px; max-height: 90vh; overflow-y: auto; padding: 24px; border-radius: 12px; border: 1px solid var(--border-light); box-shadow: 0 15px 50px rgba(0,0,0,0.6); }
+        .modal-box h2 { color: var(--text-title); margin-bottom: 16px; font-size: 1.1rem; }
+        .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .modal-close { font-size: 1.8rem; cursor: pointer; color: var(--text-muted); line-height: 1; }
+        .field { margin-bottom: 12px; }
+        .field label { display: block; font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
+        .field input, .field select, .field textarea { width: 100%; padding: 10px 12px; border-radius: 6px; border: 1px solid var(--border-light); background: var(--bg-body); color: var(--text-main); font-weight: 600; font-family: 'Inter'; }
+        .field textarea { min-height: 140px; resize: vertical; font-weight: 500; }
+        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+
+        .fluxo-step { margin-bottom: 14px; }
+        .fluxo-step .t { font-weight: 900; color: var(--text-title); font-size: 0.9rem; margin-bottom: 4px; }
+        .fluxo-step li { margin-left: 20px; font-size: 0.82rem; color: var(--text-main); }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
+    </style>
+</head>
+<body data-theme="light">
+
+    <div class="header glass-panel">
+        <div class="header-left">
+            <img src="https://upload.wikimedia.org/wikipedia/pt/0/04/Logotipo_MercadoLivre.png" alt="Mercado Livre" class="ml-logo">
+        </div>
+        <div class="header-title-wrapper" id="main-title">TDM — Inventário</div>
+        <div class="header-controls">
+            <button class="btn-header btn-green" id="btnFluxo" onclick="abrirModalFluxo()" title="Fluxo Diário por Cargo">📋 Fluxo Diário</button>
+            <button class="btn-header btn-dark" id="btnCargos" onclick="abrirModalCargos()" title="Mapeamento de Cargos">🗂️ Cargos</button>
+            <button class="btn-header btn-blue" id="btnAddColab" onclick="abrirModalColaborador()" style="display:none;">➕ Adicionar Colaborador</button>
+        </div>
+    </div>
+
+    <div class="date-bar glass-panel">
+        <label for="dataSelecionada">📅 Dia:</label>
+        <input type="date" id="dataSelecionada" onchange="renderizar()">
+        <button class="mini-btn" onclick="irParaHoje()">Hoje</button>
+        <span class="info-user" id="infoUser"></span>
+    </div>
+
+    <div class="cards-scroll">
+        <div class="cards-grid" id="cardsGrid"></div>
+    </div>
+
+    <!-- MODAL ADICIONAR / EDITAR COLABORADOR -->
+    <div class="modal-overlay" id="modalColaborador">
+        <div class="modal-box">
+            <div class="modal-head">
+                <h2 id="modalColabTitle">➕ Adicionar Colaborador</h2>
+                <span class="modal-close" onclick="fecharModal('modalColaborador')">&times;</span>
+            </div>
+            <input type="hidden" id="colabEditKey">
+            <div class="field"><label>Nome do Colaborador</label><input type="text" id="colabNome" placeholder="Ex: Danilo Sanchez"></div>
+            <div class="field"><label>Cargo</label>
+                <select id="colabCargo"></select>
+            </div>
+            <div class="field"><label>Backup (opcional)</label><input type="text" id="colabBackup" placeholder="Nome do backup"></div>
+            <div class="field"><label>Vincular conta que poderá marcar as atividades (apenas checkboxes)</label>
+                <select id="colabConta"></select>
+            </div>
+            <div class="field"><label>Atividades (uma por linha) — preenchido automaticamente pelo cargo</label>
+                <textarea id="colabAtividades" placeholder="Acompanhar Bipagem de inventário&#10;Gerar CEO&#10;Layout"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-header btn-dark" onclick="fecharModal('modalColaborador')">Cancelar</button>
+                <button class="btn-header btn-green" id="btnSalvarColab" onclick="salvarColaborador()">💾 Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CARGOS (Mapeamento) -->
+    <div class="modal-overlay" id="modalCargos">
+        <div class="modal-box" style="max-width: 720px;">
+            <div class="modal-head">
+                <h2>🗂️ Mapeamento de Cargos</h2>
+                <span class="modal-close" onclick="fecharModal('modalCargos')">&times;</span>
+            </div>
+            <div id="cargosList"></div>
+            <div class="field" style="margin-top: 16px;">
+                <label>Novo Cargo</label>
+                <div style="display:flex; gap:8px;">
+                    <input type="text" id="novoCargoNome" placeholder="Nome do cargo">
+                    <button class="btn-header btn-green" onclick="adicionarCargo()">➕</button>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-header btn-dark" onclick="fecharModal('modalCargos')">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL FLUXO DIÁRIO POR CARGO -->
+    <div class="modal-overlay" id="modalFluxo">
+        <div class="modal-box" style="max-width: 720px;">
+            <div class="modal-head">
+                <h2>📋 Fluxo Diário por Cargo</h2>
+                <span class="modal-close" onclick="fecharModal('modalFluxo')">&times;</span>
+            </div>
+            <div class="field"><label>Selecione o cargo</label><select id="fluxoCargoSelect" onchange="renderizarFluxo()"></select></div>
+            <div id="fluxoConteudo"></div>
+        </div>
+    </div>
+
+    <div class="saved-toast" id="savedToast">💾 Salvo com sucesso!</div>
+
+    <script>
+        const FIREBASE_URL = "https://reportes-bdb0a-default-rtdb.firebaseio.com/";
+        const NODE_CONFIG = "tdm_config";
+        const NODE_DIARIO = "tdm_diario";
+
+        const currentUser = JSON.parse(localStorage.getItem('loggedUser')) || null;
+        const userName = currentUser && currentUser.usuario ? currentUser.usuario : '';
+        const isAdmin = !!(currentUser && currentUser.cargo === 'admin');
+
+        let config = { cargos: {}, colaboradores: {} };
+        let allUsers = {};           // { key: {usuario, cargo, solicitacao, ...} }
+        let diarioHoje = {};         // { <colabKey>: { status, entrada, saida, checks, folga, ... } }
+        let colabEditCargoAplicado = false;
+
+        // ============ SEMENTE (dados trazidos da página TDM Inventário de referência) ============
+        const SEED_CARGOS = {
+            "Assistente de Inventário": {
+                fluxo: [
+                    { titulo: "1º Alteração Status XPT", itens: ["Alteração dos pacotes que estão na planilha", "Registrar Insucesso"] },
+                    { titulo: "2º Missorted", itens: ["Cobrar as origens dos pacotes de SSC1"] },
+                    { titulo: "3º Bipagem no Inventário", itens: ["11:00 AM Abrir as zonas de inventário", "Realizar Bipagem, garantir todos pacotes bipados"] },
+                    { titulo: "4º Sem Identificação", itens: ["Tratar sem identificação", "Verificar planilha de baixas e Base Parado no Percurso", "Verificar Locker sem ID e Planilha CFTV"] }
+                ],
+                atividades: [
+                    "Acompanhar Bipagem de inventário", "Acompanhar AM1 Processamento", "Acompanhar time de doca",
+                    "Separar de QRcode para o turno seguinte", "Gerar CEO", "Layout", "Gemba Final de turno 20:30",
+                    "Acompanhar Ociosidade do time", "5S e organização fisica de inventário", "⚠️ Risco BPP",
+                    "⚠️ Visualização prioridade CFTV", "⚠️ Parado na estação(onway)"
+                ]
+            },
+            "Problem Solving (PS)": {
+                fluxo: [
+                    { titulo: "1º Separação Gaiolas PS", itens: ["Realizar separação de pacotes Devolução, Missort, Cancelado e Avarias", "Colocar dentro da área de inventário com motivo atribuído", "Separar pacote que está com aging mais alto de devolução"] },
+                    { titulo: "2º Tratamento Físico", itens: ["Auditoria de embalagens", "Redirecionamento de itens danificados para avaria sistêmica"] },
+                    { titulo: "3º Fechamento de Turno", itens: ["Garantir Zonas limpas", "Reportar anomalias sistêmicas ao supervisor"] }
+                ],
+                atividades: [
+                    "Risco BPP", "Visualização prioridade CFTV", "Parado no percurso", "Sem indentificação", "Reporte", "Reunião de BPP"
+                ]
+            },
+            "Tratativas / Reversa": {
+                fluxo: [],
+                atividades: [
+                    "Sem identificação", "Devolução", "Insucesso", "Acompanhamento e report dos pacotes NEX/DC",
+                    "Atribuição de motivo nos pacotes para devolver", "Digitalização dos romaneios de devolução para o drive de reversa"
+                ]
+            }
+        };
+
+        const SEED_COLABORADORES = [
+            { nome: "Danilo Sanchez", cargo: "Assistente de Inventário", backup: "", atividades: ["Acompanhar Bipagem de inventário","Acompanhar AM1 Processamento","Acompanhar time de doca","Separar de QRcode para o turno seguinte","Gerar CEO","Layout","Gemba Final de turno 20:30","Acompanhar Ociosidade do time","5S e organização fisica de inventário","⚠️ Risco BPP","⚠️ Visualização prioridade CFTV","⚠️ Parado na estação(onway)"] },
+            { nome: "Colaborador 2", cargo: "Problem Solving (PS)", backup: "", atividades: ["Risco BPP","Visualização prioridade CFTV","Parado no percurso","Sem indentificação","Reporte","Reunião de BPP"] },
+            { nome: "Colaborador 3", cargo: "Tratativas / Reversa", backup: "", atividades: ["Sem identificação","Devolução","Insucesso","Acompanhamento e report dos pacotes NEX/DC"] },
+            { nome: "Colaborador 4", cargo: "Assistente de Inventário", backup: "", atividades: ["Suporte identificação","Area Bulky","Gerar o CEO","Devolução de bulky","Analise de returns","Fechamento de inventário","Reportes","RTS","Analise e Aprovação de SLA de avarias","Treinamento de tratativas avarias e boas práticas (perdas)"] },
+            { nome: "Colaborador 5", cargo: "Tratativas / Reversa", backup: "", atividades: ["Devolução","Lançar Avaria"] },
+            { nome: "Yellianys", cargo: "Problem Solving (PS)", backup: "", atividades: [] },
+            { nome: "Colaborador 7", cargo: "Problem Solving (PS)", backup: "", atividades: ["Reportes","Sem indentificação","Missorted","Tratativa de pacotes"] },
+            { nome: "Colaborador 8", cargo: "Tratativas / Reversa", backup: "", atividades: ["Devolução","Sem identificação","Atribuição de motivo nos pacotes para devolver","Digitalização dos romaneios de devolução para o drive de reversa"] }
+        ];
+
+        // ============ TEMA ============
+        function syncTheme() { const t = localStorage.getItem('themePreference') || 'light'; document.body.setAttribute('data-theme', t); }
+        syncTheme();
+        window.addEventListener('message', (e) => { if (e.data.type === 'THEME_CHANGED') document.body.setAttribute('data-theme', e.data.theme); });
+
+        // ============ UTILITÁRIOS ============
+        function escapeHtml(v) { return String(v ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;'); }
+        function hojeISO() {
+            const d = new Date();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            return `${d.getFullYear()}-${mm}-${dd}`;
+        }
+        function toast(msg) {
+            const t = document.getElementById('savedToast');
+            t.textContent = msg || '💾 Salvo com sucesso!';
+            t.classList.add('show');
+            clearTimeout(t._timer);
+            t._timer = setTimeout(() => t.classList.remove('show'), 2000);
+        }
+        async function registrarLog(modulo, acao) {
+            try {
+                await fetch(`${FIREBASE_URL}logs.json`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ modulo, acao, usuario: userName || 'Sistema', timestamp: Date.now() }) });
+            } catch (e) {}
+        }
+
+        // ============ PERMISSÕES ============
+        function podeEditarColaborador(colab) { return isAdmin; }
+        function podeEditarChecks(colab) {
+            if (isAdmin) return true;
+            return !!(colab.conta && userName && colab.conta.toLowerCase() === userName.toLowerCase());
+        }
+
+        // ============ CARREGAMENTO ============
+        async function carregarConfig() {
+            try {
+                const res = await fetch(`${FIREBASE_URL}${NODE_CONFIG}.json`);
+                const data = await res.json();
+                config = data && data.cargos ? data : { cargos: {}, colaboradores: {} };
+            } catch (e) { config = { cargos: {}, colaboradores: {} }; }
+
+            // Auto-seed somente se estiver vazio (nunca sobrescreve dados existentes)
+            if (Object.keys(config.cargos || {}).length === 0 && Object.keys(config.colaboradores || {}).length === 0) {
+                config = { cargos: JSON.parse(JSON.stringify(SEED_CARGOS)), colaboradores: {} };
+                for (const c of SEED_COLABORADORES) {
+                    const key = 'seed_' + c.nome.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+                    config.colaboradores[key] = { nome: c.nome, cargo: c.cargo, backup: c.backup, conta: '', atividades: c.atividades || [], ativo: true, ordem: Object.keys(config.colaboradores).length + 1 };
+                }
+                await salvarConfig();
+                await registrarLog("TDM", "Seed inicial carregado automaticamente.");
+            }
+        }
+
+        async function salvarConfig() {
+            await fetch(`${FIREBASE_URL}${NODE_CONFIG}.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(config) });
+        }
+
+        async function carregarUsuarios() {
+            try {
+                const res = await fetch(`${FIREBASE_URL}users.json`);
+                allUsers = await res.json() || {};
+            } catch (e) { allUsers = {}; }
+        }
+
+        async function carregarDiario() {
+            const dataKey = document.getElementById('dataSelecionada').value || hojeISO();
+            try {
+                const res = await fetch(`${FIREBASE_URL}${NODE_DIARIO}/${dataKey}.json`);
+                diarioHoje = await res.json() || {};
+            } catch (e) { diarioHoje = {}; }
+        }
+
+        function usuariosAprovados() {
+            return Object.values(allUsers).filter(u => u && u.usuario && u.solicitacao === 'aprovado');
+        }
+
+        // ============ RENDER ============
+        function listaColaboradores() {
+            return Object.keys(config.colaboradores || {})
+                .map(k => ({ key: k, ...config.colaboradores[k] }))
+                .filter(c => c.ativo !== false)
+                .sort((a, b) => (a.ordem || 0) - (b.ordem || 0));
+        }
+
+        function renderizar() {
+            // título
+            document.getElementById('main-title').innerText = 'TDM — Inventário';
+
+            // botões
+            document.getElementById('btnAddColab').style.display = isAdmin ? 'flex' : 'none';
+            document.getElementById('btnCargos').style.display = isAdmin ? 'flex' : 'none';
+
+            // info usuário
+            const iu = document.getElementById('infoUser');
+            if (currentUser) iu.innerText = `👤 ${currentUser.usuario} (${isAdmin ? 'Administrador' : 'Colaborador'})`;
+            else iu.innerText = '⚠️ Faça login para interagir';
+
+            const grid = document.getElementById('cardsGrid');
+            const colabs = listaColaboradores();
+
+            if (colabs.length === 0) {
+                grid.innerHTML = `<div class="glass-panel" style="grid-column:1/-1; text-align:center; padding:40px; color:var(--text-muted);">Nenhum colaborador cadastrado.${isAdmin ? ' Clique em "Adicionar Colaborador".' : ''}</div>`;
+                return;
+            }
+
+            const dataSelecionada = document.getElementById('dataSelecionada').value || hojeISO();
+            const isHoje = dataSelecionada === hojeISO();
+
+            grid.innerHTML = colabs.map(colab => {
+                const reg = diarioHoje[colab.key] || {};
+                const status = reg.status || '';
+                const checks = Array.isArray(reg.checks) ? reg.checks : [];
+                const podeEditar = podeEditarColaborador(colab);
+                const podeChecks = podeEditarChecks(colab);
+                const bloqueado = !(isAdmin || (podeChecks && isHoje));
+
+                // status buttons
+                const statuses = [
+                    ['presente', 'Presente', 'active-presente'],
+                    ['falta', 'Falta', 'active-falta'],
+                    ['atestado', 'Atestado', 'active-atestado'],
+                    ['ferias', 'Férias', 'active-ferias']
+                ];
+                let statusHtml = statuses.map(s => {
+                    const ativo = status === s[0] ? s[2] : '';
+                    const dis = podeEditar ? '' : 'disabled';
+                    const cls = podeEditar ? 'status-btn' : 'status-btn disabled';
+                    return `<button class="${cls} ${ativo}" ${dis} onclick="setStatus('${colab.key}','${s[0]}')">${s[1]}</button>`;
+                }).join('');
+
+                // checklist
+                let checkHtml = '';
+                if ((colab.atividades || []).length === 0) {
+                    checkHtml = `<div class="check-empty">Sem atividades cadastradas para este colaborador.</div>`;
+                } else {
+                    checkHtml = colab.atividades.map(act => {
+                        const done = checks.includes(act);
+                        const lock = bloqueado ? 'locked' : '';
+                        return `<label class="check-item ${done ? 'done' : ''} ${lock}"><input type="checkbox" ${done ? 'checked' : ''} ${bloqueado ? 'disabled' : ''} onchange="toggleCheck('${colab.key}', this)"><span>${escapeHtml(act)}</span></label>`;
+                    }).join('');
+                }
+
+                // conta vinculada
+                let contaHtml = '';
+                if (isAdmin) {
+                    const usersOpts = usuariosAprovados().map(u => `<option value="${escapeHtml(u.usuario)}" ${colab.conta === u.usuario ? 'selected' : ''}>${escapeHtml(u.usuario)}</option>`).join('');
+                    contaHtml = `<div class="conta-box"><span class="tdm-label">🔗 Conta vinculada:</span><select onchange="vincularConta('${colab.key}', this.value)"><option value="">— Nenhuma —</option>${usersOpts}</select></div>`;
+                } else {
+                    contaHtml = `<div class="conta-box"><span class="tdm-label">🔗 Conta vinculada:</span><span style="font-weight:800; color:var(--accent-blue);">${colab.conta ? escapeHtml(colab.conta) : '—'}</span></div>`;
+                }
+
+                const actions = podeEditar
+                    ? `<button class="mini-btn" onclick="abrirModalColaborador('${colab.key}')">✏️ Editar</button><button class="mini-btn danger" onclick="excluirColaborador('${colab.key}')">🗑️</button>`
+                    : (podeChecks ? `<span class="tdm-label" style="align-self:center;">Você pode marcar apenas as atividades.</span>` : `<span class="tdm-label" style="align-self:center;">Somente leitura.</span>`);
+
+                return `
+                <div class="tdm-card glass-panel" data-key="${colab.key}">
+                    <div class="tdm-card-head">
+                        <div>
+                            <div class="nome">${escapeHtml(colab.nome)}</div>
+                            <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+                                <span class="badge-cargo">${escapeHtml(colab.cargo || 'Sem cargo')}</span>
+                                ${colab.backup ? `<span class="badge-backup">Backup: ${escapeHtml(colab.backup)}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tdm-row"><span class="tdm-label">Status:</span><div class="status-group">${statusHtml}</div></div>
+
+                    <div class="tdm-row">
+                        <span class="tdm-label">Entrada:</span>
+                        <input type="time" class="hora-input" value="${escapeHtml(reg.entrada || '')}" ${podeEditar ? '' : 'disabled'} onchange="setHora('${colab.key}','entrada', this.value)">
+                        <span class="tdm-label" style="margin-left:10px;">Saída:</span>
+                        <input type="time" class="hora-input" value="${escapeHtml(reg.saida || '')}" ${podeEditar ? '' : 'disabled'} onchange="setHora('${colab.key}','saida', this.value)">
+                    </div>
+
+                    <div class="tdm-row"><span class="tdm-label">Atividades concluídas:</span><span style="font-weight:900; color:var(--accent-green);">${checks.length}/${(colab.atividades || []).length}</span></div>
+
+                    <div class="checklist">${checkHtml}</div>
+
+                    ${contaHtml}
+
+                    <div class="card-actions">${actions}</div>
+                </div>`;
+            }).join('');
+        }
+
+        // ============ AÇÕES DIÁRIAS (salvar em tdm_diario/<data>/<colabKey>) ============
+        async function gravarRegistro(colabKey) {
+            const dataKey = document.getElementById('dataSelecionada').value || hojeISO();
+            const reg = diarioHoje[colabKey] || {};
+            await fetch(`${FIREBASE_URL}${NODE_DIARIO}/${dataKey}/${colabKey}.json`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(reg)
+            });
+        }
+
+        function setStatus(colabKey, status) {
+            if (!isAdmin) return;
+            const reg = diarioHoje[colabKey] = diarioHoje[colabKey] || {};
+            reg.status = status; reg.updatedAt = Date.now(); reg.preenchidoPor = reg.preenchidoPor || userName;
+            gravarRegistro(colabKey).then(() => { toast(); renderizar(); });
+            registrarLog("TDM", `Status ${status} para ${colabKey}`);
+        }
+
+        function setHora(colabKey, campo, valor) {
+            if (!isAdmin) return;
+            const reg = diarioHoje[colabKey] = diarioHoje[colabKey] || {};
+            reg[campo] = valor; reg.updatedAt = Date.now(); reg.preenchidoPor = reg.preenchidoPor || userName;
+            gravarRegistro(colabKey).then(() => { toast(); });
+            registrarLog("TDM", `Atualizou ${campo} de ${colabKey}`);
+        }
+
+        function toggleCheck(colabKey, checkbox) {
+            const colab = config.colaboradores[colabKey];
+            if (!podeEditarChecks(colab)) { checkbox.checked = !checkbox.checked; return alert("Você não tem permissão para marcar as atividades deste colaborador."); }
+            const atividade = colab.atividades.find(a => a === checkbox.parentElement.querySelector('span').textContent);
+            const reg = diarioHoje[colabKey] = diarioHoje[colabKey] || {};
+            if (!Array.isArray(reg.checks)) reg.checks = [];
+            if (checkbox.checked) { if (!reg.checks.includes(atividade)) reg.checks.push(atividade); }
+            else { reg.checks = reg.checks.filter(a => a !== atividade); }
+            reg.updatedAt = Date.now();
+            reg.preenchidoPor = reg.preenchidoPor || userName;
+            gravarRegistro(colabKey).then(() => { toast(); renderizar(); });
+            registrarLog("TDM", `Marcou atividade "${atividade}" para ${colabKey}`);
+        }
+
+        function vincularConta(colabKey, username) {
+            if (!isAdmin) return;
+            config.colaboradores[colabKey].conta = username;
+            salvarConfig().then(() => { toast('🔗 Conta vinculada!'); renderizar(); });
+            registrarLog("TDM", `Vinculou conta ${username} ao colaborador ${colabKey}`);
+        }
+
+        // ============ COLABORADORES (admin) ============
+        function abrirModalColaborador(key) {
+            if (!isAdmin) return;
+            const modal = document.getElementById('modalColaborador');
+            document.getElementById('colabEditKey').value = key || '';
+            document.getElementById('modalColabTitle').innerText = key ? '✏️ Editar Colaborador' : '➕ Adicionar Colaborador';
+
+            const cargoSelect = document.getElementById('colabCargo');
+            cargoSelect.innerHTML = Object.keys(config.cargos || {}).map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('') || '<option value="">—</option>';
+
+            const contaSelect = document.getElementById('colabConta');
+            contaSelect.innerHTML = '<option value="">— Nenhuma —</option>' + usuariosAprovados().map(u => `<option value="${escapeHtml(u.usuario)}">${escapeHtml(u.usuario)}</option>`).join('');
+
+            if (key) {
+                const c = config.colaboradores[key];
+                document.getElementById('colabNome').value = c.nome || '';
+                cargoSelect.value = c.cargo || '';
+                document.getElementById('colabBackup').value = c.backup || '';
+                contaSelect.value = c.conta || '';
+                document.getElementById('colabAtividades').value = (c.atividades || []).join('\n');
+                colabEditCargoAplicado = false;
+            } else {
+                document.getElementById('colabNome').value = '';
+                cargoSelect.value = cargoSelect.options[0] ? cargoSelect.options[0].value : '';
+                document.getElementById('colabBackup').value = '';
+                contaSelect.value = '';
+                document.getElementById('colabAtividades').value = '';
+                aplicarAtividadesDoCargo();
+                colabEditCargoAplicado = true;
+            }
+            modal.classList.add('active');
+        }
+
+        function aplicarAtividadesDoCargo() {
+            const cargo = document.getElementById('colabCargo').value;
+            const atividades = (config.cargos[cargo] && config.cargos[cargo].atividades) || [];
+            if (atividades.length > 0) document.getElementById('colabAtividades').value = atividades.join('\n');
+        }
+        document.getElementById('colabCargo').addEventListener('change', aplicarAtividadesDoCargo);
+
+        async function salvarColaborador() {
+            if (!isAdmin) return;
+            const key = document.getElementById('colabEditKey').value;
+            const nome = document.getElementById('colabNome').value.trim();
+            if (!nome) return alert("Informe o nome do colaborador.");
+            const atividades = document.getElementById('colabAtividades').value.split('\n').map(s => s.trim()).filter(Boolean);
+
+            const obj = {
+                nome,
+                cargo: document.getElementById('colabCargo').value,
+                backup: document.getElementById('colabBackup').value.trim(),
+                conta: document.getElementById('colabConta').value,
+                atividades
+            };
+
+            if (key) { Object.assign(config.colaboradores[key], obj); }
+            else {
+                const newKey = 'c_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+                config.colaboradores[newKey] = { ...obj, ativo: true, ordem: Object.keys(config.colaboradores).length + 1 };
+            }
+
+            await salvarConfig();
+            await registrarLog("TDM", key ? `Editou colaborador ${nome}` : `Adicionou colaborador ${nome}`);
+            fecharModal('modalColaborador');
+            toast();
+            renderizar();
+        }
+
+        async function excluirColaborador(key) {
+            if (!isAdmin) return;
+            const c = config.colaboradores[key];
+            if (!confirm(`Excluir o colaborador "${c.nome}"?`)) return;
+            delete config.colaboradores[key];
+            await salvarConfig();
+            await registrarLog("TDM", `Excluiu colaborador ${c.nome}`);
+            toast('🗑️ Colaborador removido.');
+            renderizar();
+        }
+
+        // ============ CARGOS (admin) ============
+        function abrirModalCargos() {
+            if (!isAdmin) return;
+            renderizarCargosList();
+            document.getElementById('modalCargos').classList.add('active');
+        }
+
+        function renderizarCargosList() {
+            const el = document.getElementById('cargosList');
+            const cargos = Object.keys(config.cargos || {});
+            if (cargos.length === 0) { el.innerHTML = '<div style="color:var(--text-muted);">Nenhum cargo cadastrado.</div>'; return; }
+            el.innerHTML = cargos.map(c => {
+                const ativ = (config.cargos[c].atividades || []).join('\n');
+                return `<div class="tdm-card glass-panel" style="margin-bottom:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <strong style="color:var(--text-title);">${escapeHtml(c)}</strong>
+                        <button class="mini-btn danger" onclick="excluirCargo('${escapeHtml(c)}')">🗑️</button>
+                    </div>
+                    <div class="field" style="margin-top:8px;"><label>Atividades (uma por linha)</label>
+                        <textarea onchange="editarCargoAtividades('${escapeHtml(c)}', this.value)">${escapeHtml(ativ)}</textarea>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function editarCargoAtividades(cargo, valor) {
+            if (!isAdmin) return;
+            config.cargos[cargo].atividades = valor.split('\n').map(s => s.trim()).filter(Boolean);
+            salvarConfig().then(() => toast('Cargo atualizado!'));
+        }
+
+        async function adicionarCargo() {
+            if (!isAdmin) return;
+            const nome = document.getElementById('novoCargoNome').value.trim();
+            if (!nome) return alert("Informe o nome do cargo.");
+            if (config.cargos[nome]) return alert("Este cargo já existe.");
+            config.cargos[nome] = { fluxo: [], atividades: [] };
+            document.getElementById('novoCargoNome').value = '';
+            await salvarConfig();
+            renderizarCargosList();
+            toast('Cargo adicionado!');
+        }
+
+        async function excluirCargo(cargo) {
+            if (!isAdmin) return;
+            if (!confirm(`Excluir o cargo "${cargo}"?`)) return;
+            delete config.cargos[cargo];
+            await salvarConfig();
+            renderizarCargosList();
+            toast('Cargo removido.');
+        }
+
+        // ============ FLUXO DIÁRIO ============
+        function abrirModalFluxo() {
+            const sel = document.getElementById('fluxoCargoSelect');
+            sel.innerHTML = Object.keys(config.cargos || {}).map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('') || '<option value="">—</option>';
+            renderizarFluxo();
+            document.getElementById('modalFluxo').classList.add('active');
+        }
+
+        function renderizarFluxo() {
+            const cargo = document.getElementById('fluxoCargoSelect').value;
+            const fluxo = (config.cargos[cargo] && config.cargos[cargo].fluxo) || [];
+            const el = document.getElementById('fluxoConteudo');
+            if (!cargo) { el.innerHTML = ''; return; }
+            if (fluxo.length === 0) { el.innerHTML = '<div style="color:var(--text-muted);">Nenhum fluxo diário definido para este cargo.</div>'; return; }
+            el.innerHTML = fluxo.map(f => `
+                <div class="fluxo-step">
+                    <div class="t">${escapeHtml(f.titulo)}</div>
+                    <ul>${(f.itens || []).map(i => `<li>${escapeHtml(i)}</li>`).join('')}</ul>
+                </div>`).join('');
+        }
+
+        // ============ NAVEGAÇÃO DE DATA ============
+        function irParaHoje() { document.getElementById('dataSelecionada').value = hojeISO(); carregarDiario().then(renderizar); }
+
+        function fecharModal(id) { document.getElementById(id).classList.remove('active'); }
+        document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('active'); }));
+
+        // ============ INIT ============
+        async function init() {
+            document.getElementById('dataSelecionada').value = hojeISO();
+            await carregarConfig();
+            await carregarUsuarios();
+            await carregarDiario();
+            renderizar();
+        }
+        init();
+    </script>
+</body>
+</html>
