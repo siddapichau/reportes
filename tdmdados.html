@@ -73,6 +73,7 @@
         .pill.falta { background: var(--accent-red); }
         .pill.atestado { background: var(--accent-warn); }
         .pill.ferias { background: #8E44AD; }
+        .pill.folga { background: #6C5CE7; }
         .pill.vazio { background: var(--text-muted); }
         .ok { color: var(--accent-green); font-weight: 900; }
         .no { color: var(--accent-red); font-weight: 900; }
@@ -183,10 +184,33 @@
             return all.filter(c => c.conta && userName && c.conta.toLowerCase() === userName.toLowerCase());
         }
 
+        function normalizarAtividades(lista) {
+            return (Array.isArray(lista) ? lista : []).map((item, index) => {
+                if (typeof item === 'string') return { id: item, nome: item };
+                const nome = String(item && (item.nome || item.name || item.titulo || item.atividade) || '').trim();
+                return { id: String(item && item.id || nome || `atividade_${index}`), nome };
+            }).filter(a => a.nome);
+        }
+
+        function atividadesFeitas(colab, reg) {
+            const atividades = normalizarAtividades(colab.atividades);
+            const own = Array.isArray(reg && reg.checks) ? reg.checks : [];
+            const apoio = Array.isArray(reg && reg.supportChecks) ? reg.supportChecks : [];
+            return atividades.filter(a => own.includes(a.id) || own.includes(a.nome) || apoio.includes(a.id) || apoio.includes(a.nome));
+        }
+
+        function apoiosFeitos(colab, reg) {
+            const atividades = normalizarAtividades(colab.atividades);
+            const apoio = Array.isArray(reg && reg.supportChecks) ? reg.supportChecks : [];
+            return atividades.filter(a => apoio.includes(a.id) || apoio.includes(a.nome));
+        }
+
         function regPreenchido(reg) {
             if (!reg) return false;
-            const temCheck = Array.isArray(reg.checks) && reg.checks.length > 0;
-            return !!(temCheck || reg.status || reg.entrada || reg.saida);
+            // supportChecks pertence ao TDM de quem estava de folga; nunca vira
+            // atividade obrigatória no histórico do backup.
+            const temCheckProprio = Array.isArray(reg.checks) && reg.checks.length > 0;
+            return !!(temCheckProprio || reg.status || reg.entrada || reg.saida);
         }
 
         async function carregarDia() {
@@ -225,13 +249,15 @@
                 const folga = reg.folga === true;
                 if (folga) folgas++;
 
-                const status = reg.status || '';
+                const status = reg.status || (reg.folga === true ? 'folga' : '');
                 const statusPill = status
-                    ? `<span class="pill ${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>`
+                    ? `<span class="pill ${status === 'folga' ? 'folga' : status}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>`
                     : `<span class="pill vazio">—</span>`;
 
-                const total = (colab.atividades || []).length;
-                const done = Array.isArray(reg.checks) ? reg.checks.length : 0;
+                const total = normalizarAtividades(colab.atividades).length;
+                const feitas = atividadesFeitas(colab, reg);
+                const apoios = apoiosFeitos(colab, reg);
+                const done = feitas.length;
                 const pct = total > 0 ? Math.round((done / total) * 100) : 0;
 
                 let folgaHtml = '';
@@ -248,7 +274,7 @@
                     <td>${statusPill}</td>
                     <td>${escapeHtml(reg.entrada || '—')}</td>
                     <td>${escapeHtml(reg.saida || '—')}</td>
-                    <td><div style="display:flex; align-items:center; gap:8px;"><div class="progress"><div style="width:${pct}%"></div></div><span style="font-weight:800;">${done}/${total}</span></div></td>
+                    <td><div style="display:flex; align-items:center; gap:8px;"><div class="progress"><div style="width:${pct}%"></div></div><span style="font-weight:800;">${done}/${total}</span>${apoios.length ? `<small style="color:var(--accent-blue); font-weight:800;"> · ${apoios.length} apoio</small>` : ''}</div></td>
                     <td>${preenchido ? '<span class="ok">✅ Sim</span>' : '<span class="no">❌ Não</span>'}</td>
                     <td>${escapeHtml(reg.preenchidoPor || '—')}</td>
                     ${isAdmin ? `<td>${folgaHtml}</td>` : ''}
@@ -297,6 +323,8 @@
             const dataKey = document.getElementById('dataSelecionada').value || hojeISO();
             const reg = diarioDia[colabKey] = diarioDia[colabKey] || {};
             reg.folga = valor;
+            if (valor) reg.status = 'folga';
+            else if (reg.status === 'folga') reg.status = '';
             reg.updatedAt = Date.now();
             reg.avaliadoPor = userName;
             try {
