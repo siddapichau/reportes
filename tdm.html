@@ -31,7 +31,6 @@
 
         .glass-panel { background-color: var(--bg-card); backdrop-filter: blur(12px); border: 1px solid var(--border-card); border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
 
-        /* CABEÇALHO */
         .header { padding: 12px 20px; flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 20px; background-color: #FFF159 !important; border: none; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .header-title-wrapper { flex: 1; text-align: center; color: #2D3277 !important; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; font-size: 1.15rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .ml-logo { height: 32px; width: auto; object-fit: contain; }
@@ -42,21 +41,21 @@
         .btn-dark { background: #2D3277; }
         .btn-header:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
 
-        /* BARRA DE DATA */
         .date-bar { flex: 0 0 auto; display: flex; align-items: center; gap: 12px; padding: 10px 20px; flex-wrap: wrap; }
         .date-bar label { font-weight: 800; color: var(--text-muted); text-transform: uppercase; font-size: 0.8rem; }
         .date-bar input[type="date"] { padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-light); background: var(--bg-card); color: var(--text-main); font-weight: 600; font-family: 'Inter'; }
         .date-bar .info-user { margin-left: auto; font-size: 0.8rem; color: var(--text-muted); font-weight: 700; }
 
-        /* GRID DE TDM */
         .cards-scroll { flex: 1; overflow-y: auto; padding: 4px; }
-        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; }
 
         .tdm-card { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
         .tdm-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
         .tdm-card-head .nome { font-size: 1.1rem; font-weight: 900; color: var(--text-title); line-height: 1.2; }
         .badge-cargo { display: inline-block; background: var(--accent-blue); color: #fff; padding: 3px 10px; border-radius: 20px; font-size: 0.68rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.3px; }
         .badge-backup { display: inline-block; background: var(--bg-body); color: var(--text-muted); border: 1px solid var(--border-card); padding: 3px 10px; border-radius: 20px; font-size: 0.68rem; font-weight: 700; }
+        .badge-backup.substitui { border-color: var(--accent-blue); color: var(--accent-blue); }
+        .badge-ausente { display: inline-block; background: var(--accent-warn); color: #fff; padding: 3px 10px; border-radius: 20px; font-size: 0.68rem; font-weight: 900; text-transform: uppercase; }
 
         .tdm-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         .tdm-label { font-size: 0.72rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; }
@@ -68,17 +67,39 @@
         .status-btn.active-falta { background: var(--accent-red); color: #fff; border-color: var(--accent-red); }
         .status-btn.active-atestado { background: var(--accent-warn); color: #fff; border-color: var(--accent-warn); }
         .status-btn.active-ferias { background: #8E44AD; color: #fff; border-color: #8E44AD; }
+        .status-btn.active-folga { background: #3483FA; color: #fff; border-color: #3483FA; }
         .status-btn.disabled { cursor: not-allowed; opacity: 0.7; }
 
-        .hora-input { padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border-light); background: var(--bg-body); color: var(--text-main); font-weight: 600; font-family: 'Inter'; }
+        .hora-input, .backup-select { padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border-light); background: var(--bg-body); color: var(--text-main); font-weight: 600; font-family: 'Inter'; }
 
-        .checklist { display: flex; flex-direction: column; gap: 5px; max-height: 220px; overflow-y: auto; padding-right: 4px; border-top: 1px solid var(--border-card); padding-top: 10px; }
-        .check-item { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; font-size: 0.82rem; color: var(--text-main); }
-        .check-item input { margin-top: 2px; width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent-green); flex-shrink: 0; }
-        .check-item.done span { text-decoration: line-through; color: var(--text-muted); }
-        .check-item.locked { cursor: not-allowed; opacity: 0.75; }
-        .check-item.locked input { cursor: not-allowed; }
+        .checklist { display: flex; flex-direction: column; gap: 6px; max-height: 420px; overflow-y: auto; padding-right: 4px; border-top: 1px solid var(--border-card); padding-top: 10px; }
         .check-empty { font-size: 0.8rem; color: var(--text-muted); font-style: italic; padding: 6px 0; }
+
+        .act-item { border: 1px solid var(--border-card); border-radius: 8px; background: var(--bg-body); overflow: hidden; }
+        .act-item.apoio { border-color: rgba(52, 131, 250, 0.45); background: rgba(52, 131, 250, 0.06); }
+        .act-item.done { opacity: 0.85; }
+        .act-head { display: flex; align-items: flex-start; gap: 8px; padding: 8px 10px; cursor: pointer; }
+        .act-head input[type="checkbox"] { margin-top: 2px; width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent-green); flex-shrink: 0; }
+        .act-head input[type="checkbox"]:disabled { cursor: not-allowed; }
+        .act-name { flex: 1; font-size: 0.82rem; font-weight: 700; color: var(--text-main); line-height: 1.35; }
+        .act-item.done .act-name { text-decoration: line-through; color: var(--text-muted); }
+        .act-name-input { flex: 1; border: 1px dashed transparent; background: transparent; color: var(--text-main); font-size: 0.82rem; font-weight: 700; font-family: 'Inter'; padding: 0 4px; border-radius: 4px; }
+        .act-name-input:hover, .act-name-input:focus { border-color: var(--accent-blue); background: var(--bg-card); outline: none; }
+        .act-chevron { flex-shrink: 0; color: var(--text-muted); transition: transform 0.2s; font-size: 0.7rem; padding: 2px 4px; }
+        .act-item.open .act-chevron { transform: rotate(180deg); }
+        .act-del { background: transparent; border: none; color: var(--accent-red); cursor: pointer; font-weight: 900; opacity: 0.35; padding: 0 4px; }
+        .act-item:hover .act-del { opacity: 1; }
+        .act-body { display: none; padding: 8px 10px 10px; border-top: 1px dashed var(--border-card); }
+        .act-item.open .act-body { display: block; }
+        .act-detalhe { font-size: 0.78rem; color: var(--text-muted); white-space: pre-wrap; line-height: 1.45; }
+        .act-detalhe-input { width: 100%; min-height: 70px; resize: vertical; padding: 8px; border-radius: 6px; border: 1px solid var(--border-light); background: var(--bg-card); color: var(--text-main); font-family: 'Inter'; font-size: 0.78rem; font-weight: 500; }
+        .act-tag { display: inline-block; font-size: 0.62rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.3px; background: var(--accent-blue); color: #fff; padding: 2px 7px; border-radius: 10px; margin-bottom: 6px; }
+        .act-add { display: flex; gap: 6px; align-items: center; padding: 6px 8px; border: 1px dashed var(--border-card); border-radius: 8px; }
+        .act-add input { flex: 1; border: none; background: transparent; color: var(--text-main); font-family: 'Inter'; font-weight: 600; font-size: 0.8rem; outline: none; }
+        .act-add button { border: none; background: var(--accent-green); color: #fff; border-radius: 6px; padding: 5px 10px; font-weight: 800; cursor: pointer; font-size: 0.72rem; }
+
+        .section-title { font-size: 0.72rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; margin-top: 4px; }
+        .apoio-hint { font-size: 0.72rem; color: var(--text-muted); line-height: 1.35; background: rgba(52,131,250,0.08); border: 1px dashed rgba(52,131,250,0.35); border-radius: 8px; padding: 8px 10px; }
 
         .conta-box { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; background: var(--bg-body); border: 1px dashed var(--border-card); border-radius: 8px; padding: 8px 10px; }
         .conta-box select { padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border-light); background: var(--bg-card); color: var(--text-main); font-weight: 600; font-family: 'Inter'; max-width: 200px; }
@@ -91,7 +112,6 @@
         .saved-toast { position: fixed; bottom: 20px; right: 20px; background: var(--accent-green); color: #fff; padding: 12px 18px; border-radius: 8px; font-weight: 800; box-shadow: 0 6px 20px rgba(0,0,0,0.25); z-index: 99999; opacity: 0; transform: translateY(10px); transition: 0.3s; pointer-events: none; }
         .saved-toast.show { opacity: 1; transform: translateY(0); }
 
-        /* MODAL */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .modal-overlay.active { display: flex; }
         .modal-box { background: var(--bg-card); width: 95%; max-width: 640px; max-height: 90vh; overflow-y: auto; padding: 24px; border-radius: 12px; border: 1px solid var(--border-light); box-shadow: 0 15px 50px rgba(0,0,0,0.6); }
@@ -103,6 +123,7 @@
         .field input, .field select, .field textarea { width: 100%; padding: 10px 12px; border-radius: 6px; border: 1px solid var(--border-light); background: var(--bg-body); color: var(--text-main); font-weight: 600; font-family: 'Inter'; }
         .field textarea { min-height: 140px; resize: vertical; font-weight: 500; }
         .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+        .hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
 
         .fluxo-step { margin-bottom: 14px; }
         .fluxo-step .t { font-weight: 900; color: var(--text-title); font-size: 0.9rem; margin-bottom: 4px; }
@@ -129,7 +150,7 @@
 
     <div class="date-bar glass-panel">
         <label for="dataSelecionada">📅 Dia:</label>
-        <input type="date" id="dataSelecionada" onchange="renderizar()">
+        <input type="date" id="dataSelecionada" onchange="carregarDiario().then(renderizar)">
         <button class="mini-btn" onclick="irParaHoje()">Hoje</button>
         <span class="info-user" id="infoUser"></span>
     </div>
@@ -146,16 +167,20 @@
                 <span class="modal-close" onclick="fecharModal('modalColaborador')">&times;</span>
             </div>
             <input type="hidden" id="colabEditKey">
-            <div class="field"><label>Nome do Colaborador</label><input type="text" id="colabNome" placeholder="Ex: Danilo Sanchez"></div>
+            <div class="field"><label>Nome do Colaborador</label><input type="text" id="colabNome" placeholder="Ex: Geise"></div>
             <div class="field"><label>Cargo</label>
                 <select id="colabCargo"></select>
+                <div class="hint">O cargo é só identificação. As atividades são próprias de cada colaborador — não são herdadas do cargo.</div>
             </div>
-            <div class="field"><label>Backup (opcional)</label><input type="text" id="colabBackup" placeholder="Nome do backup"></div>
+            <div class="field"><label>Backup (quem substitui esta pessoa no dia a dia)</label>
+                <select id="colabBackup"></select>
+            </div>
             <div class="field"><label>Vincular conta que poderá marcar as atividades (apenas checkboxes)</label>
                 <select id="colabConta"></select>
             </div>
-            <div class="field"><label>Atividades (uma por linha) — preenchido automaticamente pelo cargo</label>
-                <textarea id="colabAtividades" placeholder="Acompanhar Bipagem de inventário&#10;Gerar CEO&#10;Layout"></textarea>
+            <div class="field"><label>Atividades próprias (uma por linha: Nome | Detalhes)</label>
+                <textarea id="colabAtividades" placeholder="Risco BPP | Analisar pacotes pendentes&#10;Reporte | Enviar consolidado no grupo"></textarea>
+                <div class="hint">Você também pode editar nome e detalhes direto no card (accordion). Cada atividade é deste colaborador, não do cargo.</div>
             </div>
             <div class="modal-actions">
                 <button class="btn-header btn-dark" onclick="fecharModal('modalColaborador')">Cancelar</button>
@@ -171,11 +196,12 @@
                 <h2>🗂️ Mapeamento de Cargos</h2>
                 <span class="modal-close" onclick="fecharModal('modalCargos')">&times;</span>
             </div>
+            <p class="hint" style="margin-bottom:12px;">Cargos servem para o crachá do card e para o Fluxo Diário. As atividades do TDM continuam sendo de cada colaborador.</p>
             <div id="cargosList"></div>
             <div class="field" style="margin-top: 16px;">
                 <label>Novo Cargo</label>
                 <div style="display:flex; gap:8px;">
-                    <input type="text" id="novoCargoNome" placeholder="Nome do cargo">
+                    <input type="text" id="novoCargoNome" placeholder="Nome do cargo (ex: OP3)">
                     <button class="btn-header btn-green" onclick="adicionarCargo()">➕</button>
                 </div>
             </div>
@@ -203,61 +229,138 @@
         const FIREBASE_URL = "https://reportes-bdb0a-default-rtdb.firebaseio.com/";
         const NODE_CONFIG = "tdm_config";
         const NODE_DIARIO = "tdm_diario";
+        const SEED_VERSION = 2;
 
         const currentUser = JSON.parse(localStorage.getItem('loggedUser')) || null;
         const userName = currentUser && currentUser.usuario ? currentUser.usuario : '';
         const isAdmin = !!(currentUser && currentUser.cargo === 'admin');
 
-        let config = { cargos: {}, colaboradores: {} };
-        let allUsers = {};           // { key: {usuario, cargo, solicitacao, ...} }
-        let diarioHoje = {};         // { <colabKey>: { status, entrada, saida, checks, folga, ... } }
-        let colabEditCargoAplicado = false;
+        let config = { cargos: {}, colaboradores: {}, seedVersion: 0 };
+        let allUsers = {};
+        let diarioHoje = {};
+        const actsAbertas = new Set();
 
-        // ============ SEMENTE (dados trazidos da página TDM Inventário de referência) ============
+        // ============ SEMENTE (dados reais de gestao-two-zeta / tdm_inventario/ssc1_cards) ============
         const SEED_CARGOS = {
-            "Assistente de Inventário": {
+            "OP3": {
                 fluxo: [
                     { titulo: "1º Alteração Status XPT", itens: ["Alteração dos pacotes que estão na planilha", "Registrar Insucesso"] },
                     { titulo: "2º Missorted", itens: ["Cobrar as origens dos pacotes de SSC1"] },
                     { titulo: "3º Bipagem no Inventário", itens: ["11:00 AM Abrir as zonas de inventário", "Realizar Bipagem, garantir todos pacotes bipados"] },
                     { titulo: "4º Sem Identificação", itens: ["Tratar sem identificação", "Verificar planilha de baixas e Base Parado no Percurso", "Verificar Locker sem ID e Planilha CFTV"] }
-                ],
-                atividades: [
-                    "Acompanhar Bipagem de inventário", "Acompanhar AM1 Processamento", "Acompanhar time de doca",
-                    "Separar de QRcode para o turno seguinte", "Gerar CEO", "Layout", "Gemba Final de turno 20:30",
-                    "Acompanhar Ociosidade do time", "5S e organização fisica de inventário", "⚠️ Risco BPP",
-                    "⚠️ Visualização prioridade CFTV", "⚠️ Parado na estação(onway)"
                 ]
             },
-            "Problem Solving (PS)": {
+            "OP2": {
                 fluxo: [
                     { titulo: "1º Separação Gaiolas PS", itens: ["Realizar separação de pacotes Devolução, Missort, Cancelado e Avarias", "Colocar dentro da área de inventário com motivo atribuído", "Separar pacote que está com aging mais alto de devolução"] },
                     { titulo: "2º Tratamento Físico", itens: ["Auditoria de embalagens", "Redirecionamento de itens danificados para avaria sistêmica"] },
                     { titulo: "3º Fechamento de Turno", itens: ["Garantir Zonas limpas", "Reportar anomalias sistêmicas ao supervisor"] }
-                ],
-                atividades: [
-                    "Risco BPP", "Visualização prioridade CFTV", "Parado no percurso", "Sem indentificação", "Reporte", "Reunião de BPP"
                 ]
             },
-            "Tratativas / Reversa": {
-                fluxo: [],
-                atividades: [
-                    "Sem identificação", "Devolução", "Insucesso", "Acompanhamento e report dos pacotes NEX/DC",
-                    "Atribuição de motivo nos pacotes para devolver", "Digitalização dos romaneios de devolução para o drive de reversa"
-                ]
-            }
+            "REP2": { fluxo: [] }
         };
 
         const SEED_COLABORADORES = [
-            { nome: "Danilo Sanchez", cargo: "Assistente de Inventário", backup: "", atividades: ["Acompanhar Bipagem de inventário","Acompanhar AM1 Processamento","Acompanhar time de doca","Separar de QRcode para o turno seguinte","Gerar CEO","Layout","Gemba Final de turno 20:30","Acompanhar Ociosidade do time","5S e organização fisica de inventário","⚠️ Risco BPP","⚠️ Visualização prioridade CFTV","⚠️ Parado na estação(onway)"] },
-            { nome: "Colaborador 2", cargo: "Problem Solving (PS)", backup: "", atividades: ["Risco BPP","Visualização prioridade CFTV","Parado no percurso","Sem indentificação","Reporte","Reunião de BPP"] },
-            { nome: "Colaborador 3", cargo: "Tratativas / Reversa", backup: "", atividades: ["Sem identificação","Devolução","Insucesso","Acompanhamento e report dos pacotes NEX/DC"] },
-            { nome: "Colaborador 4", cargo: "Assistente de Inventário", backup: "", atividades: ["Suporte identificação","Area Bulky","Gerar o CEO","Devolução de bulky","Analise de returns","Fechamento de inventário","Reportes","RTS","Analise e Aprovação de SLA de avarias","Treinamento de tratativas avarias e boas práticas (perdas)"] },
-            { nome: "Colaborador 5", cargo: "Tratativas / Reversa", backup: "", atividades: ["Devolução","Lançar Avaria"] },
-            { nome: "Yellianys", cargo: "Problem Solving (PS)", backup: "", atividades: [] },
-            { nome: "Colaborador 7", cargo: "Problem Solving (PS)", backup: "", atividades: ["Reportes","Sem indentificação","Missorted","Tratativa de pacotes"] },
-            { nome: "Colaborador 8", cargo: "Tratativas / Reversa", backup: "", atividades: ["Devolução","Sem identificação","Atribuição de motivo nos pacotes para devolver","Digitalização dos romaneios de devolução para o drive de reversa"] }
+            {
+                key: "seed_geise", nome: "Geise", cargo: "OP3", backupKey: "seed_wesley",
+                atividades: [
+                    { id: "geise_bipagem", nome: "Acompanhar Bipagem de inventário", detalhes: "- Organização de layout inventário (Segregar a bipagem, antes de abrir a zona).\n\nObs: VOLUMOSO e PACOTINHO segregados.\n\ncolocar o volumoso no paredao" },
+                    { id: "geise_am1", nome: "Acompanhar AM1 Processamento", detalhes: "- Otimização de layout.\n\n- Acompanhar o processamento do sorting.\n\n- Auditoria de gaiolas.\n\n- Garantir 100% dos pacotes atrelados, deixando zero buffer" },
+                    { id: "geise_doca", nome: "Acompanhar time de doca", detalhes: "- Acompanhar se tem alguém com ociosidade em doca.\n- Garantir reversa feita como no padrão.\n- Pallets\n- oportunidade de colar fita e 5s" },
+                    { id: "geise_qr", nome: "Separar de QRcode para o turno seguinte", detalhes: "- Separar o QR do turno seguinte. Se não tiver AM1 precisamos garantir separação do QR do AM2" },
+                    { id: "geise_ceo", nome: "Gerar CEO", detalhes: "- Ofensores Aduana Semanal\n- Ofensores POKAYO semanal\n- Reporta para os TL os ofensores e cobrar devolutiva" },
+                    { id: "geise_layout", nome: "Layout", detalhes: "- Volumoso\n- Sacas\n- Sorting" },
+                    { id: "geise_gemba", nome: "Gemba Final de turno 20:30", detalhes: "- Fazer um gemba na operação\n- Garantir descarte químico\n- Garantir descarte de plastico\n- Garantir descarte de papelão" },
+                    { id: "geise_ocio", nome: "Acompanhar Ociosidade do time", detalhes: "- LMS\n- Operação" },
+                    { id: "geise_5s", nome: "5S e organização fisica de inventário", detalhes: "- Gaiola sem tratativa esta sem pacotes ?\n- Gaiola ta bagunçada ?\n- Armário de pastas esta bagunçado ?" },
+                    { id: "geise_bpp", nome: "⚠️ Risco BPP", detalhes: "- Analisar os pacotes pendentes no inventário\n- Estratificar por Last Mile e Service Center\n- Consultar sobra last mile" },
+                    { id: "geise_cftv", nome: "⚠️ Visualização prioridade CFTV", detalhes: "- Formalizar no grupo de inventário as prioridades do CFTV acima de 100% diário" },
+                    { id: "geise_onway", nome: "⚠️ Parado na estação(onway)", detalhes: "Folga do wesley" }
+                ]
+            },
+            {
+                key: "seed_wesley", nome: "Wesley", cargo: "OP3", backupKey: "seed_darlan",
+                atividades: [
+                    { id: "wesley_bpp", nome: "Risco BPP", detalhes: "- Analisar os pacotes pendentes no inventário D-1\n- Estratificar por Last Mile e Service Center - Onway\n- Consultar planilha last mile sobras" },
+                    { id: "wesley_cftv", nome: "Visualização prioridade CFTV", detalhes: "- Formalizar no grupo de inventário as prioridades do CFTV acima de 100% diário" },
+                    { id: "wesley_parado", nome: "Parado no percurso", detalhes: "- Acompanhar os pacotes parado na estação\n- Analisar se houve inventário\n- Procurar nos sem indentificação\n- Acompanhar e-mail de onway e garantir a devolutiva a origem\n- Segunda - quarta e sexta" },
+                    { id: "wesley_semid", nome: "Sem indentificação", detalhes: "- Preencher a base sem identificação.\n- Fezer varredura no volumoso" },
+                    { id: "wesley_reporte", nome: "Reporte", detalhes: "- Reporte de pacotes em risco\n- Reporte Aduana, Dia, Semanal\n- Perdas na semana lost e damaged" },
+                    { id: "wesley_reuniao", nome: "Reunião de BPP", detalhes: "- Reunião de BPP com o Walbert loss prevetion\n- Reportar de perdas semanal" }
+                ]
+            },
+            {
+                key: "seed_stephany", nome: "Stephany", cargo: "OP2", backupKey: "seed_darlan",
+                atividades: [
+                    { id: "ste_semid", nome: "Sem identificação", detalhes: "- Gerar Base sem identificação\n- Garantir pacotes achados pacotinho e volumoso" },
+                    { id: "ste_reportes", nome: "Reportes", detalhes: "- Devolução\n- Recuperados sem identificação" },
+                    { id: "ste_dev", nome: "Devolução", detalhes: "- Garantir a devolução de pacotes que estão como:\n* Entregue\n* Cancelado\n* Perdido\n* Duplicado\n\nManuais - Pacotes com status finalizador" },
+                    { id: "ste_insucesso", nome: "Insucesso", detalhes: "- Cobrir janta Aurimari.\n- Garantir o recebimento dos pacotes sistêmicos.\n- Fazer forms transportadora.\n- Não receber pacote que não esta autorizado" },
+                    { id: "ste_nex", nome: "Acompanhamento e report dos pacotes NEX/DC", detalhes: "" },
+                    { id: "ste_avaria", nome: "Lançamento de avarias", detalhes: "- Não ficar pendente pro turno anterior" }
+                ]
+            },
+            {
+                key: "seed_darlan", nome: "Darlan", cargo: "OP2", backupKey: "seed_abril",
+                atividades: [
+                    { id: "dar_suporte", nome: "Suporte identificação", detalhes: "- Garantir base preenchida sem identificação\n- Procurar pacotes volumosos prioridade ⚠️" },
+                    { id: "dar_bulky", nome: "Area Bulky", detalhes: "- Garantir todos os bulkys bipados no inventário\n- Bipar todos os bulkys em uma planilha e verifica os status\n- Reporta para last mile. quantos bulkys temos na base (Enviar a base para OTR)" },
+                    { id: "dar_ceo", nome: "Gerar o CEO", detalhes: "- Ofensores Aduana Semanal\n- Ofensores POKAYO semanal\n- Reporta para os TL os ofensores e cobrar devolutiva" },
+                    { id: "dar_devbulky", nome: "Devolução de bulky", detalhes: "- Garantir a devolução de coleta bulky.\n- Acompanhar Devolutiva de Bulky no grupo e responder\n\n- Registro de devolução por e-mail (Coletas Bulkys)" },
+                    { id: "dar_returns", nome: "Analise de returns", detalhes: "- Verificar aging dos pacotes que estão aguardando devolução\n\n- Garantir chamado e acompanhamento\n\n- Visibilidade do impacto que esta causando no inventário" },
+                    { id: "dar_fecha", nome: "Fechamento de inventário", detalhes: "- Analise deslocado.\n\n- Analise dos pacotes pendente no inventário\n\n- Virar faltante para expedir o que foi verificado\n\n- Virar sorting para faltante o que não foi verificado ⚠️" },
+                    { id: "dar_reportes", nome: "Reportes", detalhes: "- Reporte de avarias\n- Reporte de fechamento de inventário" },
+                    { id: "dar_rts", nome: "RTS", detalhes: "- Pacote \"Dormiu fora SVC\" - Controle interno e Farol para OTR de pendências - SVC\n- Estratificar valor e descrição" },
+                    { id: "dar_sla", nome: "Analise e Aprovação de SLA de avarias", detalhes: "- Analise e Aprovação de SLA de avarias" },
+                    { id: "dar_treino", nome: "Treinamento de tratativas avarias e boas práticas (perdas)", detalhes: "" },
+                    { id: "dar_avaria", nome: "Lançamento de avarias", detalhes: "" }
+                ]
+            },
+            {
+                key: "seed_jeander", nome: "Jeander", cargo: "REP2", backupKey: "seed_aurimari",
+                atividades: [
+                    { id: "jea_dev", nome: "Devolução", detalhes: "- Garantir devolução\n * FULL\n * CROSS\n * LAGACY" },
+                    { id: "jea_insucesso", nome: "Insucesso", detalhes: "- Cobrir Insucesso Aurimari" },
+                    { id: "jea_avaria", nome: "Lançar Avaria", detalhes: "- Não ficar pendente avaria para o próximo Ciclo" }
+                ]
+            },
+            {
+                key: "seed_aurimari", nome: "Aurimari", cargo: "REP2", backupKey: "seed_yelliannys",
+                atividades: [
+                    { id: "aur_insucesso", nome: "Insucesso", detalhes: "- Garantir o recebimento dos pacotes sistêmicos.\n- Fazer forms transportadora.\n- Não receber pacote que não esta autorizado" },
+                    { id: "aur_avarias", nome: "Avarias", detalhes: "- Garantir fluxo de avarias de insucesso\n- Direcionar para a mesa suporte" },
+                    { id: "aur_bulky", nome: "Bulky", detalhes: "- Reportar quando chegar bulky no insucesso\n- Reporta diretamente para o darlan" },
+                    { id: "aur_failover", nome: "Separação de failover", detalhes: "- Separar failover no insucesso e garantir a ID 2.0" },
+                    { id: "aur_avaria", nome: "Lançamento de avarias", detalhes: "" }
+                ]
+            },
+            {
+                key: "seed_yelliannys", nome: "Yelliannys", cargo: "REP2", backupKey: "seed_abril",
+                atividades: [
+                    { id: "yel_chamados", nome: "Chamados", detalhes: "- Garantir abertura de chamado dos hands e impressoras e etiquetadora\n\n- Acompanhar T.I e devolutiva no chamado\n\n- Acompanhar testes que sera feito durante o atendimento do T.I" },
+                    { id: "yel_reportes", nome: "Reportes", detalhes: "- Reporta quantos equipamentos temos quebrados.\n* Hands\n* Impressoras\n* Etiquetadoras\n- Reporte status do chamado." },
+                    { id: "yel_semid", nome: "Sem indentificação", detalhes: "- Preencher a base sem identificação.\n- Fezer varredura no volumoso e pacotinho\n- Garantir data nos pacotes." },
+                    { id: "yel_insucesso", nome: "Insucesso", detalhes: "- Revesar insucesso com Abril\n- Garantir o recebimento dos pacotes sistêmicos.\n- Fazer forms transportadora.\n- Não receber pacote que não esta autorizado" },
+                    { id: "yel_miss", nome: "Missorted", detalhes: "Cobrança dos pacotes MISSORTED para as origens" },
+                    { id: "yel_trat", nome: "Tratativa de pacotes", detalhes: "- Tratativa de pacotes fora do inventário\n- Tratativa de pacotes dentro do inventário" },
+                    { id: "yel_avaria", nome: "Lançamento de avarias", detalhes: "" }
+                ]
+            },
+            {
+                key: "seed_abril", nome: "Abril", cargo: "REP2", backupKey: "seed_yelliannys",
+                atividades: [
+                    { id: "abr_dev", nome: "Devolução", detalhes: "- Garantir devolução de\n* FULL\n* CROSS\n* Status finalizador" },
+                    { id: "abr_insucesso", nome: "Insucesso", detalhes: "- Garantir todas as placas nas gaiolas\n* Para expedir\n* Devolução\n* Solução de problema\n* FailOver" },
+                    { id: "abr_semid", nome: "Sem identificação", detalhes: "- Preencher a base sem identificação.\n- Fezer varredura no volumoso e pacotinho\n- Garantir data nos pacotes." },
+                    { id: "abr_motivo", nome: "Atribuição de motivo nos pacotes para devolver", detalhes: "" },
+                    { id: "abr_romaneio", nome: "Digitalização dos romaneios de devolução para o drive de reversa", detalhes: "" },
+                    { id: "abr_chamados", nome: "Chamados", detalhes: "- Garantir abertura de chamado dos hands e impressoras e etiquetadora\n\n- Acompanhar T.I e devolutiva no chamado\n\n- Acompanhar testes que sera feito durante o atendimento do T.I" },
+                    { id: "abr_avaria", nome: "Lançamento de avarias", detalhes: "" }
+                ]
+            }
         ];
+
+        const PLACEHOLDER_NAMES = new Set(["Danilo Sanchez", "Colaborador 2", "Colaborador 3", "Colaborador 4", "Colaborador 5", "Yellianys", "Colaborador 7", "Colaborador 8"]);
 
         // ============ TEMA ============
         function syncTheme() { const t = localStorage.getItem('themePreference') || 'light'; document.body.setAttribute('data-theme', t); }
@@ -266,11 +369,10 @@
 
         // ============ UTILITÁRIOS ============
         function escapeHtml(v) { return String(v ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;'); }
+        function escapeAttr(v) { return escapeHtml(v).replaceAll("'", '&#39;'); }
         function hojeISO() {
             const d = new Date();
-            const mm = String(d.getMonth() + 1).padStart(2, '0');
-            const dd = String(d.getDate()).padStart(2, '0');
-            return `${d.getFullYear()}-${mm}-${dd}`;
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         }
         function toast(msg) {
             const t = document.getElementById('savedToast');
@@ -284,32 +386,103 @@
                 await fetch(`${FIREBASE_URL}logs.json`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ modulo, acao, usuario: userName || 'Sistema', timestamp: Date.now() }) });
             } catch (e) {}
         }
+        function slug(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || 'act'; }
+        function novoId(prefix) { return (prefix || 'a') + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 
-        // ============ PERMISSÕES ============
-        function podeEditarColaborador(colab) { return isAdmin; }
-        function podeEditarChecks(colab) {
-            if (isAdmin) return true;
-            return !!(colab.conta && userName && colab.conta.toLowerCase() === userName.toLowerCase());
+        function normalizarAtividades(list) {
+            if (!Array.isArray(list)) return [];
+            return list.map((a, i) => {
+                if (a && typeof a === 'object') {
+                    const nome = a.nome || a.titulo || '';
+                    return { id: a.id || (`act_${i}_${slug(nome)}`), nome, detalhes: a.detalhes || '' };
+                }
+                const nome = String(a || '');
+                return { id: `act_${i}_${slug(nome)}`, nome, detalhes: '' };
+            }).filter(a => a.nome);
         }
 
+        function atividadesDo(colab) { return normalizarAtividades(colab && colab.atividades); }
+
+        function checksSet(reg) { return new Set(Array.isArray(reg && reg.checks) ? reg.checks : []); }
+
+        function isDone(act, checks) {
+            if (!act) return false;
+            return checks.has(act.id) || checks.has(act.nome);
+        }
+
+        function estaAusente(reg) {
+            const s = String((reg && reg.status) || '').toLowerCase();
+            return s === 'folga' || s === 'falta' || s === 'atestado' || s === 'ferias' || (reg && reg.folga === true);
+        }
+
+        // ============ PERMISSÕES ============
+        function podeEditarColaborador() { return isAdmin; }
+        function contaBate(colab) { return !!(colab && colab.conta && userName && colab.conta.toLowerCase() === userName.toLowerCase()); }
+        function podeEditarChecks(colab) { return isAdmin || contaBate(colab); }
+        function podeMarcarApoio(backupColab) { return isAdmin || contaBate(backupColab); }
+
         // ============ CARREGAMENTO ============
+        function aplicarSeed(contasPorNome) {
+            config.cargos = JSON.parse(JSON.stringify(SEED_CARGOS));
+            config.colaboradores = {};
+            SEED_COLABORADORES.forEach((c, idx) => {
+                const backup = SEED_COLABORADORES.find(x => x.key === c.backupKey);
+                config.colaboradores[c.key] = {
+                    nome: c.nome,
+                    cargo: c.cargo,
+                    backupKey: c.backupKey || '',
+                    backup: backup ? backup.nome : '',
+                    conta: (contasPorNome && (contasPorNome[c.nome.toLowerCase()] || contasPorNome[c.key])) || '',
+                    atividades: JSON.parse(JSON.stringify(c.atividades)),
+                    ativo: true,
+                    ordem: idx + 1
+                };
+            });
+            config.seedVersion = SEED_VERSION;
+        }
+
         async function carregarConfig() {
             try {
                 const res = await fetch(`${FIREBASE_URL}${NODE_CONFIG}.json`);
                 const data = await res.json();
-                config = data && data.cargos ? data : { cargos: {}, colaboradores: {} };
+                config = (data && (data.cargos || data.colaboradores)) ? data : { cargos: {}, colaboradores: {} };
             } catch (e) { config = { cargos: {}, colaboradores: {} }; }
 
-            // Auto-seed somente se estiver vazio (nunca sobrescreve dados existentes)
-            if (Object.keys(config.cargos || {}).length === 0 && Object.keys(config.colaboradores || {}).length === 0) {
-                config = { cargos: JSON.parse(JSON.stringify(SEED_CARGOS)), colaboradores: {} };
-                for (const c of SEED_COLABORADORES) {
-                    const key = 'seed_' + c.nome.toLowerCase().replace(/[^a-z0-9]+/g, '_');
-                    config.colaboradores[key] = { nome: c.nome, cargo: c.cargo, backup: c.backup, conta: '', atividades: c.atividades || [], ativo: true, ordem: Object.keys(config.colaboradores).length + 1 };
-                }
+            config.cargos = config.cargos || {};
+            config.colaboradores = config.colaboradores || {};
+
+            const names = Object.values(config.colaboradores).map(c => c.nome);
+            const vazio = Object.keys(config.colaboradores).length === 0 && Object.keys(config.cargos).length === 0;
+            const hasPlaceholders = names.some(n => PLACEHOLDER_NAMES.has(n));
+
+            if (vazio || hasPlaceholders) {
+                const contasPorNome = {};
+                Object.values(config.colaboradores || {}).forEach(c => {
+                    if (c && c.conta) contasPorNome[String(c.nome || '').toLowerCase()] = c.conta;
+                });
+                aplicarSeed(contasPorNome);
                 await salvarConfig();
-                await registrarLog("TDM", "Seed inicial carregado automaticamente.");
+                await registrarLog("TDM", hasPlaceholders ? "Seed v2: nomes reais substituíram placeholders." : "Seed v2 carregado (colaboradores reais + atividades próprias).");
+                return;
             }
+
+            let mudou = false;
+            Object.keys(config.colaboradores).forEach(k => {
+                const c = config.colaboradores[k];
+                const antes = JSON.stringify(c.atividades);
+                c.atividades = normalizarAtividades(c.atividades);
+                if (JSON.stringify(c.atividades) !== antes) mudou = true;
+                if (c.backup && !c.backupKey) {
+                    const found = Object.entries(config.colaboradores).find(([, x]) => String(x.nome || '').toLowerCase() === String(c.backup).toLowerCase());
+                    if (found) { c.backupKey = found[0]; mudou = true; }
+                }
+                if (c.backupKey && config.colaboradores[c.backupKey]) {
+                    const nomeBk = config.colaboradores[c.backupKey].nome;
+                    if (c.backup !== nomeBk) { c.backup = nomeBk; mudou = true; }
+                }
+            });
+            if ((config.seedVersion || 0) < SEED_VERSION) { config.seedVersion = SEED_VERSION; mudou = true; }
+            if (mudou) await salvarConfig();
         }
 
         async function salvarConfig() {
@@ -335,7 +508,6 @@
             return Object.values(allUsers).filter(u => u && u.usuario && u.solicitacao === 'aprovado');
         }
 
-        // ============ RENDER ============
         function listaColaboradores() {
             return Object.keys(config.colaboradores || {})
                 .map(k => ({ key: k, ...config.colaboradores[k] }))
@@ -343,15 +515,20 @@
                 .sort((a, b) => (a.ordem || 0) - (b.ordem || 0));
         }
 
-        function renderizar() {
-            // título
-            document.getElementById('main-title').innerText = 'TDM — Inventário';
+        function nomeDo(key) {
+            return (config.colaboradores[key] && config.colaboradores[key].nome) || '';
+        }
 
-            // botões
+        function quemEuCobro(myKey) {
+            return listaColaboradores().filter(c => c.backupKey === myKey);
+        }
+
+        // ============ RENDER ============
+        function renderizar() {
+            document.getElementById('main-title').innerText = 'TDM — Inventário';
             document.getElementById('btnAddColab').style.display = isAdmin ? 'flex' : 'none';
             document.getElementById('btnCargos').style.display = isAdmin ? 'flex' : 'none';
 
-            // info usuário
             const iu = document.getElementById('infoUser');
             if (currentUser) iu.innerText = `👤 ${currentUser.usuario} (${isAdmin ? 'Administrador' : 'Colaborador'})`;
             else iu.innerText = '⚠️ Faça login para interagir';
@@ -370,49 +547,79 @@
             grid.innerHTML = colabs.map(colab => {
                 const reg = diarioHoje[colab.key] || {};
                 const status = reg.status || '';
-                const checks = Array.isArray(reg.checks) ? reg.checks : [];
-                const podeEditar = podeEditarColaborador(colab);
+                const checks = checksSet(reg);
+                const podeEditar = podeEditarColaborador();
                 const podeChecks = podeEditarChecks(colab);
-                const bloqueado = !(isAdmin || (podeChecks && isHoje));
+                const bloqueadoCheck = !(isAdmin || (podeChecks && isHoje));
+                const acts = atividadesDo(colab);
+                const doneOwn = acts.filter(a => isDone(a, checks)).length;
+                const backupNome = colab.backupKey ? nomeDo(colab.backupKey) : (colab.backup || '');
+                const cobertos = quemEuCobro(colab.key);
+                const ausente = estaAusente(reg);
 
-                // status buttons
                 const statuses = [
                     ['presente', 'Presente', 'active-presente'],
                     ['falta', 'Falta', 'active-falta'],
                     ['atestado', 'Atestado', 'active-atestado'],
-                    ['ferias', 'Férias', 'active-ferias']
+                    ['ferias', 'Férias', 'active-ferias'],
+                    ['folga', 'Folga', 'active-folga']
                 ];
-                let statusHtml = statuses.map(s => {
+                const statusHtml = statuses.map(s => {
                     const ativo = status === s[0] ? s[2] : '';
                     const dis = podeEditar ? '' : 'disabled';
                     const cls = podeEditar ? 'status-btn' : 'status-btn disabled';
                     return `<button class="${cls} ${ativo}" ${dis} onclick="setStatus('${colab.key}','${s[0]}')">${s[1]}</button>`;
                 }).join('');
 
-                // checklist
                 let checkHtml = '';
-                if ((colab.atividades || []).length === 0) {
+                if (acts.length === 0) {
                     checkHtml = `<div class="check-empty">Sem atividades cadastradas para este colaborador.</div>`;
                 } else {
-                    checkHtml = colab.atividades.map(act => {
-                        const done = checks.includes(act);
-                        const lock = bloqueado ? 'locked' : '';
-                        return `<label class="check-item ${done ? 'done' : ''} ${lock}"><input type="checkbox" ${done ? 'checked' : ''} ${bloqueado ? 'disabled' : ''} onchange="toggleCheck('${colab.key}', this)"><span>${escapeHtml(act)}</span></label>`;
-                    }).join('');
+                    checkHtml = acts.map(act => renderAtividade(colab, act, checks, bloqueadoCheck, false, null)).join('');
+                }
+                if (isAdmin) {
+                    checkHtml += `<div class="act-add"><input type="text" placeholder="Nova atividade deste colaborador..." onkeydown="if(event.key==='Enter'){adicionarAtividade('${colab.key}', this.value); this.value='';}"><button onclick="adicionarAtividade('${colab.key}', this.previousElementSibling.value); this.previousElementSibling.value='';">+</button></div>`;
                 }
 
-                // conta vinculada
+                // Atividades de apoio: titulares ausentes dos quais EU sou backup
+                let apoioHtml = '';
+                const titularesAusentes = cobertos.filter(t => estaAusente(diarioHoje[t.key] || {}));
+                if (titularesAusentes.length > 0) {
+                    const bloqueadoApoio = !(isAdmin || (podeMarcarApoio(colab) && isHoje));
+                    apoioHtml += `<div class="apoio-hint">🛟 <b>Atividade de apoio:</b> o titular está ausente. Se você fizer, <b>conta como feita</b> no TDM dele. Se não fizer, <b>não entra</b> como “atividade não feita” no seu histórico.</div>`;
+                    titularesAusentes.forEach(tit => {
+                        const tReg = diarioHoje[tit.key] || {};
+                        const tChecks = checksSet(tReg);
+                        const tActs = atividadesDo(tit);
+                        const st = (tReg.status || 'ausente');
+                        apoioHtml += `<div class="section-title">Apoio de ${escapeHtml(tit.nome)} (${escapeHtml(st)})</div>`;
+                        if (tActs.length === 0) apoioHtml += `<div class="check-empty">Titular sem atividades.</div>`;
+                        else apoioHtml += tActs.map(act => renderAtividade(tit, act, tChecks, bloqueadoApoio, true, colab.key)).join('');
+                    });
+                }
+
                 let contaHtml = '';
                 if (isAdmin) {
-                    const usersOpts = usuariosAprovados().map(u => `<option value="${escapeHtml(u.usuario)}" ${colab.conta === u.usuario ? 'selected' : ''}>${escapeHtml(u.usuario)}</option>`).join('');
+                    const usersOpts = usuariosAprovados().map(u => `<option value="${escapeAttr(u.usuario)}" ${colab.conta === u.usuario ? 'selected' : ''}>${escapeHtml(u.usuario)}</option>`).join('');
                     contaHtml = `<div class="conta-box"><span class="tdm-label">🔗 Conta vinculada:</span><select onchange="vincularConta('${colab.key}', this.value)"><option value="">— Nenhuma —</option>${usersOpts}</select></div>`;
                 } else {
                     contaHtml = `<div class="conta-box"><span class="tdm-label">🔗 Conta vinculada:</span><span style="font-weight:800; color:var(--accent-blue);">${colab.conta ? escapeHtml(colab.conta) : '—'}</span></div>`;
                 }
 
+                let backupHtml = '';
+                if (isAdmin) {
+                    const opts = colabs.filter(c => c.key !== colab.key).map(c => `<option value="${c.key}" ${colab.backupKey === c.key ? 'selected' : ''}>${escapeHtml(c.nome)}</option>`).join('');
+                    backupHtml = `<div class="tdm-row"><span class="tdm-label">Backup (substituto):</span>
+                        <select class="backup-select" onchange="setBackup('${colab.key}', this.value)">
+                            <option value="">— Ninguém —</option>${opts}
+                        </select></div>`;
+                }
+
                 const actions = podeEditar
                     ? `<button class="mini-btn" onclick="abrirModalColaborador('${colab.key}')">✏️ Editar</button><button class="mini-btn danger" onclick="excluirColaborador('${colab.key}')">🗑️</button>`
-                    : (podeChecks ? `<span class="tdm-label" style="align-self:center;">Você pode marcar apenas as atividades.</span>` : `<span class="tdm-label" style="align-self:center;">Somente leitura.</span>`);
+                    : (podeChecks ? `<span class="tdm-label" style="align-self:center;">Você pode marcar apenas as caixinhas.</span>` : `<span class="tdm-label" style="align-self:center;">Somente leitura.</span>`);
+
+                const badgesCobertos = cobertos.map(t => `<span class="badge-backup substitui">É backup de: ${escapeHtml(t.nome)}</span>`).join('');
 
                 return `
                 <div class="tdm-card glass-panel" data-key="${colab.key}">
@@ -421,7 +628,9 @@
                             <div class="nome">${escapeHtml(colab.nome)}</div>
                             <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
                                 <span class="badge-cargo">${escapeHtml(colab.cargo || 'Sem cargo')}</span>
-                                ${colab.backup ? `<span class="badge-backup">Backup: ${escapeHtml(colab.backup)}</span>` : ''}
+                                ${backupNome ? `<span class="badge-backup">Backup: ${escapeHtml(backupNome)}</span>` : '<span class="badge-backup">Sem backup</span>'}
+                                ${badgesCobertos}
+                                ${ausente ? `<span class="badge-ausente">${escapeHtml(status || 'Ausente')}</span>` : ''}
                             </div>
                         </div>
                     </div>
@@ -430,14 +639,17 @@
 
                     <div class="tdm-row">
                         <span class="tdm-label">Entrada:</span>
-                        <input type="time" class="hora-input" value="${escapeHtml(reg.entrada || '')}" ${podeEditar ? '' : 'disabled'} onchange="setHora('${colab.key}','entrada', this.value)">
+                        <input type="time" class="hora-input" value="${escapeAttr(reg.entrada || '')}" ${podeEditar ? '' : 'disabled'} onchange="setHora('${colab.key}','entrada', this.value)">
                         <span class="tdm-label" style="margin-left:10px;">Saída:</span>
-                        <input type="time" class="hora-input" value="${escapeHtml(reg.saida || '')}" ${podeEditar ? '' : 'disabled'} onchange="setHora('${colab.key}','saida', this.value)">
+                        <input type="time" class="hora-input" value="${escapeAttr(reg.saida || '')}" ${podeEditar ? '' : 'disabled'} onchange="setHora('${colab.key}','saida', this.value)">
                     </div>
 
-                    <div class="tdm-row"><span class="tdm-label">Atividades concluídas:</span><span style="font-weight:900; color:var(--accent-green);">${checks.length}/${(colab.atividades || []).length}</span></div>
+                    ${backupHtml}
 
-                    <div class="checklist">${checkHtml}</div>
+                    <div class="tdm-row"><span class="tdm-label">Atividades próprias:</span><span style="font-weight:900; color:var(--accent-green);">${doneOwn}/${acts.length}</span></div>
+
+                    <div class="section-title">TDM — clique na atividade para ver os detalhes</div>
+                    <div class="checklist">${checkHtml}${apoioHtml}</div>
 
                     ${contaHtml}
 
@@ -446,7 +658,55 @@
             }).join('');
         }
 
-        // ============ AÇÕES DIÁRIAS (salvar em tdm_diario/<data>/<colabKey>) ============
+        function renderAtividade(dono, act, checks, bloqueado, isApoio, backupKey) {
+            const done = isDone(act, checks);
+            const memId = `${isApoio ? 'apoio' : 'own'}_${dono.key}_${act.id}`;
+            const open = actsAbertas.has(memId) ? 'open' : '';
+            const nomeEsc = escapeHtml(act.nome);
+            const det = act.detalhes || '';
+            const onCheck = isApoio
+                ? `toggleApoio('${backupKey}','${dono.key}','${act.id}', this.checked)`
+                : `toggleCheck('${dono.key}','${act.id}', this.checked)`;
+
+            let nameBlock;
+            if (isAdmin && !isApoio) {
+                nameBlock = `<input class="act-name-input" value="${escapeAttr(act.nome)}" onclick="event.stopPropagation()" onchange="editarAtividadeCampo('${dono.key}','${act.id}','nome', this.value)">`;
+            } else {
+                nameBlock = `<span class="act-name">${nomeEsc}</span>`;
+            }
+
+            let bodyInner;
+            if (isAdmin && !isApoio) {
+                bodyInner = `<textarea class="act-detalhe-input" placeholder="Detalhes / passo a passo desta atividade..." onclick="event.stopPropagation()" onchange="editarAtividadeCampo('${dono.key}','${act.id}','detalhes', this.value)">${escapeHtml(det)}</textarea>`;
+            } else {
+                bodyInner = `<div class="act-detalhe">${det ? escapeHtml(det) : '<i>Sem detalhes cadastrados.</i>'}</div>`;
+            }
+
+            const delBtn = (isAdmin && !isApoio)
+                ? `<button class="act-del" title="Excluir atividade" onclick="event.stopPropagation(); excluirAtividade('${dono.key}','${act.id}')">×</button>`
+                : '';
+
+            const tag = isApoio ? `<div class="act-tag">Apoio · ${escapeHtml(dono.nome)}</div>` : '';
+
+            return `<div class="act-item ${done ? 'done' : ''} ${isApoio ? 'apoio' : ''} ${open}" id="act_${memId}">
+                <div class="act-head" onclick="toggleAccordion('${memId}')">
+                    <input type="checkbox" ${done ? 'checked' : ''} ${bloqueado ? 'disabled' : ''} onclick="event.stopPropagation()" onchange="${onCheck}">
+                    ${nameBlock}
+                    <span class="act-chevron">▼</span>
+                    ${delBtn}
+                </div>
+                <div class="act-body">${tag}${bodyInner}</div>
+            </div>`;
+        }
+
+        function toggleAccordion(memId) {
+            if (actsAbertas.has(memId)) actsAbertas.delete(memId);
+            else actsAbertas.add(memId);
+            const el = document.getElementById('act_' + memId);
+            if (el) el.classList.toggle('open', actsAbertas.has(memId));
+        }
+
+        // ============ AÇÕES DIÁRIAS ============
         async function gravarRegistro(colabKey) {
             const dataKey = document.getElementById('dataSelecionada').value || hojeISO();
             const reg = diarioHoje[colabKey] || {};
@@ -460,7 +720,11 @@
         function setStatus(colabKey, status) {
             if (!isAdmin) return;
             const reg = diarioHoje[colabKey] = diarioHoje[colabKey] || {};
-            reg.status = status; reg.updatedAt = Date.now(); reg.preenchidoPor = reg.preenchidoPor || userName;
+            reg.status = status;
+            if (status === 'folga') reg.folga = true;
+            else if (status === 'presente') reg.folga = false;
+            reg.updatedAt = Date.now();
+            reg.preenchidoPor = reg.preenchidoPor || userName;
             gravarRegistro(colabKey).then(() => { toast(); renderizar(); });
             registrarLog("TDM", `Status ${status} para ${colabKey}`);
         }
@@ -473,18 +737,66 @@
             registrarLog("TDM", `Atualizou ${campo} de ${colabKey}`);
         }
 
-        function toggleCheck(colabKey, checkbox) {
-            const colab = config.colaboradores[colabKey];
-            if (!podeEditarChecks(colab)) { checkbox.checked = !checkbox.checked; return alert("Você não tem permissão para marcar as atividades deste colaborador."); }
-            const atividade = colab.atividades.find(a => a === checkbox.parentElement.querySelector('span').textContent);
-            const reg = diarioHoje[colabKey] = diarioHoje[colabKey] || {};
+        function aplicarCheck(reg, act, marcado) {
             if (!Array.isArray(reg.checks)) reg.checks = [];
-            if (checkbox.checked) { if (!reg.checks.includes(atividade)) reg.checks.push(atividade); }
-            else { reg.checks = reg.checks.filter(a => a !== atividade); }
+            const ids = new Set(reg.checks);
+            if (marcado) {
+                ids.add(act.id);
+                ids.delete(act.nome);
+            } else {
+                ids.delete(act.id);
+                ids.delete(act.nome);
+            }
+            reg.checks = Array.from(ids);
+        }
+
+        function toggleCheck(colabKey, actId, marcado) {
+            const colab = config.colaboradores[colabKey];
+            if (!podeEditarChecks(colab)) {
+                renderizar();
+                return alert("Você não tem permissão para marcar as atividades deste colaborador.");
+            }
+            const act = atividadesDo(colab).find(a => a.id === actId);
+            if (!act) return;
+            const reg = diarioHoje[colabKey] = diarioHoje[colabKey] || {};
+            aplicarCheck(reg, act, marcado);
             reg.updatedAt = Date.now();
             reg.preenchidoPor = reg.preenchidoPor || userName;
             gravarRegistro(colabKey).then(() => { toast(); renderizar(); });
-            registrarLog("TDM", `Marcou atividade "${atividade}" para ${colabKey}`);
+            registrarLog("TDM", `Marcou atividade "${act.nome}" para ${colab.nome}`);
+        }
+
+        function toggleApoio(backupKey, titularKey, actId, marcado) {
+            const backup = config.colaboradores[backupKey];
+            const titular = config.colaboradores[titularKey];
+            if (!backup || !titular) return;
+            if (!podeMarcarApoio(backup)) {
+                renderizar();
+                return alert("Somente o backup vinculado (ou o admin) pode marcar atividade de apoio.");
+            }
+            if (!estaAusente(diarioHoje[titularKey] || {})) {
+                renderizar();
+                return alert("Atividade de apoio só vale quando o titular está ausente (folga/falta/atestado/férias).");
+            }
+            const act = atividadesDo(titular).find(a => a.id === actId);
+            if (!act) return;
+
+            const tReg = diarioHoje[titularKey] = diarioHoje[titularKey] || {};
+            aplicarCheck(tReg, act, marcado);
+            tReg.updatedAt = Date.now();
+            tReg.preenchidoPor = userName + ' (backup)';
+            tReg.cobertoPor = backup.nome;
+
+            const bReg = diarioHoje[backupKey] = diarioHoje[backupKey] || {};
+            if (!bReg.apoioFeito || typeof bReg.apoioFeito !== 'object') bReg.apoioFeito = {};
+            const lista = new Set(Array.isArray(bReg.apoioFeito[titularKey]) ? bReg.apoioFeito[titularKey] : []);
+            if (marcado) lista.add(act.id); else lista.delete(act.id);
+            bReg.apoioFeito[titularKey] = Array.from(lista);
+            bReg.updatedAt = Date.now();
+            bReg.preenchidoPor = bReg.preenchidoPor || userName;
+
+            Promise.all([gravarRegistro(titularKey), gravarRegistro(backupKey)]).then(() => { toast(marcado ? '🛟 Apoio marcado como feito.' : 'Apoio desmarcado.'); renderizar(); });
+            registrarLog("TDM", `Apoio "${act.nome}" de ${titular.nome} por ${backup.nome}`);
         }
 
         function vincularConta(colabKey, username) {
@@ -492,6 +804,45 @@
             config.colaboradores[colabKey].conta = username;
             salvarConfig().then(() => { toast('🔗 Conta vinculada!'); renderizar(); });
             registrarLog("TDM", `Vinculou conta ${username} ao colaborador ${colabKey}`);
+        }
+
+        function setBackup(colabKey, backupKey) {
+            if (!isAdmin) return;
+            const c = config.colaboradores[colabKey];
+            c.backupKey = backupKey || '';
+            c.backup = backupKey ? nomeDo(backupKey) : '';
+            salvarConfig().then(() => { toast('🛟 Backup atualizado!'); renderizar(); });
+            registrarLog("TDM", `Backup de ${c.nome} → ${c.backup || 'ninguém'}`);
+        }
+
+        // ============ ATIVIDADES (admin, por colaborador) ============
+        function editarAtividadeCampo(colabKey, actId, campo, valor) {
+            if (!isAdmin) return;
+            const c = config.colaboradores[colabKey];
+            c.atividades = atividadesDo(c);
+            const act = c.atividades.find(a => a.id === actId);
+            if (!act) return;
+            act[campo] = valor;
+            salvarConfig().then(() => toast('Atividade atualizada!'));
+        }
+
+        function adicionarAtividade(colabKey, nome) {
+            if (!isAdmin) return;
+            nome = (nome || '').trim();
+            if (!nome) return;
+            const c = config.colaboradores[colabKey];
+            c.atividades = atividadesDo(c);
+            c.atividades.push({ id: novoId(slug(c.nome)), nome, detalhes: '' });
+            salvarConfig().then(() => { toast('Atividade adicionada!'); renderizar(); });
+            registrarLog("TDM", `Nova atividade "${nome}" em ${c.nome}`);
+        }
+
+        function excluirAtividade(colabKey, actId) {
+            if (!isAdmin) return;
+            const c = config.colaboradores[colabKey];
+            if (!confirm('Excluir esta atividade?')) return;
+            c.atividades = atividadesDo(c).filter(a => a.id !== actId);
+            salvarConfig().then(() => { toast('Atividade removida.'); renderizar(); });
         }
 
         // ============ COLABORADORES (admin) ============
@@ -502,57 +853,80 @@
             document.getElementById('modalColabTitle').innerText = key ? '✏️ Editar Colaborador' : '➕ Adicionar Colaborador';
 
             const cargoSelect = document.getElementById('colabCargo');
-            cargoSelect.innerHTML = Object.keys(config.cargos || {}).map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('') || '<option value="">—</option>';
+            cargoSelect.innerHTML = Object.keys(config.cargos || {}).map(c => `<option value="${escapeAttr(c)}">${escapeHtml(c)}</option>`).join('') || '<option value="">—</option>';
 
             const contaSelect = document.getElementById('colabConta');
-            contaSelect.innerHTML = '<option value="">— Nenhuma —</option>' + usuariosAprovados().map(u => `<option value="${escapeHtml(u.usuario)}">${escapeHtml(u.usuario)}</option>`).join('');
+            contaSelect.innerHTML = '<option value="">— Nenhuma —</option>' + usuariosAprovados().map(u => `<option value="${escapeAttr(u.usuario)}">${escapeHtml(u.usuario)}</option>`).join('');
+
+            const backupSelect = document.getElementById('colabBackup');
+            const outros = listaColaboradores().filter(c => c.key !== key);
+            backupSelect.innerHTML = '<option value="">— Ninguém —</option>' + outros.map(c => `<option value="${c.key}">${escapeHtml(c.nome)}</option>`).join('');
 
             if (key) {
                 const c = config.colaboradores[key];
                 document.getElementById('colabNome').value = c.nome || '';
                 cargoSelect.value = c.cargo || '';
-                document.getElementById('colabBackup').value = c.backup || '';
+                backupSelect.value = c.backupKey || '';
                 contaSelect.value = c.conta || '';
-                document.getElementById('colabAtividades').value = (c.atividades || []).join('\n');
-                colabEditCargoAplicado = false;
+                document.getElementById('colabAtividades').value = atividadesDo(c).map(a => a.detalhes ? `${a.nome} | ${a.detalhes.replace(/\n/g, ' / ')}` : a.nome).join('\n');
             } else {
                 document.getElementById('colabNome').value = '';
                 cargoSelect.value = cargoSelect.options[0] ? cargoSelect.options[0].value : '';
-                document.getElementById('colabBackup').value = '';
+                backupSelect.value = '';
                 contaSelect.value = '';
                 document.getElementById('colabAtividades').value = '';
-                aplicarAtividadesDoCargo();
-                colabEditCargoAplicado = true;
             }
             modal.classList.add('active');
         }
 
-        function aplicarAtividadesDoCargo() {
-            const cargo = document.getElementById('colabCargo').value;
-            const atividades = (config.cargos[cargo] && config.cargos[cargo].atividades) || [];
-            if (atividades.length > 0) document.getElementById('colabAtividades').value = atividades.join('\n');
+        function parseAtividadesTextarea(txt) {
+            return String(txt || '').split('\n').map(s => s.trim()).filter(Boolean).map((line, i) => {
+                const sep = line.indexOf(' | ');
+                if (sep >= 0) {
+                    const nome = line.slice(0, sep).trim();
+                    const detalhes = line.slice(sep + 3).trim().replace(/ \/ /g, '\n');
+                    return { id: novoId('act'), nome, detalhes };
+                }
+                return { id: novoId('act'), nome: line, detalhes: '' };
+            });
         }
-        document.getElementById('colabCargo').addEventListener('change', aplicarAtividadesDoCargo);
 
         async function salvarColaborador() {
             if (!isAdmin) return;
             const key = document.getElementById('colabEditKey').value;
             const nome = document.getElementById('colabNome').value.trim();
             if (!nome) return alert("Informe o nome do colaborador.");
-            const atividades = document.getElementById('colabAtividades').value.split('\n').map(s => s.trim()).filter(Boolean);
+            const backupKey = document.getElementById('colabBackup').value;
+            const atividades = parseAtividadesTextarea(document.getElementById('colabAtividades').value);
 
-            const obj = {
-                nome,
-                cargo: document.getElementById('colabCargo').value,
-                backup: document.getElementById('colabBackup').value.trim(),
-                conta: document.getElementById('colabConta').value,
-                atividades
-            };
-
-            if (key) { Object.assign(config.colaboradores[key], obj); }
-            else {
+            if (key) {
+                const atual = atividadesDo(config.colaboradores[key]);
+                const merged = atividades.map((a, i) => {
+                    const prev = atual[i];
+                    if (prev && prev.nome === a.nome) return { id: prev.id, nome: a.nome, detalhes: a.detalhes || prev.detalhes || '' };
+                    if (prev && !a.detalhes) return { id: prev.id, nome: a.nome, detalhes: prev.detalhes || '' };
+                    return a;
+                });
+                Object.assign(config.colaboradores[key], {
+                    nome,
+                    cargo: document.getElementById('colabCargo').value,
+                    backupKey,
+                    backup: backupKey ? nomeDo(backupKey) : '',
+                    conta: document.getElementById('colabConta').value,
+                    atividades: merged
+                });
+            } else {
                 const newKey = 'c_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-                config.colaboradores[newKey] = { ...obj, ativo: true, ordem: Object.keys(config.colaboradores).length + 1 };
+                config.colaboradores[newKey] = {
+                    nome,
+                    cargo: document.getElementById('colabCargo').value,
+                    backupKey,
+                    backup: backupKey ? nomeDo(backupKey) : '',
+                    conta: document.getElementById('colabConta').value,
+                    atividades,
+                    ativo: true,
+                    ordem: Object.keys(config.colaboradores).length + 1
+                };
             }
 
             await salvarConfig();
@@ -566,6 +940,9 @@
             if (!isAdmin) return;
             const c = config.colaboradores[key];
             if (!confirm(`Excluir o colaborador "${c.nome}"?`)) return;
+            Object.values(config.colaboradores).forEach(x => {
+                if (x.backupKey === key) { x.backupKey = ''; x.backup = ''; }
+            });
             delete config.colaboradores[key];
             await salvarConfig();
             await registrarLog("TDM", `Excluiu colaborador ${c.nome}`);
@@ -574,6 +951,22 @@
         }
 
         // ============ CARGOS (admin) ============
+        function fluxoParaTexto(fluxo) {
+            return (fluxo || []).map(f => `${f.titulo}\n${(f.itens || []).map(i => '- ' + i).join('\n')}`).join('\n\n');
+        }
+        function textoParaFluxo(txt) {
+            const blocos = String(txt || '').split(/\n\s*\n/);
+            const out = [];
+            blocos.forEach(b => {
+                const lines = b.split('\n').map(s => s.trim()).filter(Boolean);
+                if (!lines.length) return;
+                const titulo = lines[0].replace(/^#+\s*/, '');
+                const itens = lines.slice(1).map(l => l.replace(/^[-*•]\s*/, ''));
+                out.push({ titulo, itens });
+            });
+            return out;
+        }
+
         function abrirModalCargos() {
             if (!isAdmin) return;
             renderizarCargosList();
@@ -585,22 +978,23 @@
             const cargos = Object.keys(config.cargos || {});
             if (cargos.length === 0) { el.innerHTML = '<div style="color:var(--text-muted);">Nenhum cargo cadastrado.</div>'; return; }
             el.innerHTML = cargos.map(c => {
-                const ativ = (config.cargos[c].atividades || []).join('\n');
+                const fluxoTxt = fluxoParaTexto((config.cargos[c] && config.cargos[c].fluxo) || []);
                 return `<div class="tdm-card glass-panel" style="margin-bottom:10px;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <strong style="color:var(--text-title);">${escapeHtml(c)}</strong>
-                        <button class="mini-btn danger" onclick="excluirCargo('${escapeHtml(c)}')">🗑️</button>
+                        <button class="mini-btn danger" onclick="excluirCargo('${escapeAttr(c)}')">🗑️</button>
                     </div>
-                    <div class="field" style="margin-top:8px;"><label>Atividades (uma por linha)</label>
-                        <textarea onchange="editarCargoAtividades('${escapeHtml(c)}', this.value)">${escapeHtml(ativ)}</textarea>
+                    <div class="field" style="margin-top:8px;"><label>Fluxo diário (título + itens com "-")</label>
+                        <textarea onchange="editarCargoFluxo('${escapeAttr(c)}', this.value)">${escapeHtml(fluxoTxt)}</textarea>
                     </div>
                 </div>`;
             }).join('');
         }
 
-        function editarCargoAtividades(cargo, valor) {
+        function editarCargoFluxo(cargo, valor) {
             if (!isAdmin) return;
-            config.cargos[cargo].atividades = valor.split('\n').map(s => s.trim()).filter(Boolean);
+            if (!config.cargos[cargo]) config.cargos[cargo] = { fluxo: [] };
+            config.cargos[cargo].fluxo = textoParaFluxo(valor);
             salvarConfig().then(() => toast('Cargo atualizado!'));
         }
 
@@ -609,7 +1003,7 @@
             const nome = document.getElementById('novoCargoNome').value.trim();
             if (!nome) return alert("Informe o nome do cargo.");
             if (config.cargos[nome]) return alert("Este cargo já existe.");
-            config.cargos[nome] = { fluxo: [], atividades: [] };
+            config.cargos[nome] = { fluxo: [] };
             document.getElementById('novoCargoNome').value = '';
             await salvarConfig();
             renderizarCargosList();
@@ -628,7 +1022,7 @@
         // ============ FLUXO DIÁRIO ============
         function abrirModalFluxo() {
             const sel = document.getElementById('fluxoCargoSelect');
-            sel.innerHTML = Object.keys(config.cargos || {}).map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('') || '<option value="">—</option>';
+            sel.innerHTML = Object.keys(config.cargos || {}).map(c => `<option value="${escapeAttr(c)}">${escapeHtml(c)}</option>`).join('') || '<option value="">—</option>';
             renderizarFluxo();
             document.getElementById('modalFluxo').classList.add('active');
         }
@@ -646,13 +1040,10 @@
                 </div>`).join('');
         }
 
-        // ============ NAVEGAÇÃO DE DATA ============
         function irParaHoje() { document.getElementById('dataSelecionada').value = hojeISO(); carregarDiario().then(renderizar); }
-
         function fecharModal(id) { document.getElementById(id).classList.remove('active'); }
         document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('active'); }));
 
-        // ============ INIT ============
         async function init() {
             document.getElementById('dataSelecionada').value = hojeISO();
             await carregarConfig();
