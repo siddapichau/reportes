@@ -676,7 +676,9 @@
             pendente:    { cls: 'pend', texto: '⏳ Pendente',      title: 'Dia encerrado sem registro' }
         };
         function apoioPermitido(colab, reg) { return isHojeSelecionado() && souBackupDe(colab) && !!reg && (reg.folga === true || reg.status === 'folga'); }
-        function podeEditarChecks(colab) { return isAdmin || (isHojeSelecionado() && usuarioVinculado(colab)); }
+        /* Permissão de EDIÇÃO (nunca de visualização): admin edita tudo; o usuário comum edita o próprio
+           colaborador vinculado no dia atual e, pelo critério legítimo de apoio, o colega de quem é backup. */
+        function podeEditarChecks(colab, isSupport=false) { return isAdmin || (isHojeSelecionado() && (usuarioVinculado(colab) || isSupport)); }
 
         async function carregarConfig() {
             try {
@@ -686,6 +688,7 @@
             } catch (e) { config = { cargos: {}, colaboradores: {} }; }
             config.cargos = config.cargos || {};
             config.colaboradores = config.colaboradores || {};
+            normalizarCargosCarregados();
             Object.values(config.colaboradores).forEach(colab => {
                 if (REFERENCE_NAME_BY_PLACEHOLDER[colab.nome]) colab.nome = REFERENCE_NAME_BY_PLACEHOLDER[colab.nome];
                 colab.atividades = normalizeActivities(colab.atividades || []);
@@ -700,12 +703,41 @@
         /**
          * FIX: o Firebase RTDB apaga nós vazios. Um cargo salvo como { fluxo: [] } virava null
          * e sumia da lista ao cadastrar um usuário novo. Todo cargo passa a ter { fluxo, ordem, criadoEm }.
+         *
+         * FIX (regressão da ordem dos cargos): o RTDB recusa chaves com . # $ [ ] ou /. O cargo
+         * "Tratativas / Reversa" invalidava o PUT inteiro de tdm_config (HTTP 400). A chave passa a ser
+         * sanitizada e o nome real é guardado em `nome`, sem quebrar os registros já existentes.
          */
+        const CARGO_KEY_INVALIDO = /[.#$\[\]\/]/g;
+        function cargoStorageKey(nome) {
+            const limpo = String(nome ?? '').replace(CARGO_KEY_INVALIDO, '-').trim();
+            return limpo || 'cargo';
+        }
+        function cargoNomeExibicao(chave, valor) {
+            return (valor && typeof valor === 'object' && typeof valor.nome === 'string' && valor.nome.trim()) ? valor.nome : chave;
+        }
+        function normalizarCargosCarregados() {
+            const origem = config.cargos && typeof config.cargos === 'object' ? config.cargos : {};
+            const out = {};
+            Object.keys(origem).forEach(chave => {
+                const valor = origem[chave] && typeof origem[chave] === 'object' ? origem[chave] : {};
+                const nome = cargoNomeExibicao(chave, valor);
+                if (out[nome]) return;
+                out[nome] = valor;
+            });
+            config.cargos = out;
+        }
         function sanitizarConfigParaSalvar() {
             const out = { cargos: {}, colaboradores: config.colaboradores || {} };
+            const usadas = new Set();
             Object.keys(config.cargos || {}).forEach((nome, i) => {
                 const c = config.cargos[nome] && typeof config.cargos[nome] === 'object' ? config.cargos[nome] : {};
-                out.cargos[nome] = {
+                let chave = cargoStorageKey(nome);
+                while (usadas.has(chave)) chave = `${chave}-${i + 1}`;
+                usadas.add(chave);
+                out.cargos[chave] = {
+                    ...c, // preserva campos existentes; nunca sobrescreve o objeto com payload parcial
+                    nome,
                     fluxo: Array.isArray(c.fluxo) ? c.fluxo : [],
                     ordem: Number.isFinite(+c.ordem) ? +c.ordem : i + 1,
                     criadoEm: c.criadoEm || Date.now()
@@ -715,9 +747,15 @@
         }
         async function salvarConfig() {
             const payload = sanitizarConfigParaSalvar();
-            config.cargos = payload.cargos;
             const res = await fetch(`${FIREBASE_URL}${NODE_CONFIG}.json`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
-            if (!res.ok) throw new Error('Falha ao salvar configuração');
+            if (!res.ok) throw new Error(`Falha ao salvar configuração (HTTP ${res.status})`);
+            const cargos = {};
+            Object.keys(payload.cargos).forEach(chave => {
+                const valor = payload.cargos[chave];
+                cargos[cargoNomeExibicao(chave, valor)] = valor;
+            });
+            config.cargos = cargos;
+            ultimoCargosHash = '';
         }
         async function carregarUsuarios() {
             try { const res = await fetch(`${FIREBASE_URL}users.json`); allUsers = await res.json() || {}; } catch (e) { allUsers = {}; }
@@ -832,7 +870,8 @@
             const preenchido = regPreenchido(reg);
             const estadoPill = ESTADO_PILL[estadoPreenchimento(reg)] || ESTADO_PILL.pendente;
             const owner = usuarioVinculado(colab);
-            const support = false; // usuário comum nunca edita atividades de outro colaborador
+            // FIX: o apoio do backup é um critério de EDIÇÃO legítimo e foi restaurado.
+            const support = apoioPermitido(colab, reg) && !owner;
             const canOwn = podeEditarChecks(colab, false);
             const canSupport = podeEditarChecks(colab, support);
             const backupName = nomeDoBackup(colab);
@@ -862,8 +901,8 @@
                 const isSupportMode = support && !isAdmin && !owner;
                 const enabled = isAdmin || (owner && canOwn) || (support && canSupport);
                 const checked = isSupportMode ? supDone : ownDone;
-                const canSignal = owner && isHojeSelecionado();
-                const canViewReason = isAdmin || owner;
+                const canSignal = podeAlterarSinalizacao(colab.key);
+                const canViewReason = true; // visualização liberada a todos; só a edição é restrita
                 const tags = [];
                 if (a.isBackup) tags.push('<span class="tag-opt" title="Atividade backup: só conta positivo se feita">⭐ backup</span>');
                 if (supDone && !ownDone) tags.push('<span class="tag-backup">🔁 apoio</span>');
@@ -1368,9 +1407,14 @@
             if (novo === original) { fecharModal('modalEditarCargo'); return; }
             const duplicado = Object.keys(config.cargos || {}).find(nome => nome !== original && nome.toLocaleLowerCase('pt-BR') === novo.toLocaleLowerCase('pt-BR'));
             if (duplicado) return alert('Já existe um cargo com este nome.');
-            const cargoConfig = config.cargos[original];
-            config.cargos[novo] = cargoConfig;
-            delete config.cargos[original];
+            // Preserva ordem, fluxo, criadoEm e demais campos do cargo, além dos colaboradores associados.
+            const cargoConfig = { ...config.cargos[original], nome: novo };
+            const cargosAntes = { ...config.cargos };
+            const cargoDosColaboradores = {};
+            Object.keys(config.colaboradores || {}).forEach(k => { cargoDosColaboradores[k] = config.colaboradores[k] ? config.colaboradores[k].cargo : undefined; });
+            const reconstruido = {};
+            Object.keys(config.cargos).forEach(nome => { reconstruido[nome === original ? novo : nome] = nome === original ? cargoConfig : config.cargos[nome]; });
+            config.cargos = reconstruido;
             Object.values(config.colaboradores || {}).forEach(colab => { if (colab && colab.cargo === original) colab.cargo = novo; });
             try {
                 await salvarConfig();
@@ -1381,22 +1425,39 @@
                 toast('✏️ Cargo renomeado!');
                 registrarLog('TDM-DADOS', `Renomeou cargo ${original} para ${novo}`);
             } catch (e) {
-                await carregarConfig();
+                // Reverte em memória: nada é perdido quando o Firebase recusa a gravação.
+                config.cargos = cargosAntes;
+                Object.keys(cargoDosColaboradores).forEach(k => { if (config.colaboradores[k]) config.colaboradores[k].cargo = cargoDosColaboradores[k]; });
+                ultimoCargosHash = ''; preencherFiltroCargos();
                 renderizarCargosList();
                 renderizar();
-                alert('Erro ao renomear o cargo.');
+                alert('Erro ao renomear o cargo. O nome anterior foi mantido.');
             }
         }
 
         function aplicarOrdemCargos(ordem) {
+            // Guarda a ordem anterior para reverter caso o Firebase recuse a gravação.
+            const ordemAnterior = {};
+            Object.keys(config.cargos || {}).forEach(nome => { ordemAnterior[nome] = config.cargos[nome] ? config.cargos[nome].ordem : undefined; });
             ordem.forEach((nome, i) => { if (config.cargos[nome]) config.cargos[nome].ordem = i + 1; });
             ultimoCargosHash = '';
             renderizarCargosList();
             renderizar();
             clearTimeout(cargoSaveTimer);
-            cargoSaveTimer = setTimeout(() => {
-                salvarConfig().then(() => toast('🗂️ Ordem dos cargos salva!')).catch(() => alert('Erro ao salvar a ordem dos cargos.'));
-                registrarLog('TDM-DADOS', 'Reordenou cargos');
+            cargoSaveTimer = setTimeout(async () => {
+                try {
+                    await salvarConfig();
+                    // Só confirma sucesso depois que o Firebase gravou.
+                    toast('🗂️ Ordem dos cargos salva!');
+                    registrarLog('TDM-DADOS', 'Reordenou cargos');
+                } catch (e) {
+                    // Nunca deixa a interface exibindo uma ordem que não foi salva.
+                    Object.keys(ordemAnterior).forEach(nome => { if (config.cargos[nome]) config.cargos[nome].ordem = ordemAnterior[nome]; });
+                    ultimoCargosHash = '';
+                    renderizarCargosList();
+                    renderizar();
+                    alert('Erro ao salvar a ordem dos cargos. A ordem anterior foi restaurada.');
+                }
             }, 350);
         }
         function moverCargo(cargo, delta) {
@@ -1460,7 +1521,8 @@
             document.getElementById('fluxoDiaLabel').textContent = formatDataBR(dataKey);
             const filtroCargo = (document.getElementById('fluxoFiltroCargo') || {}).value || '';
             const colabs = listaColaboradores();
-            let visiveis = isAdmin ? colabs : colabs.filter(usuarioVinculado);
+            // FIX: todos visualizam todos os colaboradores. Cargo/vínculo nunca escondem dados.
+            let visiveis = colabs;
             if (filtroCargo) visiveis = visiveis.filter(c => c.cargo === filtroCargo);
             const el = document.getElementById('fluxoPercentuais');
             if (!visiveis.length) {
@@ -1505,7 +1567,7 @@
                 </div>`;
             }).join('');
             const media = totTotal ? Math.round((totDone / totTotal) * 100) : 0;
-            const mediaLabel = isAdmin ? 'Média do time' : 'Sua conclusão';
+            const mediaLabel = 'Média do time';
             const escopo = filtroCargo ? `🏷️ ${escapeHtml(filtroCargo)}` : '📊 Todos os cargos na ordem configurada';
             el.innerHTML = `<div class="fluxo-media"><span>${escopo}</span><span>${mediaLabel}: <strong>${media}%</strong> · ${totDone}/${totTotal}</span></div>` + rows;
         }
@@ -1513,12 +1575,14 @@
         function fecharModal(id) { document.getElementById(id).classList.remove('active'); }
         document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if (e.target === m && !m.classList.contains('modal-obrigatorio')) m.classList.remove('active'); }));
 
+        /* FIX (regressão): cada etapa é isolada. Qualquer falha de rede/gravação ainda deixa a página
+           renderizar todos os dados e todos os controles administrativos. */
         async function init() {
             document.getElementById('dataSelecionada').value = hojeISO();
-            await carregarConfig();
-            await carregarUsuarios();
-            await carregarDia();
-            await carregarMensagensPendentes();
+            try { await carregarConfig(); } catch (e) { console.warn('TDM-DADOS: falha ao carregar configuração.', e); }
+            try { await carregarUsuarios(); } catch (e) { console.warn('TDM-DADOS: falha ao carregar usuários.', e); }
+            try { await carregarDia(); } catch (e) { console.warn('TDM-DADOS: falha ao carregar o dia.', e); renderizar(); }
+            try { await carregarMensagensPendentes(); } catch (e) { console.warn('TDM-DADOS: falha ao carregar mensagens.', e); }
         }
         init();
     </script>
