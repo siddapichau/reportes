@@ -22,63 +22,174 @@
         [data-theme="light"] { --border-light: rgba(0, 0, 0, 0.1); }
 
         html, body { width: 100%; min-height: 100%; background: transparent !important; }
-        body { padding: 10px; display: flex; flex-direction: column; gap: 12px; height: 100vh; overflow: hidden; font-size: 1.0rem; }
+        body { padding: 10px; display: flex; flex-direction: column; gap: 10px; height: 100vh; overflow: hidden; font-size: 1rem; }
 
         .glass-panel { background-color: var(--bg-card); backdrop-filter: blur(12px); border: 1px solid var(--border-card); border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
 
-        .header { padding: 12px 20px; flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 20px; background-color: #FFF159 !important; border: none; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .header-title-wrapper { flex: 1; text-align: center; color: #2D3277 !important; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; font-size: 1.15rem; }
-        .ml-logo { height: 32px; width: auto; object-fit: contain; }
-        .header-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-        .btn-header { padding: 9px 14px; border: none; border-radius: 8px; font-weight: 800; font-size: 0.8rem; cursor: pointer; transition: 0.2s; color: #fff; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
-        .btn-blue { background: var(--accent-blue); }
-        .btn-header:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        /* ============ TOOLBAR (FILTRO + AÇÕES DO ADMIN NA MESMA LINHA) ============ */
+        .toolbar { flex: 0 0 auto; position: relative; display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap; padding: 12px 14px 11px; overflow: hidden; }
+        .toolbar::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent-yellow) 0%, var(--accent-blue) 100%); }
+        .tb-brand { display: flex; align-items: center; gap: 9px; min-width: 0; }
+        .tb-logo { height: 30px; width: auto; object-fit: contain; }
+        .tb-brand-text { display: flex; flex-direction: column; line-height: 1.1; min-width: 0; }
+        .tb-title { font-weight: 900; color: #2D3277; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap; }
+        [data-theme="dark"] .tb-title { color: #fff; }
+        .tb-date { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+        .tb-date label { font-weight: 800; color: var(--text-muted); text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.25px; }
+        .tb-date input[type="date"] { padding: 7px 10px; border-radius: 8px; border: 1px solid var(--border-light); background: var(--bg-card); color: var(--text-main); font-weight: 700; font-family: Inter, sans-serif; }
+        .tb-mini { padding: 7px 11px; border-radius: 8px; border: 1px solid var(--border-card); background: var(--bg-body); color: var(--text-title); font-size: 0.72rem; font-weight: 800; cursor: pointer; transition: 0.15s; white-space: nowrap; }
+        .tb-mini:hover { border-color: var(--accent-blue); color: var(--accent-blue); transform: translateY(-1px); }
+        .tb-actions { margin-left: auto; display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
+        .tool-btn { padding: 8px 13px; border: 0; border-radius: 9px; font-weight: 800; font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.2px; color: #fff; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); white-space: nowrap; }
+        .tool-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 12px rgba(0,0,0,0.22); }
+        .tool-btn.green { background: var(--accent-green); }
+        .tool-btn.navy { background: #2D3277; }
+        .tool-btn.blue { background: var(--accent-blue); }
+        .tool-btn.ghost { background: var(--bg-body); color: var(--text-title); border: 1px solid var(--border-card); box-shadow: none; text-decoration: none; }
+        .tool-btn.ghost:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+        .tb-user { font-size: 0.78rem; color: var(--text-muted); font-weight: 700; white-space: nowrap; }
 
-        .date-bar { flex: 0 0 auto; display: flex; align-items: center; gap: 10px; padding: 10px 20px; flex-wrap: wrap; }
-        .date-bar label { font-weight: 800; color: var(--text-muted); text-transform: uppercase; font-size: 0.8rem; }
-        .date-bar input[type="date"] { padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-light); background: var(--bg-card); color: var(--text-main); font-weight: 600; font-family: 'Inter'; }
-        .date-bar .info-user { margin-left: auto; font-size: 0.8rem; color: var(--text-muted); font-weight: 700; }
-        .nav-btn { padding: 8px 14px; border-radius: 6px; border: 1px solid var(--border-light); background: var(--bg-card); color: var(--text-main); font-weight: 800; cursor: pointer; }
+        /* ============ FILTRO DE USUÁRIOS ============ */
+        .filter-bar { flex: 0 0 auto; display: flex; align-items: center; gap: 8px 10px; flex-wrap: wrap; padding: 8px 12px; }
+        .tb-search { flex: 1 1 220px; min-width: 170px; padding: 8px 14px; border-radius: 20px; border: 1px solid var(--border-card); background: var(--bg-body); color: var(--text-main); font-weight: 600; font-family: Inter, sans-serif; font-size: 0.85rem; outline: none; transition: 0.2s; }
+        .tb-search:focus { border-color: var(--accent-blue); box-shadow: 0 2px 10px rgba(52,131,250,0.2); }
+        .tb-select { padding: 8px 12px; border-radius: 20px; border: 1px solid var(--border-card); background: var(--bg-body); color: var(--text-main); font-weight: 700; font-family: Inter, sans-serif; font-size: 0.8rem; max-width: 230px; outline: none; cursor: pointer; }
+        .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+        .chip { padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border-card); background: var(--bg-body); color: var(--text-muted); font-size: 0.7rem; font-weight: 800; cursor: pointer; transition: 0.15s; white-space: nowrap; }
+        .chip:hover { transform: translateY(-1px); }
+        .chip.active { background: var(--chip-color, #2D3277); color: #fff; border-color: transparent; }
 
-        /* KPIs */
-        .kpi-row { flex: 0 0 auto; display: flex; gap: 10px; }
-        .kpi-card { flex: 1; padding: 14px; display: flex; flex-direction: column; justify-content: center; align-items: center; border-left: 4px solid var(--accent-blue); }
-        .kpi-title { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 800; text-align: center; }
-        .kpi-value { font-size: 1.9rem; font-weight: 900; color: var(--text-main); }
+        /* ============ KPIs ============ */
+        .kpi-row { flex: 0 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+        .kpi-card { padding: 11px 14px; display: flex; flex-direction: column; justify-content: center; align-items: center; border-left: 4px solid var(--accent-blue); }
+        .kpi-title { font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 800; text-align: center; }
+        .kpi-value { font-size: 1.55rem; font-weight: 900; color: var(--text-title); line-height: 1.25; }
         .kpi-card.green { border-left-color: var(--accent-green); }
         .kpi-card.red { border-left-color: var(--accent-red); }
         .kpi-card.warn { border-left-color: var(--accent-warn); }
+        .kpi-card.purple { border-left-color: #6C5CE7; }
 
-        /* ÁREA DE AVISOS (pendências) */
-        .warn-panel { flex: 0 0 auto; max-height: 200px; overflow-y: auto; padding: 12px 16px; }
-        .warn-title { font-weight: 900; color: var(--accent-red); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 8px; }
-        .warn-item { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 7px 0; border-bottom: 1px solid var(--border-card); font-size: 0.85rem; }
-        .warn-item:last-child { border-bottom: none; }
+        /* ============ AVISOS (NÃO PREENCHERAM) ============ */
+        .warn-panel { flex: 0 0 auto; max-height: 180px; overflow-y: auto; padding: 12px 16px; border-left: 4px solid var(--accent-red); }
+        .warn-title { font-weight: 900; color: var(--accent-red); text-transform: uppercase; font-size: 0.78rem; margin-bottom: 8px; }
+        .warn-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 4px 18px; }
+        .warn-item { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 6px 0; border-bottom: 1px solid var(--border-card); font-size: 0.8rem; }
         .warn-item .nm { font-weight: 800; color: var(--text-title); }
-        .folga-btn { padding: 5px 11px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; border: 1px solid var(--border-card); background: var(--bg-body); color: var(--text-muted); cursor: pointer; transition: 0.15s; }
-        .folga-btn.sim { background: var(--accent-green); color: #fff; border-color: var(--accent-green); }
-        .folga-btn.nao { background: var(--accent-red); color: #fff; border-color: var(--accent-red); }
-        .folga-btn:hover { transform: translateY(-1px); }
+        .warn-item .mt { color: var(--text-muted); flex: 1 1 100%; font-size: 0.73rem; }
 
-        /* TABELA */
-        .table-wrap { flex: 1; overflow: auto; border-radius: 8px; border: 1px solid var(--border-light); }
-        table { width: 100%; border-collapse: collapse; font-size: 0.82rem; text-align: left; }
-        thead { background-color: var(--bg-header); color: var(--text-title); position: sticky; top: 0; z-index: 1; }
-        th, td { padding: 10px 12px; border-bottom: 1px solid var(--border-card); white-space: nowrap; vertical-align: middle; }
-        th { font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-size: 0.7rem; }
-        tbody tr:nth-child(even) { background-color: rgba(0,0,0,0.04); }
-        tbody tr:hover { background-color: rgba(52, 131, 250, 0.12) !important; }
-        .pill { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 900; color: #fff; }
+        /* ============ BLOCOS DE USUÁRIOS ============ */
+        .cards-scroll { flex: 1; overflow-y: auto; padding: 4px; overscroll-behavior: contain; }
+        .user-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); gap: 14px; align-items: start; }
+        .user-card { padding: 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+        .user-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+        .user-card .nome { font-size: 1.08rem; font-weight: 900; color: var(--text-title); line-height: 1.2; word-break: break-word; }
+        .badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+        .badge-cargo { display: inline-block; background: var(--accent-blue); color: #fff; padding: 3px 10px; border-radius: 20px; font-size: 0.66rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.3px; }
+        .badge-backup { display: inline-block; background: var(--bg-body); color: var(--text-muted); border: 1px solid var(--border-card); padding: 3px 10px; border-radius: 20px; font-size: 0.66rem; font-weight: 700; }
+        .badge-folga { display: inline-block; background: #6C5CE7; color: #fff; padding: 3px 10px; border-radius: 20px; font-size: 0.66rem; font-weight: 900; }
+        .user-row { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+        .tdm-label { font-weight: 800; color: var(--text-muted); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.25px; }
+        .status-group { display: flex; gap: 5px; flex-wrap: wrap; }
+        .status-btn { padding: 5px 10px; border-radius: 20px; font-size: 0.68rem; font-weight: 800; border: 1px solid var(--border-card); background: var(--bg-body); color: var(--text-muted); cursor: pointer; transition: 0.15s; }
+        .status-btn:hover { transform: translateY(-1px); }
+        .status-btn.active-presente { background: var(--accent-green); color: #fff; border-color: var(--accent-green); }
+        .status-btn.active-falta { background: var(--accent-red); color: #fff; border-color: var(--accent-red); }
+        .status-btn.active-atestado { background: var(--accent-warn); color: #fff; border-color: var(--accent-warn); }
+        .status-btn.active-ferias { background: #8E44AD; color: #fff; border-color: #8E44AD; }
+        .status-btn.active-folga { background: #6C5CE7; color: #fff; border-color: #6C5CE7; }
+        .pill { display: inline-block; padding: 4px 11px; border-radius: 20px; font-size: 0.7rem; font-weight: 900; color: #fff; white-space: nowrap; }
         .pill.presente { background: var(--accent-green); }
         .pill.falta { background: var(--accent-red); }
         .pill.atestado { background: var(--accent-warn); }
         .pill.ferias { background: #8E44AD; }
         .pill.folga { background: #6C5CE7; }
         .pill.vazio { background: var(--text-muted); }
-        .ok { color: var(--accent-green); font-weight: 900; }
-        .no { color: var(--accent-red); font-weight: 900; }
-        .progress { background: var(--bg-body); border-radius: 20px; height: 8px; width: 90px; overflow: hidden; border: 1px solid var(--border-card); }
-        .progress > div { height: 100%; background: var(--accent-green); }
+        .pill.ok { background: var(--accent-green); }
+        .pill.pend { background: var(--accent-red); }
+        .folga-btn { padding: 5px 11px; border-radius: 20px; font-size: 0.68rem; font-weight: 800; border: 1px solid var(--border-card); background: var(--bg-body); color: var(--text-muted); cursor: pointer; transition: 0.15s; }
+        .folga-btn.sim { background: var(--accent-green); color: #fff; border-color: var(--accent-green); }
+        .folga-btn.nao { background: var(--accent-red); color: #fff; border-color: var(--accent-red); }
+        .folga-btn:hover { transform: translateY(-1px); }
+        .hora-input { padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border-light); background: var(--bg-card); color: var(--text-main); font-weight: 700; font-family: Inter, sans-serif; flex: 1 1 80px; min-width: 74px; max-width: 120px; }
+        .hora-ro { font-weight: 900; color: var(--text-title); font-size: 0.85rem; }
+
+        .progress-row { display: flex; align-items: center; gap: 10px; }
+        .progress-bar { flex: 1; height: 10px; border-radius: 20px; background: var(--bg-body); border: 1px solid var(--border-card); overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 20px; transition: width 0.4s; }
+        .progress-fill.p-green { background: var(--accent-green); }
+        .progress-fill.p-warn { background: var(--accent-warn); }
+        .progress-fill.p-red { background: var(--accent-red); }
+        .progress-pct { font-weight: 900; color: var(--text-title); min-width: 42px; text-align: right; }
+        .progress-meta { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; }
+        .backup-tag-line { color: var(--accent-blue); font-weight: 800; }
+        .card-obs { padding: 8px 10px; border-left: 3px solid var(--accent-blue); border-radius: 6px; background: rgba(52,131,250,0.08); color: var(--text-muted); font-size: 0.74rem; line-height: 1.4; }
+
+        .checklist { display: flex; flex-direction: column; gap: 5px; max-height: 300px; overflow-y: auto; padding: 10px 4px 2px 0; border-top: 1px solid var(--border-card); }
+        .activity-row { display: grid; grid-template-columns: auto 1fr; gap: 7px; align-items: start; padding: 4px 0; min-width: 0; }
+        .activity-row input { margin-top: 4px; width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent-green); }
+        .activity-row input:disabled { cursor: not-allowed; }
+        .activity-row.is-backup input { accent-color: var(--accent-blue); }
+        .activity-text { min-width: 0; }
+        .activity-name { width: 100%; display: flex; align-items: flex-start; gap: 6px; text-align: left; border: 0; padding: 0; background: transparent; color: var(--text-main); font: 600 0.8rem/1.35 Inter, sans-serif; cursor: pointer; }
+        .activity-name:hover { color: var(--accent-blue); }
+        .activity-name .chevron { color: var(--accent-blue); font-weight: 900; min-width: 12px; }
+        .activity-name .txt { min-width: 0; word-break: break-word; }
+        .activity-row.done .activity-name .txt { text-decoration: line-through; color: var(--text-muted); }
+        .tag-backup { flex: 0 0 auto; background: rgba(52,131,250,0.15); color: var(--accent-blue); border: 1px solid rgba(52,131,250,0.35); padding: 1px 7px; border-radius: 12px; font-size: 0.62rem; font-weight: 900; white-space: nowrap; margin-top: 1px; }
+        .activity-details { display: none; margin: 2px 0 4px; padding: 8px 10px; border-left: 2px solid var(--accent-blue); border-radius: 0 6px 6px 0; background: rgba(52,131,250,0.08); color: var(--text-muted); font-size: 0.74rem; line-height: 1.4; }
+        .activity-details.open { display: block; }
+        .check-empty { font-size: 0.8rem; color: var(--text-muted); font-style: italic; padding: 6px 0; }
+
+        .card-actions { display: flex; gap: 6px; justify-content: flex-end; border-top: 1px solid var(--border-card); padding-top: 10px; flex-wrap: wrap; }
+        .mini-btn { padding: 7px 10px; border-radius: 6px; border: 1px solid var(--border-card); background: var(--bg-body); color: var(--text-main); font-size: 0.72rem; font-weight: 800; cursor: pointer; transition: 0.15s; }
+        .mini-btn:hover { transform: translateY(-1px); }
+        .mini-btn.danger { color: var(--accent-red); border-color: var(--accent-red); }
+        .save-state { margin-right: auto; align-self: center; font-size: 0.7rem; color: var(--text-muted); font-weight: 700; }
+        .owner-note { color: var(--text-muted); font-size: 0.72rem; font-style: italic; border-top: 1px solid var(--border-card); padding-top: 10px; }
+
+        /* ============ FLUXO DIÁRIO (PORCENTAGEM POR USUÁRIO) ============ */
+        .fluxo-media { display: flex; justify-content: space-between; align-items: center; gap: 8px 14px; flex-wrap: wrap; background: rgba(52,131,250,0.08); border: 1px solid rgba(52,131,250,0.25); padding: 10px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; color: var(--text-title); margin-bottom: 12px; }
+        .fluxo-user { border: 1px solid var(--border-card); border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; background: var(--bg-body); }
+        .fluxo-user-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+        .fluxo-avatar { width: 34px; height: 34px; border-radius: 50%; background: #2D3277; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.78rem; flex: 0 0 auto; }
+        .fluxo-names { flex: 1; min-width: 110px; display: flex; flex-direction: column; line-height: 1.15; }
+        .fluxo-names small { color: var(--text-muted); font-size: 0.68rem; font-weight: 700; }
+        .fluxo-pill { padding: 3px 9px; border-radius: 20px; font-size: 0.66rem; font-weight: 900; color: #fff; white-space: nowrap; }
+        .fluxo-pill.presente { background: var(--accent-green); } .fluxo-pill.falta { background: var(--accent-red); } .fluxo-pill.atestado { background: var(--accent-warn); } .fluxo-pill.ferias { background: #8E44AD; } .fluxo-pill.folga { background: #6C5CE7; }
+        .fluxo-bar-wrap { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .fluxo-bar { flex: 1 1 140px; height: 10px; border-radius: 20px; background: var(--bg-card); border: 1px solid var(--border-card); overflow: hidden; }
+        .fluxo-bar-fill { height: 100%; border-radius: 20px; transition: width 0.4s; }
+        .fluxo-bar-fill.green { background: var(--accent-green); } .fluxo-bar-fill.warn { background: var(--accent-warn); } .fluxo-bar-fill.red { background: var(--accent-red); }
+        .fluxo-pct { font-weight: 900; color: var(--text-title); min-width: 44px; text-align: right; }
+        .fluxo-frac { font-size: 0.74rem; font-weight: 800; color: var(--text-muted); }
+        .fluxo-support { font-size: 0.7rem; font-weight: 800; color: var(--accent-blue); }
+        .fluxo-divider { border: none; border-top: 1px solid var(--border-card); margin: 16px 0; }
+        .fluxo-empty { color: var(--text-muted); font-size: 0.85rem; padding: 8px 0; }
+        .fluxo-step { margin-bottom: 14px; } .fluxo-step .t { font-weight: 900; color: var(--text-title); font-size: 0.9rem; margin-bottom: 4px; }
+        .fluxo-step li { margin-left: 20px; font-size: 0.82rem; color: var(--text-main); }
+        .cargo-line { display: flex; gap: 8px; align-items: center; border-bottom: 1px solid var(--border-card); padding: 9px 0; }
+        .cargo-line strong { flex: 1; color: var(--text-title); }
+
+        /* ============ MODAIS ============ */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-overlay.active { display: flex; }
+        .modal-box { background: var(--bg-card); width: 95%; max-width: 680px; max-height: 90vh; overflow-y: auto; padding: 24px; border-radius: 12px; border: 1px solid var(--border-light); box-shadow: 0 15px 50px rgba(0,0,0,0.6); }
+        .modal-box.wide { max-width: 780px; }
+        .modal-box h2 { color: var(--text-title); margin: 0; font-size: 1.1rem; }
+        .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 10px; }
+        .modal-close { font-size: 1.8rem; cursor: pointer; color: var(--text-muted); line-height: 1; }
+        .field { margin-bottom: 12px; } .field label { display: block; font-size: 0.74rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
+        .field input, .field select, .field textarea { width: 100%; padding: 10px 12px; border-radius: 6px; border: 1px solid var(--border-light); background: var(--bg-body); color: var(--text-main); font-weight: 600; font-family: Inter, sans-serif; box-sizing: border-box; }
+        .field textarea { min-height: 100px; resize: vertical; font-weight: 500; }
+        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; flex-wrap: wrap; }
+        .activity-editor { border: 1px solid var(--border-card); border-radius: 8px; padding: 10px; margin-bottom: 8px; background: rgba(0,0,0,0.03); }
+        .activity-editor-head { display: flex; gap: 8px; align-items: center; margin-bottom: 7px; }
+        .activity-editor-head input { flex: 1; } .activity-editor textarea { min-height: 62px; }
+        .activity-number { font-weight: 900; color: var(--accent-blue); min-width: 24px; }
+        .editor-help { color: var(--text-muted); font-size: 0.73rem; margin: -4px 0 9px; line-height: 1.35; }
+        .btn-header { padding: 9px 14px; border: 0; border-radius: 8px; font-weight: 800; font-size: 0.78rem; cursor: pointer; transition: 0.2s; color: #fff; text-transform: uppercase; letter-spacing: 0.2px; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+        .btn-blue { background: var(--accent-blue); } .btn-green { background: var(--accent-green); } .btn-dark { background: #2D3277; }
+        .btn-header:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
 
         .saved-toast { position: fixed; bottom: 20px; right: 20px; background: var(--accent-green); color: #fff; padding: 12px 18px; border-radius: 8px; font-weight: 800; box-shadow: 0 6px 20px rgba(0,0,0,0.25); z-index: 99999; opacity: 0; transform: translateY(10px); transition: 0.3s; pointer-events: none; }
         .saved-toast.show { opacity: 1; transform: translateY(0); }
@@ -86,53 +197,141 @@
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
+
+        /* ============ RESPONSIVO — MONITORES MENORES ============ */
+        @media (max-width: 1100px) {
+            .user-grid { grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); }
+            .user-card { padding: 14px; }
+        }
+        @media (max-width: 900px) {
+            body { gap: 8px; }
+            .tb-actions { margin-left: 0; width: 100%; justify-content: flex-start; }
+            .tb-user { margin-left: auto; }
+            .warn-list { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+        }
+        /* ============ RESPONSIVO — CELULAR ============ */
+        @media (max-width: 640px) {
+            body { padding: 6px; gap: 7px; }
+            .toolbar { padding: 11px 10px; gap: 8px 10px; }
+            .tb-brand { width: 100%; justify-content: center; }
+            .tb-date { width: 100%; justify-content: center; }
+            .tb-actions { width: 100%; justify-content: center; }
+            .tb-user { width: 100%; text-align: center; margin-left: 0; }
+            .tb-search { flex: 1 1 100%; }
+            .tb-select { max-width: 100%; flex: 1 1 45%; }
+            .chips { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; flex: 1 1 100%; }
+            .user-grid { grid-template-columns: 1fr; }
+            .user-card { padding: 12px; }
+            .user-card .nome { font-size: 1rem; }
+            .badge-cargo, .badge-backup, .badge-folga { font-size: 0.62rem; padding: 2px 8px; }
+            .kpi-row { grid-template-columns: repeat(2, 1fr); }
+            .kpi-value { font-size: 1.3rem; }
+            .checklist { max-height: 320px; }
+            .status-btn { padding: 6px 9px; font-size: 0.66rem; }
+            .mini-btn { padding: 6px 9px; font-size: 0.68rem; }
+            .modal-box { padding: 16px; width: 96%; }
+            .field input, .field select, .field textarea { padding: 9px 10px; }
+            .saved-toast { left: 16px; right: 16px; bottom: 14px; }
+            .warn-list { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body data-theme="light">
 
-    <div class="header glass-panel">
-        <div class="header-left">
-            <img src="https://upload.wikimedia.org/wikipedia/pt/0/04/Logotipo_MercadoLivre.png" alt="Mercado Livre" class="ml-logo">
+    <!-- TOOLBAR: filtro de dia + botões do admin na mesma linha (sem menu amarelo) -->
+    <div class="toolbar glass-panel">
+        <div class="tb-brand">
+            <img src="https://upload.wikimedia.org/wikipedia/pt/0/04/Logotipo_MercadoLivre.png" alt="Mercado Livre" class="tb-logo">
+            <div class="tb-brand-text"><span class="tb-title">TDM — Dados Diários</span></div>
         </div>
-        <div class="header-title-wrapper" id="main-title">TDM — Dados Diários</div>
-        <div class="header-controls">
-            <button class="btn-header btn-blue" onclick="window.location.href='tdm.html'">📋 Ir para TDM</button>
+        <div class="tb-date">
+            <label for="dataSelecionada">📅 Dia:</label>
+            <input type="date" id="dataSelecionada" onchange="carregarDia()">
+            <button class="tb-mini" onclick="irParaHoje()">Hoje</button>
+            <button class="tb-mini" onclick="mudarDia(-1)" title="Dia anterior">◀</button>
+            <button class="tb-mini" onclick="mudarDia(1)" title="Próximo dia">▶</button>
+        </div>
+        <div class="tb-actions">
+            <button class="tool-btn green" onclick="abrirModalFluxo()">📋 Fluxo Diário</button>
+            <button class="tool-btn navy" id="btnCargos" onclick="abrirModalCargos()" style="display:none;">🗂️ Cargos</button>
+            <button class="tool-btn blue" id="btnAddColab" onclick="abrirModalColaborador()" style="display:none;">➕ Adicionar Colaborador</button>
+            <a class="tool-btn ghost" href="tdm.html">📋 TDM</a>
+        </div>
+        <span class="tb-user" id="infoUser"></span>
+    </div>
+
+    <!-- FILTRO DE USUÁRIOS -->
+    <div class="filter-bar glass-panel">
+        <input type="search" class="tb-search" id="filtroBusca" placeholder="🔍 Buscar colaborador ou cargo..." oninput="renderizar()">
+        <select class="tb-select" id="filtroCargo" onchange="renderizar()"><option value="">🏷️ Todos os cargos</option></select>
+        <div class="chips" id="statusChips">
+            <button class="chip active" data-st="" onclick="setChip('')">Todos</button>
+            <button class="chip" data-st="presente" style="--chip-color:var(--accent-green)" onclick="setChip('presente')">Presente</button>
+            <button class="chip" data-st="falta" style="--chip-color:var(--accent-red)" onclick="setChip('falta')">Falta</button>
+            <button class="chip" data-st="atestado" style="--chip-color:var(--accent-warn)" onclick="setChip('atestado')">Atestado</button>
+            <button class="chip" data-st="ferias" style="--chip-color:#8E44AD" onclick="setChip('ferias')">Férias</button>
+            <button class="chip" data-st="folga" style="--chip-color:#6C5CE7" onclick="setChip('folga')">Folga</button>
+            <button class="chip" data-st="pendente" style="--chip-color:#64748b" onclick="setChip('pendente')">⏳ Pendentes</button>
         </div>
     </div>
 
-    <div class="date-bar glass-panel">
-        <button class="nav-btn" onclick="mudarDia(-1)">◀ Anterior</button>
-        <input type="date" id="dataSelecionada" onchange="carregarDia()">
-        <button class="nav-btn" onclick="mudarDia(1)">Próximo ▶</button>
-        <button class="nav-btn" onclick="irParaHoje()">Hoje</button>
-        <span class="info-user" id="infoUser"></span>
-    </div>
-
+    <!-- KPIs -->
     <div class="kpi-row">
-        <div class="kpi-card glass-panel"><div class="kpi-title">Colaboradores (visíveis)</div><div class="kpi-value" id="kpiTotal">0</div></div>
+        <div class="kpi-card glass-panel"><div class="kpi-title">Colaboradores</div><div class="kpi-value" id="kpiTotal">0</div></div>
         <div class="kpi-card green glass-panel"><div class="kpi-title">Preencheram</div><div class="kpi-value" id="kpiPreenchidos">0</div></div>
         <div class="kpi-card red glass-panel"><div class="kpi-title">Não preencheram</div><div class="kpi-value" id="kpiNaoPreenchidos">0</div></div>
-        <div class="kpi-card warn glass-panel"><div class="kpi-title">Folgas registradas</div><div class="kpi-value" id="kpiFolgas">0</div></div>
+        <div class="kpi-card purple glass-panel"><div class="kpi-title">Folgas registradas</div><div class="kpi-value" id="kpiFolgas">0</div></div>
+        <div class="kpi-card warn glass-panel"><div class="kpi-title">Média de conclusão</div><div class="kpi-value" id="kpiMedia">0%</div></div>
     </div>
 
+    <!-- AVISOS: quem não preencheu (apenas admin) -->
     <div class="warn-panel glass-panel" id="warnPanel" style="display:none;">
-        <div class="warn-title">⚠️ Avisos de não preenchimento (marque se foi folga)</div>
-        <div id="warnList"></div>
+        <div class="warn-title">⚠️ Não preencheram o dia — avalie se foi folga</div>
+        <div class="warn-list" id="warnList"></div>
     </div>
 
-    <div class="table-wrap glass-panel">
-        <table id="tabela">
-            <thead>
-                <tr>
-                    <th>Colaborador</th><th>Cargo</th><th>Status</th><th>Entrada</th><th>Saída</th>
-                    <th>Atividades</th><th>Preenchido</th><th>Preenchido por</th>
-                    <th id="thFolga" style="display:none;">Folga?</th>
-                </tr>
-            </thead>
-            <tbody id="tbody">
-                <tr><td colspan="9" style="text-align:center; padding:20px; color:var(--text-muted);">Carregando dados...</td></tr>
-            </tbody>
-        </table>
+    <!-- BLOCOS POR USUÁRIO -->
+    <div class="cards-scroll"><div class="user-grid" id="userGrid"></div></div>
+
+    <!-- MODAL ADICIONAR / EDITAR COLABORADOR (apenas admin) -->
+    <div class="modal-overlay" id="modalColaborador">
+        <div class="modal-box wide">
+            <div class="modal-head"><h2 id="modalColabTitle">➕ Adicionar Colaborador</h2><span class="modal-close" onclick="fecharModal('modalColaborador')">&times;</span></div>
+            <input type="hidden" id="colabEditKey">
+            <div class="field"><label>Nome do colaborador</label><input type="text" id="colabNome" placeholder="Nome completo"></div>
+            <div class="field"><label>Cargo / função</label><select id="colabCargo"></select></div>
+            <div class="field"><label>Quem é o backup deste colaborador?</label><select id="colabBackup"></select></div>
+            <div class="field"><label>Vincular a conta que poderá marcar as atividades</label><select id="colabConta"></select></div>
+            <div class="field">
+                <label>Atividades deste colaborador</label>
+                <div class="editor-help">A lista abaixo pertence somente a este colaborador. O cargo não copia nem altera esta lista. Cada item tem nome e detalhes que aparecem no accordion.</div>
+                <div id="activityEditors"></div>
+                <button class="mini-btn" type="button" onclick="adicionarEditorAtividade()">➕ Adicionar atividade</button>
+            </div>
+            <div class="modal-actions"><button class="btn-header btn-dark" onclick="fecharModal('modalColaborador')">Cancelar</button><button class="btn-header btn-green" onclick="salvarColaborador()">💾 Salvar colaborador</button></div>
+        </div>
+    </div>
+
+    <!-- MODAL CARGOS (apenas admin) -->
+    <div class="modal-overlay" id="modalCargos">
+        <div class="modal-box wide">
+            <div class="modal-head"><h2>🗂️ Mapeamento de Cargos</h2><span class="modal-close" onclick="fecharModal('modalCargos')">&times;</span></div>
+            <div class="editor-help">O cargo organiza o fluxo de trabalho. As atividades executáveis são mantidas individualmente no cadastro de cada colaborador.</div>
+            <div id="cargosList"></div>
+            <div class="field" style="margin-top:16px;"><label>Novo cargo</label><div style="display:flex;gap:8px;"><input type="text" id="novoCargoNome" placeholder="Nome do cargo"><button class="btn-header btn-green" onclick="adicionarCargo()">➕</button></div></div>
+            <div class="modal-actions"><button class="btn-header btn-dark" onclick="fecharModal('modalCargos')">Fechar</button></div>
+        </div>
+    </div>
+
+    <!-- MODAL FLUXO DIÁRIO: porcentagem de conclusão de cada usuário + fluxo do cargo -->
+    <div class="modal-overlay" id="modalFluxo">
+        <div class="modal-box wide">
+            <div class="modal-head"><h2>📋 Fluxo Diário — <span id="fluxoDiaLabel" style="color:var(--accent-blue);"></span></h2><span class="modal-close" onclick="fecharModal('modalFluxo')">&times;</span></div>
+            <div id="fluxoPercentuais"></div>
+            <div class="fluxo-divider"></div>
+            <div class="field"><label>Fluxo padrão do cargo</label><select id="fluxoCargoSelect" onchange="renderizarFluxoCargo()"></select></div>
+            <div id="fluxoConteudo"></div>
+        </div>
     </div>
 
     <div class="saved-toast" id="savedToast">💾 Salvo!</div>
@@ -143,28 +342,116 @@
         const NODE_DIARIO = "tdm_diario";
 
         const currentUser = JSON.parse(localStorage.getItem('loggedUser')) || null;
-        const userName = currentUser && currentUser.usuario ? currentUser.usuario : '';
+        const userName = currentUser && currentUser.usuario ? String(currentUser.usuario) : '';
         const isAdmin = !!(currentUser && currentUser.cargo === 'admin');
 
         let config = { cargos: {}, colaboradores: {} };
+        let allUsers = {};
         let diarioDia = {};   // { <colabKey>: {...} } para a data selecionada
+        let chipStatus = '';
+        let activityEditorCount = 0;
+        let ultimoCargosHash = '';
+
+        /* Detalhes operacionais das atividades (mesma referência do tdm.html) */
+        const ACTIVITY_DETAILS = {
+            "Acompanhar Bipagem de inventário": "Acompanhar a bipagem no inventário e garantir que todos os pacotes sejam bipados.",
+            "Acompanhar AM1 Processamento": "Acompanhar o processamento AM1 e sinalizar desvios do fluxo.",
+            "Acompanhar time de doca": "Acompanhar o time de doca e reportar anomalias da operação.",
+            "Separar de QRcode para o turno seguinte": "Separar os QRcodes necessários para o turno seguinte.",
+            "Gerar CEO": "Gerar o CEO conforme o fechamento e os dados do turno.",
+            "Layout": "Manter o layout da área de inventário organizado e atualizado.",
+            "Gemba Final de turno 20:30": "Realizar o Gemba no final do turno, às 20:30.",
+            "Acompanhar Ociosidade do time": "Acompanhar a ociosidade do time e reportar desvios.",
+            "5S e organização fisica de inventário": "Garantir 5S e organização física da área de inventário.",
+            "⚠️ Risco BPP": "Verificar e reportar situações de risco BPP.",
+            "⚠️ Visualização prioridade CFTV": "Conferir a visualização das prioridades no CFTV.",
+            "⚠️ Parado na estação(onway)": "Verificar pacotes parados na estação ou no onway.",
+            "Risco BPP": "Verificar os riscos BPP da operação e reportar qualquer desvio.",
+            "Visualização prioridade CFTV": "Conferir as prioridades e anomalias no CFTV.",
+            "Parado no percurso": "Tratar pacotes parados no percurso e registrar a tratativa.",
+            "Sem indentificação": "Tratar pacotes sem identificação e verificar as bases de apoio.",
+            "Sem identificação": "Tratar sem identificação, incluindo planilha de baixas, Parado no Percurso, Locker sem ID e CFTV.",
+            "Reporte": "Consolidar e reportar as ocorrências do turno.",
+            "Reportes": "Consolidar e reportar as ocorrências do turno.",
+            "Reunião de BPP": "Participar da reunião de BPP e registrar os pontos de atenção.",
+            "Devolução": "Realizar o tratamento dos pacotes de devolução.",
+            "Insucesso": "Registrar e tratar os pacotes com insucesso.",
+            "Acompanhamento e report dos pacotes NEX/DC": "Acompanhar os pacotes NEX/DC e realizar o reporte.",
+            "Suporte identificação": "Prestar suporte no tratamento de identificação.",
+            "Area Bulky": "Acompanhar a área Bulky e suas tratativas.",
+            "Devolução de bulky": "Realizar a tratativa das devoluções de bulky.",
+            "Analise de returns": "Realizar a análise de returns.",
+            "Fechamento de inventário": "Garantir o fechamento do inventário do turno.",
+            "RTS": "Realizar a tratativa de RTS conforme o fluxo.",
+            "Analise e Aprovação de SLA de avarias": "Analisar e aprovar o SLA das avarias.",
+            "Treinamento de tratativas avarias e boas práticas (perdas)": "Treinar tratativas de avarias e boas práticas para evitar perdas.",
+            "Lançar Avaria": "Lançar a avaria corretamente no fluxo de tratativas.",
+            "Missorted": "Cobrar a origem dos pacotes missorted de SSC1.",
+            "Tratativa de pacotes": "Realizar a tratativa dos pacotes e reportar o resultado.",
+            "Atribuição de motivo nos pacotes para devolver": "Atribuir o motivo correto aos pacotes que serão devolvidos.",
+            "Digitalização dos romaneios de devolução para o drive de reversa": "Digitalizar os romaneios de devolução e salvar no drive de reversa."
+        };
+        const REFERENCE_NAME_BY_PLACEHOLDER = {};
+        ['2','3','4','5','7','8'].forEach((number, index) => {
+            REFERENCE_NAME_BY_PLACEHOLDER[`Colaborador ${number}`] = ['RAMONA','ANDERSON','CARLOS MANUEL','KENNY JOSE','MARCOS EDUARDO','RIGOBERTO'][index];
+        });
 
         function syncTheme() { const t = localStorage.getItem('themePreference') || 'light'; document.body.setAttribute('data-theme', t); }
         syncTheme();
-        window.addEventListener('message', (e) => { if (e.data.type === 'THEME_CHANGED') document.body.setAttribute('data-theme', e.data.theme); });
+        window.addEventListener('message', (e) => { if (e.data && e.data.type === 'THEME_CHANGED') document.body.setAttribute('data-theme', e.data.theme); });
 
-        function escapeHtml(v) { return String(v ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;'); }
-        function hojeISO() {
-            const d = new Date();
-            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        function escapeHtml(v) { return String(v ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;'); }
+        function jsonAttr(value) { return escapeHtml(JSON.stringify(String(value))); }
+        function hojeISO() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+        function formatDataBR(iso) { const p = String(iso || '').split('-'); return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : (iso || ''); }
+        function iniciais(nome) { const parts = String(nome || '').trim().split(/\s+/).filter(Boolean); if (!parts.length) return '?'; if (parts.length === 1) return parts[0].slice(0,2).toUpperCase(); return (parts[0][0] + parts[parts.length-1][0]).toUpperCase(); }
+        function slug(v, suffix='') { return `${String(v || 'atividade').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'') || 'atividade'}${suffix ? '_' + suffix : ''}`; }
+        function toast(msg) { const t = document.getElementById('savedToast'); t.textContent = msg || '💾 Salvo!'; t.classList.add('show'); clearTimeout(t._timer); t._timer = setTimeout(() => t.classList.remove('show'), 1800); }
+
+        function normalizeActivities(list) {
+            const used = new Set();
+            return (Array.isArray(list) ? list : []).map((item, index) => {
+                const oldName = typeof item === 'string' ? item : (item && (item.nome || item.name || item.titulo || item.atividade));
+                const nome = String(oldName || '').trim();
+                if (!nome) return null;
+                let id = String(item && typeof item === 'object' && item.id ? item.id : slug(nome));
+                if (used.has(id)) id = `${id}_${index + 1}`;
+                used.add(id);
+                const detalhes = typeof item === 'object' && item ? String(item.detalhes ?? item.detalhe ?? item.details ?? ACTIVITY_DETAILS[nome] ?? '').trim() : String(ACTIVITY_DETAILS[nome] || '').trim();
+                return { id, nome, detalhes };
+            }).filter(Boolean);
         }
-        function toast(msg) {
-            const t = document.getElementById('savedToast');
-            t.textContent = msg || '💾 Salvo!';
-            t.classList.add('show');
-            clearTimeout(t._timer);
-            t._timer = setTimeout(() => t.classList.remove('show'), 1800);
+        function activityIsChecked(activity, checks) { return Array.isArray(checks) && (checks.includes(activity.id) || checks.includes(activity.nome)); }
+        function checkedActivityIds(activities, checks) { return normalizeActivities(activities).filter(a => activityIsChecked(a, checks)).map(a => a.id); }
+        function registroChecks(colab, reg) {
+            const own = checkedActivityIds(colab.atividades, reg && reg.checks);
+            const support = checkedActivityIds(colab.atividades, reg && reg.supportChecks);
+            return [...new Set([...own, ...support])];
         }
+        function nomeDoBackup(colab) {
+            if (!colab) return '';
+            if (colab.backupKey && config.colaboradores[colab.backupKey]) return config.colaboradores[colab.backupKey].nome || '';
+            return colab.backup || '';
+        }
+        function listaColaboradores() {
+            return Object.keys(config.colaboradores || {}).map(key => ({ key, ...config.colaboradores[key] })).filter(c => c.ativo !== false).sort((a,b) => (a.ordem || 0) - (b.ordem || 0));
+        }
+        function usuarioVinculado(colab) { return !!(colab && colab.conta && userName && String(colab.conta).toLowerCase() === userName.toLowerCase()); }
+        function souBackupDe(colab) {
+            if (!colab || isAdmin) return false;
+            const meu = listaColaboradores().find(usuarioVinculado);
+            if (!meu) return false;
+            return colab.backupKey === meu.key || (!colab.backupKey && colab.backup && String(colab.backup).toLowerCase() === String(meu.nome || '').toLowerCase());
+        }
+        function statusLabel(status) { return ({ presente:'Presente', falta:'Falta', atestado:'Atestado', ferias:'Férias', folga:'Folga' })[status] || '—'; }
+        function regPreenchido(reg) {
+            if (!reg) return false;
+            const temCheckProprio = Array.isArray(reg.checks) && reg.checks.length > 0;
+            return !!(temCheckProprio || reg.status || reg.entrada || reg.saida);
+        }
+        function isHojeSelecionado() { return (document.getElementById('dataSelecionada').value || hojeISO()) === hojeISO(); }
+        function apoioPermitido(colab, reg) { return isHojeSelecionado() && souBackupDe(colab) && !!reg && (reg.folga === true || reg.status === 'folga'); }
+        function podeEditarChecks(colab, isSupport) { return isAdmin || (isHojeSelecionado() && (usuarioVinculado(colab) || isSupport)); }
 
         async function carregarConfig() {
             try {
@@ -172,47 +459,24 @@
                 const data = await res.json();
                 config = data && data.cargos ? data : { cargos: {}, colaboradores: {} };
             } catch (e) { config = { cargos: {}, colaboradores: {} }; }
+            config.cargos = config.cargos || {};
+            config.colaboradores = config.colaboradores || {};
+            Object.values(config.colaboradores).forEach(colab => {
+                if (REFERENCE_NAME_BY_PLACEHOLDER[colab.nome]) colab.nome = REFERENCE_NAME_BY_PLACEHOLDER[colab.nome];
+                colab.atividades = normalizeActivities(colab.atividades || []);
+                if (!('backupKey' in colab)) {
+                    const found = Object.keys(config.colaboradores).find(k => String(config.colaboradores[k].nome || '').toLowerCase() === String(colab.backup || '').toLowerCase());
+                    colab.backupKey = found || '';
+                }
+            });
         }
-
-        // Colaboradores visíveis ao usuário atual
-        function colaboradoresVisiveis() {
-            const all = Object.keys(config.colaboradores || {})
-                .map(k => ({ key: k, ...config.colaboradores[k] }))
-                .filter(c => c.ativo !== false)
-                .sort((a, b) => (a.ordem || 0) - (b.ordem || 0));
-            if (isAdmin) return all;
-            return all.filter(c => c.conta && userName && c.conta.toLowerCase() === userName.toLowerCase());
+        async function salvarConfig() {
+            await fetch(`${FIREBASE_URL}${NODE_CONFIG}.json`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(config) });
         }
-
-        function normalizarAtividades(lista) {
-            return (Array.isArray(lista) ? lista : []).map((item, index) => {
-                if (typeof item === 'string') return { id: item, nome: item };
-                const nome = String(item && (item.nome || item.name || item.titulo || item.atividade) || '').trim();
-                return { id: String(item && item.id || nome || `atividade_${index}`), nome };
-            }).filter(a => a.nome);
+        async function carregarUsuarios() {
+            try { const res = await fetch(`${FIREBASE_URL}users.json`); allUsers = await res.json() || {}; } catch (e) { allUsers = {}; }
         }
-
-        function atividadesFeitas(colab, reg) {
-            const atividades = normalizarAtividades(colab.atividades);
-            const own = Array.isArray(reg && reg.checks) ? reg.checks : [];
-            const apoio = Array.isArray(reg && reg.supportChecks) ? reg.supportChecks : [];
-            return atividades.filter(a => own.includes(a.id) || own.includes(a.nome) || apoio.includes(a.id) || apoio.includes(a.nome));
-        }
-
-        function apoiosFeitos(colab, reg) {
-            const atividades = normalizarAtividades(colab.atividades);
-            const apoio = Array.isArray(reg && reg.supportChecks) ? reg.supportChecks : [];
-            return atividades.filter(a => apoio.includes(a.id) || apoio.includes(a.nome));
-        }
-
-        function regPreenchido(reg) {
-            if (!reg) return false;
-            // supportChecks pertence ao TDM de quem estava de folga; nunca vira
-            // atividade obrigatória no histórico do backup.
-            const temCheckProprio = Array.isArray(reg.checks) && reg.checks.length > 0;
-            return !!(temCheckProprio || reg.status || reg.entrada || reg.saida);
-        }
-
+        function usuariosAprovados() { return Object.values(allUsers).filter(u => u && u.usuario && u.solicitacao === 'aprovado'); }
         async function carregarDia() {
             const dataKey = document.getElementById('dataSelecionada').value || hojeISO();
             try {
@@ -221,126 +485,318 @@
             } catch (e) { diarioDia = {}; }
             renderizar();
         }
+        async function gravarRegistro(key) {
+            const dataKey = document.getElementById('dataSelecionada').value || hojeISO();
+            const res = await fetch(`${FIREBASE_URL}${NODE_DIARIO}/${dataKey}/${key}.json`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(diarioDia[key] || {}) });
+            if (!res.ok) throw new Error('Falha ao salvar');
+        }
+        async function registrarLog(modulo, acao) { try { await fetch(`${FIREBASE_URL}logs.json`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ modulo, acao, usuario:userName || 'Sistema', timestamp:Date.now() }) }); } catch (e) {} }
 
         function mudarDia(delta) {
             const input = document.getElementById('dataSelecionada');
-            const d = new Date(input.value + 'T12:00:00');
+            const d = new Date((input.value || hojeISO()) + 'T12:00:00');
             d.setDate(d.getDate() + delta);
-            input.value = d.toISOString().slice(0, 10);
+            input.value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
             carregarDia();
         }
         function irParaHoje() { document.getElementById('dataSelecionada').value = hojeISO(); carregarDia(); }
 
-        function renderizar() {
-            const iu = document.getElementById('infoUser');
-            iu.innerText = currentUser
-                ? `👤 ${currentUser.usuario} (${isAdmin ? 'Administrador — vê todos' : 'Vê apenas os dados vinculados a você'})`
-                : '⚠️ Faça login para ver seus dados';
-
-            document.getElementById('thFolga').style.display = isAdmin ? '' : 'none';
-
-            const colabs = colaboradoresVisiveis();
-            let preenchidos = 0, folgas = 0;
-
-            const rows = colabs.map(colab => {
-                const reg = diarioDia[colab.key] || {};
-                const preenchido = regPreenchido(reg);
-                if (preenchido) preenchidos++;
-                const folga = reg.folga === true;
-                if (folga) folgas++;
-
-                const status = reg.status || (reg.folga === true ? 'folga' : '');
-                const statusPill = status
-                    ? `<span class="pill ${status === 'folga' ? 'folga' : status}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>`
-                    : `<span class="pill vazio">—</span>`;
-
-                const total = normalizarAtividades(colab.atividades).length;
-                const feitas = atividadesFeitas(colab, reg);
-                const apoios = apoiosFeitos(colab, reg);
-                const done = feitas.length;
-                const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-
-                let folgaHtml = '';
-                if (isAdmin) {
-                    const clsSim = reg.folga === true ? 'folga-btn sim' : 'folga-btn';
-                    const clsNao = reg.folga === false ? 'folga-btn nao' : 'folga-btn';
-                    folgaHtml = `<button class="${clsSim}" onclick="setFolga('${colab.key}', true)">✅ Folga</button>
-                                  <button class="${clsNao}" onclick="setFolga('${colab.key}', false)">❌ Não</button>`;
+        /* ---------------- FILTROS ---------------- */
+        function setChip(st) { chipStatus = st; document.querySelectorAll('#statusChips .chip').forEach(c => c.classList.toggle('active', c.dataset.st === st)); renderizar(); }
+        function preencherFiltroCargos() {
+            const sel = document.getElementById('filtroCargo');
+            const cargos = [...new Set([...Object.keys(config.cargos || {}), ...Object.values(config.colaboradores || {}).map(c => c.cargo).filter(Boolean)])];
+            const hash = cargos.join('|');
+            if (hash === ultimoCargosHash) return;
+            ultimoCargosHash = hash;
+            const current = sel.value;
+            sel.innerHTML = '<option value="">🏷️ Todos os cargos</option>' + cargos.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+            if ([...sel.options].some(o => o.value === current)) sel.value = current;
+        }
+        function statusDoDia(colab) { const reg = diarioDia[colab.key] || {}; return reg.status || (reg.folga === true ? 'folga' : ''); }
+        function colabsFiltrados() {
+            const busca = (document.getElementById('filtroBusca').value || '').toLowerCase().trim();
+            const cargo = document.getElementById('filtroCargo').value;
+            return listaColaboradores().filter(c => {
+                if (busca && !(c.nome || '').toLowerCase().includes(busca) && !(c.cargo || '').toLowerCase().includes(busca)) return false;
+                if (cargo && c.cargo !== cargo) return false;
+                if (chipStatus) {
+                    if (chipStatus === 'pendente') { if (regPreenchido(diarioDia[c.key] || {})) return false; }
+                    else if (statusDoDia(c) !== chipStatus) return false;
                 }
-
-                return `<tr>
-                    <td><strong style="color:var(--text-title);">${escapeHtml(colab.nome)}</strong></td>
-                    <td>${escapeHtml(colab.cargo || '—')}</td>
-                    <td>${statusPill}</td>
-                    <td>${escapeHtml(reg.entrada || '—')}</td>
-                    <td>${escapeHtml(reg.saida || '—')}</td>
-                    <td><div style="display:flex; align-items:center; gap:8px;"><div class="progress"><div style="width:${pct}%"></div></div><span style="font-weight:800;">${done}/${total}</span>${apoios.length ? `<small style="color:var(--accent-blue); font-weight:800;"> · ${apoios.length} apoio</small>` : ''}</div></td>
-                    <td>${preenchido ? '<span class="ok">✅ Sim</span>' : '<span class="no">❌ Não</span>'}</td>
-                    <td>${escapeHtml(reg.preenchidoPor || '—')}</td>
-                    ${isAdmin ? `<td>${folgaHtml}</td>` : ''}
-                </tr>`;
-            }).join('');
-
-            document.getElementById('tbody').innerHTML = rows || '<tr><td colspan="9" style="text-align:center; padding:20px; color:var(--text-muted);">Nenhum colaborador vinculado a você.</td></tr>';
-
-            const naoPreenchidos = colabs.length - preenchidos;
-            document.getElementById('kpiTotal').innerText = colabs.length;
-            document.getElementById('kpiPreenchidos').innerText = preenchidos;
-            document.getElementById('kpiNaoPreenchidos').innerText = naoPreenchidos;
-            document.getElementById('kpiFolgas').innerText = folgas;
-
-            // Avisos de não preenchimento (apenas admin)
-            const warnPanel = document.getElementById('warnPanel');
-            if (isAdmin) {
-                const naoPreenchidosList = colabs.filter(c => !regPreenchido(diarioDia[c.key] || {}));
-                if (naoPreenchidosList.length > 0) {
-                    warnPanel.style.display = 'block';
-                    document.getElementById('warnList').innerHTML = naoPreenchidosList.map(c => {
-                        const reg = diarioDia[c.key] || {};
-                        const folgaEstado = reg.folga === true ? '<span class="pill presente">Folga</span>'
-                                          : reg.folga === false ? '<span class="pill falta">Não folga</span>'
-                                          : '<span style="color:var(--text-muted); font-weight:700;">Aguardando avaliação</span>';
-                        return `<div class="warn-item">
-                            <span class="nm">${escapeHtml(c.nome)}</span>
-                            <span style="color:var(--text-muted);">(${escapeHtml(c.cargo || 'sem cargo')}) não preencheu neste dia.</span>
-                            <span>${folgaEstado}</span>
-                            <div style="display:flex; gap:6px;">
-                                <button class="${reg.folga === true ? 'folga-btn sim' : 'folga-btn'}" onclick="setFolga('${c.key}', true)">✅ Foi folga</button>
-                                <button class="${reg.folga === false ? 'folga-btn nao' : 'folga-btn'}" onclick="setFolga('${c.key}', false)">❌ Não foi folga</button>
-                            </div>
-                        </div>`;
-                    }).join('');
-                } else {
-                    warnPanel.style.display = 'none';
-                }
-            } else {
-                warnPanel.style.display = 'none';
-            }
+                return true;
+            });
         }
 
-        async function setFolga(colabKey, valor) {
+        /* ---------------- RENDER ---------------- */
+        function renderizar() {
+            document.getElementById('infoUser').textContent = currentUser
+                ? `👤 ${currentUser.usuario} (${isAdmin ? 'Administrador' : 'Colaborador'})`
+                : '⚠️ Faça login para interagir';
+            document.getElementById('btnCargos').style.display = isAdmin ? 'inline-flex' : 'none';
+            document.getElementById('btnAddColab').style.display = isAdmin ? 'inline-flex' : 'none';
+            preencherFiltroCargos();
+
+            const colabs = listaColaboradores();
+            let preenchidos = 0, folgas = 0, totDone = 0, totTotal = 0;
+            colabs.forEach(c => {
+                const reg = diarioDia[c.key] || {};
+                if (regPreenchido(reg)) preenchidos++;
+                if (reg.folga === true) folgas++;
+                const total = normalizeActivities(c.atividades).length;
+                totDone += registroChecks(c, reg).length;
+                totTotal += total;
+            });
+            document.getElementById('kpiTotal').textContent = colabs.length;
+            document.getElementById('kpiPreenchidos').textContent = preenchidos;
+            document.getElementById('kpiNaoPreenchidos').textContent = colabs.length - preenchidos;
+            document.getElementById('kpiFolgas').textContent = folgas;
+            document.getElementById('kpiMedia').textContent = (totTotal ? Math.round((totDone / totTotal) * 100) : 0) + '%';
+
+            const grid = document.getElementById('userGrid');
+            const visiveis = colabsFiltrados();
+            grid.innerHTML = visiveis.length ? visiveis.map(renderCard).join('')
+                : `<div class="glass-panel" style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Nenhum colaborador encontrado para os filtros atuais.${isAdmin ? ' Use "➕ Adicionar Colaborador" para cadastrar.' : ''}</div>`;
+
+            renderizarAvisos(colabs);
+        }
+
+        function renderCard(colab) {
+            const reg = diarioDia[colab.key] || {};
+            const activities = normalizeActivities(colab.atividades);
+            const total = activities.length;
+            const checks = Array.isArray(reg.checks) ? reg.checks : [];
+            const supportChecks = Array.isArray(reg.supportChecks) ? reg.supportChecks : [];
+            const doneIds = registroChecks(colab, reg);
+            const supportCount = checkedActivityIds(colab.atividades, supportChecks).length;
+            const pct = total ? Math.round((doneIds.length / total) * 100) : 0;
+            const folga = reg.folga === true;
+            const status = reg.status || (folga ? 'folga' : '');
+            const preenchido = regPreenchido(reg);
+            const owner = usuarioVinculado(colab);
+            const support = apoioPermitido(colab, reg) && !owner;
+            const canOwn = podeEditarChecks(colab, false);
+            const canSupport = podeEditarChecks(colab, support);
+            const backupName = nomeDoBackup(colab);
+            const barCls = pct >= 100 ? 'p-green' : pct >= 50 ? 'p-warn' : 'p-red';
+
+            const statusHtml = isAdmin
+                ? `<div class="status-group">${[['presente','Presente'],['falta','Falta'],['atestado','Atestado'],['ferias','Férias'],['folga','Folga']].map(([v,l]) => `<button class="status-btn ${status === v ? 'active-' + v : ''}" onclick="setStatus(${jsonAttr(colab.key)},${jsonAttr(v)})">${l}</button>`).join('')}</div>`
+                : `<span class="pill ${status || 'vazio'}">${status ? statusLabel(status) : 'Sem status'}</span>`;
+
+            const folgaHtml = isAdmin
+                ? `<div class="user-row"><span class="tdm-label">🛌 Folga do dia:</span><button class="folga-btn ${folga ? 'sim' : ''}" onclick="setFolga(${jsonAttr(colab.key)}, true)">✅ Foi folga</button><button class="folga-btn ${(!folga && reg.folga === false) ? 'nao' : ''}" onclick="setFolga(${jsonAttr(colab.key)}, false)">❌ Não foi</button></div>`
+                : '';
+
+            const entradaHtml = isAdmin ? `<input type="time" class="hora-input" value="${escapeHtml(reg.entrada || '')}" onchange="setHora(${jsonAttr(colab.key)},'entrada',this.value)">` : `<span class="hora-ro">${escapeHtml(reg.entrada || '—:—')}</span>`;
+            const saidaHtml = isAdmin ? `<input type="time" class="hora-input" value="${escapeHtml(reg.saida || '')}" onchange="setHora(${jsonAttr(colab.key)},'saida',this.value)">` : `<span class="hora-ro">${escapeHtml(reg.saida || '—:—')}</span>`;
+
+            const obs = supportCount
+                ? `<div class="card-obs">🔁 <strong>Obs:</strong> ${supportCount} atividade(s) executada(s) como <strong>atividade de backup</strong>${reg.supportBy && Object.keys(reg.supportBy).length ? ` por <strong>${escapeHtml([...new Set(Object.values(reg.supportBy))].filter(Boolean).join(', '))}</strong>` : ''}.</div>`
+                : '';
+
+            const activityHtml = activities.length ? activities.map(a => {
+                const ownDone = activityIsChecked(a, checks);
+                const supDone = activityIsChecked(a, supportChecks);
+                const done = ownDone || supDone;
+                const isSupportMode = support && !isAdmin && !owner;
+                const enabled = isAdmin || (owner && canOwn) || (support && canSupport);
+                const checked = isSupportMode ? supDone : ownDone;
+                return `<div class="activity-row ${done ? 'done' : ''} ${supDone && !ownDone ? 'is-backup' : ''}">
+                    <input type="checkbox" aria-label="Marcar ${escapeHtml(a.nome)}" ${checked ? 'checked' : ''} ${enabled ? '' : 'disabled'} onchange="toggleCheck(${jsonAttr(colab.key)},${jsonAttr(a.id)},this,${jsonAttr(isSupportMode ? 'support' : 'owner')})">
+                    <div class="activity-text">
+                        <button type="button" class="activity-name" aria-expanded="false" onclick="toggleActivity(this)"><span class="chevron">▸</span><span class="txt">${escapeHtml(a.nome)}</span>${supDone && !ownDone ? '<span class="tag-backup">🔁 backup</span>' : ''}</button>
+                        <div class="activity-details">${escapeHtml(a.detalhes || 'Sem detalhes cadastrados para esta atividade.')}</div>
+                    </div>
+                </div>`;
+            }).join('') : '<div class="check-empty">Sem atividades cadastradas para este colaborador.</div>';
+
+            const acoes = isAdmin
+                ? `<div class="card-actions"><span class="save-state">${doneIds.length}/${total} concluídas${supportCount ? ` · ${supportCount} backup` : ''}</span><button class="mini-btn" onclick="abrirModalColaborador(${jsonAttr(colab.key)})">✏️ Editar</button><button class="mini-btn danger" onclick="excluirColaborador(${jsonAttr(colab.key)})">🗑️ Excluir</button></div>`
+                : (owner && isHojeSelecionado()
+                    ? '<div class="owner-note">☑️ Você pode marcar as suas atividades como feitas neste dia. As demais ficam somente para visualização.</div>'
+                    : '<div class="owner-note">👁️ Somente leitura para você — só a própria conta pode marcar as atividades no dia atual.</div>');
+
+            return `<div class="user-card glass-panel" data-key="${escapeHtml(colab.key)}">
+                <div class="user-card-head">
+                    <div>
+                        <div class="nome">${escapeHtml(colab.nome)}</div>
+                        <div class="badges"><span class="badge-cargo">${escapeHtml(colab.cargo || 'Sem cargo')}</span>${backupName ? `<span class="badge-backup">Backup: ${escapeHtml(backupName)}</span>` : ''}${folga ? '<span class="badge-folga">🛌 Folga</span>' : ''}</div>
+                    </div>
+                    ${(isAdmin || owner) ? `<span class="pill ${preenchido ? 'ok' : 'pend'}" title="${preenchido ? 'Já há registro neste dia' : 'Sem registro neste dia'}">${preenchido ? '✅ Preenchido' : '⏳ Pendente'}</span>` : ''}
+                </div>
+                <div class="user-row"><span class="tdm-label">Status:</span>${statusHtml}</div>
+                ${folgaHtml}
+                <div class="user-row"><span class="tdm-label">🕐 Entrada:</span>${entradaHtml}<span class="tdm-label" style="margin-left:6px;">Saída:</span>${saidaHtml}</div>
+                <div class="progress-row"><div class="progress-bar"><div class="progress-fill ${barCls}" style="width:${pct}%"></div></div><span class="progress-pct">${pct}%</span></div>
+                <div class="progress-meta"><strong>${doneIds.length}/${total}</strong> atividades concluídas${supportCount ? ` · <span class="backup-tag-line">🔁 ${supportCount} de backup</span>` : ''}</div>
+                ${obs}
+                <div class="checklist">${activityHtml}</div>
+                ${acoes}
+            </div>`;
+        }
+
+        function renderizarAvisos(colabs) {
+            const panel = document.getElementById('warnPanel');
+            if (!isAdmin) { panel.style.display = 'none'; return; }
+            const pendentes = colabs.filter(c => !regPreenchido(diarioDia[c.key] || {}));
+            if (!pendentes.length) { panel.style.display = 'none'; return; }
+            panel.style.display = 'block';
+            document.getElementById('warnList').innerHTML = pendentes.map(c => {
+                const reg = diarioDia[c.key] || {};
+                return `<div class="warn-item">
+                    <span class="nm">${escapeHtml(c.nome)}</span>
+                    <span style="color:var(--text-muted);font-weight:700;">não preencheu neste dia.</span>
+                    <span class="mt">${escapeHtml(c.cargo || 'sem cargo')}</span>
+                    <button class="folga-btn ${reg.folga === true ? 'sim' : ''}" onclick="setFolga(${jsonAttr(c.key)}, true)">✅ Foi folga</button>
+                    <button class="folga-btn ${reg.folga === false ? 'nao' : ''}" onclick="setFolga(${jsonAttr(c.key)}, false)">❌ Não foi</button>
+                </div>`;
+            }).join('');
+        }
+
+        function toggleActivity(button) { const details = button.parentElement.querySelector('.activity-details'); const open = details.classList.toggle('open'); button.setAttribute('aria-expanded', String(open)); button.querySelector('.chevron').textContent = open ? '▾' : '▸'; }
+
+        /* ---------------- AÇÕES (admin ou conta vinculada) ---------------- */
+        function setStatus(key, status) {
             if (!isAdmin) return;
-            const dataKey = document.getElementById('dataSelecionada').value || hojeISO();
-            const reg = diarioDia[colabKey] = diarioDia[colabKey] || {};
+            const reg = diarioDia[key] = diarioDia[key] || {}; reg.status = status; reg.folga = status === 'folga' ? true : false; reg.updatedAt = Date.now(); reg.preenchidoPor = reg.preenchidoPor || userName;
+            gravarRegistro(key).then(() => { toast(); renderizar(); }).catch(() => alert('Erro ao salvar o status.'));
+            registrarLog('TDM-DADOS', `Status ${status} para ${key}`);
+        }
+        function setHora(key, field, value) {
+            if (!isAdmin) return;
+            const reg = diarioDia[key] = diarioDia[key] || {}; reg[field] = value; reg.updatedAt = Date.now(); reg.preenchidoPor = reg.preenchidoPor || userName;
+            gravarRegistro(key).then(() => toast()).catch(() => alert('Erro ao salvar o horário.'));
+            registrarLog('TDM-DADOS', `Atualizou ${field} de ${key}`);
+        }
+        function setFolga(key, valor) {
+            if (!isAdmin) return;
+            const reg = diarioDia[key] = diarioDia[key] || {};
             reg.folga = valor;
             if (valor) reg.status = 'folga';
             else if (reg.status === 'folga') reg.status = '';
             reg.updatedAt = Date.now();
             reg.avaliadoPor = userName;
-            try {
-                await fetch(`${FIREBASE_URL}${NODE_DIARIO}/${dataKey}/${colabKey}.json`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(reg)
-                });
-                toast(valor ? '✅ Marcado como folga.' : '❌ Marcado como NÃO folga.');
-                renderizar();
-            } catch (e) { alert('Erro ao salvar.'); }
+            gravarRegistro(key).then(() => { toast(valor ? '✅ Marcado como folga.' : '❌ Marcado como NÃO folga.'); renderizar(); }).catch(() => alert('Erro ao salvar.'));
+            registrarLog('TDM-DADOS', `Folga ${valor} para ${key}`);
         }
+        function toggleCheck(key, activityId, checkbox, mode) {
+            const colab = config.colaboradores[key];
+            if (!colab) return;
+            const reg = diarioDia[key] || {};
+            const support = mode === 'support' && apoioPermitido({ key, ...colab }, reg);
+            if (!podeEditarChecks({ key, ...colab }, support)) { checkbox.checked = !checkbox.checked; return alert('Você só pode marcar as caixas permitidas para sua conta vinculada.'); }
+            const field = mode === 'support' ? 'supportChecks' : 'checks';
+            if (!Array.isArray(reg[field])) reg[field] = [];
+            if (checkbox.checked) {
+                if (!reg[field].includes(activityId)) reg[field].push(activityId);
+                if (mode === 'support') { reg.supportBy = reg.supportBy || {}; reg.supportBy[activityId] = userName; }
+            } else {
+                reg[field] = reg[field].filter(id => id !== activityId);
+                if (mode === 'support' && reg.supportBy) delete reg.supportBy[activityId];
+            }
+            reg.updatedAt = Date.now(); reg.preenchidoPor = reg.preenchidoPor || userName;
+            gravarRegistro(key).then(() => { toast(mode === 'support' ? '🔁 Apoio registrado!' : '☑️ Atividade atualizada!'); renderizar(); }).catch(() => alert('Erro ao salvar a atividade.'));
+            registrarLog('TDM-DADOS', `${mode === 'support' ? 'Apoio' : 'Atividade'} ${activityId} para ${key}`);
+        }
+        function vincularConta(key, username) { if (!isAdmin) return; config.colaboradores[key].conta = username; salvarConfig().then(() => { toast('🔗 Conta vinculada!'); renderizar(); }).catch(() => alert('Erro ao vincular conta.')); registrarLog('TDM-DADOS', `Vinculou conta ${username} ao colaborador ${key}`); }
+
+        /* ---------------- CRUD DE COLABORADORES (apenas admin) ---------------- */
+        function preencherSelectCargos(selected) { const select = document.getElementById('colabCargo'); const cargos = Object.keys(config.cargos || {}); if (selected && !cargos.includes(selected)) cargos.push(selected); select.innerHTML = cargos.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('') || '<option value="">—</option>'; select.value = selected || cargos[0] || ''; }
+        function preencherSelectBackups(key, selectedKey, selectedName) {
+            const select = document.getElementById('colabBackup');
+            select.innerHTML = '<option value="">— Sem backup —</option>' + listaColaboradores().filter(c => c.key !== key).map(c => `<option value="${escapeHtml(c.key)}">${escapeHtml(c.nome)}</option>`).join('');
+            select.value = selectedKey || (selectedName ? (listaColaboradores().find(c => String(c.nome).toLowerCase() === String(selectedName).toLowerCase()) || {}).key || '' : '');
+        }
+        function preencherSelectContas(selected) { document.getElementById('colabConta').innerHTML = '<option value="">— Nenhuma —</option>' + usuariosAprovados().map(u => `<option value="${escapeHtml(u.usuario)}">${escapeHtml(u.usuario)}</option>`).join(''); document.getElementById('colabConta').value = selected || ''; }
+        function renderActivityEditors(activities) {
+            const wrap = document.getElementById('activityEditors'); wrap.innerHTML = ''; activityEditorCount = 0;
+            normalizeActivities(activities).forEach(a => adicionarEditorAtividade(a));
+        }
+        function adicionarEditorAtividade(activity = { id:'', nome:'', detalhes:'' }) {
+            const index = activityEditorCount++;
+            const el = document.createElement('div'); el.className = 'activity-editor'; el.dataset.index = index;
+            el.innerHTML = `<div class="activity-editor-head"><span class="activity-number">${index + 1}.</span><input class="editor-activity-name" type="text" placeholder="Nome da atividade" value="${escapeHtml(activity.nome)}"><button class="mini-btn danger" type="button" onclick="this.closest('.activity-editor').remove()">🗑️</button></div><textarea class="editor-activity-details" placeholder="Detalhes exibidos ao abrir o accordion">${escapeHtml(activity.detalhes || ACTIVITY_DETAILS[activity.nome] || '')}</textarea><input type="hidden" class="editor-activity-id" value="${escapeHtml(activity.id || '')}">`;
+            document.getElementById('activityEditors').appendChild(el);
+        }
+        function abrirModalColaborador(key = '') {
+            if (!isAdmin) return;
+            const c = key ? config.colaboradores[key] : null;
+            document.getElementById('colabEditKey').value = key;
+            document.getElementById('modalColabTitle').textContent = key ? '✏️ Editar Colaborador' : '➕ Adicionar Colaborador';
+            document.getElementById('colabNome').value = c ? c.nome || '' : '';
+            preencherSelectCargos(c ? c.cargo : ''); preencherSelectBackups(key, c ? c.backupKey : '', c ? c.backup : ''); preencherSelectContas(c ? c.conta : ''); renderActivityEditors(c ? c.atividades : []);
+            document.getElementById('modalColaborador').classList.add('active');
+        }
+        async function salvarColaborador() {
+            if (!isAdmin) return;
+            const key = document.getElementById('colabEditKey').value; const nome = document.getElementById('colabNome').value.trim(); if (!nome) return alert('Informe o nome do colaborador.');
+            const activities = [...document.querySelectorAll('#activityEditors .activity-editor')].map(el => ({ id: el.querySelector('.editor-activity-id').value || slug(el.querySelector('.editor-activity-name').value), nome: el.querySelector('.editor-activity-name').value.trim(), detalhes: el.querySelector('.editor-activity-details').value.trim() })).filter(a => a.nome);
+            const backupKey = document.getElementById('colabBackup').value; const backupName = backupKey && config.colaboradores[backupKey] ? config.colaboradores[backupKey].nome : '';
+            const obj = { nome, cargo: document.getElementById('colabCargo').value, backupKey, backup: backupName, conta: document.getElementById('colabConta').value, atividades: normalizeActivities(activities) };
+            if (key) Object.assign(config.colaboradores[key], obj); else { const newKey = 'c_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); config.colaboradores[newKey] = { ...obj, ativo: true, ordem: Object.keys(config.colaboradores).length + 1 }; }
+            try { await salvarConfig(); await registrarLog('TDM-DADOS', key ? `Editou colaborador ${nome}` : `Adicionou colaborador ${nome}`); fecharModal('modalColaborador'); ultimoCargosHash = ''; toast(); renderizar(); } catch (e) { alert('Erro ao salvar o colaborador.'); }
+        }
+        async function excluirColaborador(key) { if (!isAdmin) return; const c = config.colaboradores[key]; if (!c || !confirm(`Excluir o colaborador "${c.nome}"?`)) return; delete config.colaboradores[key]; Object.values(config.colaboradores).forEach(item => { if (item.backupKey === key) { item.backupKey = ''; item.backup = ''; } }); try { await salvarConfig(); await registrarLog('TDM-DADOS', `Excluiu colaborador ${c.nome}`); toast('🗑️ Colaborador removido.'); ultimoCargosHash = ''; renderizar(); } catch (e) { alert('Erro ao excluir o colaborador.'); } }
+
+        /* ---------------- CARGOS (apenas admin) ---------------- */
+        function abrirModalCargos() { if (!isAdmin) return; renderizarCargosList(); document.getElementById('modalCargos').classList.add('active'); }
+        function renderizarCargosList() { const el = document.getElementById('cargosList'); const cargos = Object.keys(config.cargos || {}); el.innerHTML = cargos.length ? cargos.map(c => `<div class="cargo-line"><strong>${escapeHtml(c)}</strong><button class="mini-btn danger" onclick="excluirCargo(${jsonAttr(c)})">🗑️</button></div>`).join('') : '<div style="color:var(--text-muted);">Nenhum cargo cadastrado.</div>'; }
+        async function adicionarCargo() { if (!isAdmin) return; const nome = document.getElementById('novoCargoNome').value.trim(); if (!nome) return alert('Informe o nome do cargo.'); if (config.cargos[nome]) return alert('Este cargo já existe.'); config.cargos[nome] = { fluxo: [] }; try { await salvarConfig(); document.getElementById('novoCargoNome').value = ''; renderizarCargosList(); ultimoCargosHash = ''; toast('Cargo adicionado!'); } catch (e) { alert('Erro ao adicionar cargo.'); } }
+        async function excluirCargo(cargo) { if (!isAdmin) return; if (!confirm(`Excluir o cargo "${cargo}"?`)) return; delete config.cargos[cargo]; try { await salvarConfig(); ultimoCargosHash = ''; renderizarCargosList(); renderizar(); toast('Cargo removido.'); } catch (e) { alert('Erro ao excluir cargo.'); } }
+
+        /* ---------------- FLUXO DIÁRIO (porcentagem por usuário) ---------------- */
+        function abrirModalFluxo() { const sel = document.getElementById('fluxoCargoSelect'); sel.innerHTML = Object.keys(config.cargos || {}).map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('') || '<option value="">—</option>'; renderizarFluxo(); document.getElementById('modalFluxo').classList.add('active'); }
+        function renderizarFluxo() {
+            const dataKey = document.getElementById('dataSelecionada').value || hojeISO();
+            document.getElementById('fluxoDiaLabel').textContent = formatDataBR(dataKey);
+            const colabs = listaColaboradores();
+            const visiveis = isAdmin ? colabs : colabs.filter(usuarioVinculado);
+            const el = document.getElementById('fluxoPercentuais');
+            if (!visiveis.length) {
+                el.innerHTML = '<div class="fluxo-empty">Nenhum colaborador disponível para exibir as porcentagens.</div>';
+            } else {
+                let totDone = 0, totTotal = 0;
+                const rows = visiveis.map(colab => {
+                    const reg = diarioDia[colab.key] || {};
+                    const total = normalizeActivities(colab.atividades).length;
+                    const done = registroChecks(colab, reg).length;
+                    const support = checkedActivityIds(colab.atividades, reg.supportChecks).length;
+                    totDone += done; totTotal += total;
+                    const pct = total ? Math.round((done / total) * 100) : 0;
+                    const folga = reg.folga === true;
+                    const status = reg.status || (folga ? 'folga' : '');
+                    const bar = pct >= 100 ? 'green' : pct >= 50 ? 'warn' : 'red';
+                    return `<div class="fluxo-user">
+                        <div class="fluxo-user-head">
+                            <span class="fluxo-avatar">${escapeHtml(iniciais(colab.nome))}</span>
+                            <div class="fluxo-names"><strong>${escapeHtml(colab.nome)}</strong><small>${escapeHtml(colab.cargo || 'Sem cargo')}</small></div>
+                            ${status ? `<span class="fluxo-pill ${status}">${escapeHtml(statusLabel(status))}</span>` : ''}
+                            ${folga && status !== 'folga' ? '<span class="fluxo-pill folga">Folga</span>' : ''}
+                        </div>
+                        <div class="fluxo-bar-wrap">
+                            <div class="fluxo-bar"><div class="fluxo-bar-fill ${bar}" style="width:${pct}%"></div></div>
+                            <span class="fluxo-pct">${pct}%</span>
+                            <span class="fluxo-frac">${done}/${total} atividades</span>
+                            ${support ? `<span class="fluxo-support">🔁 ${support} de backup</span>` : ''}
+                        </div>
+                    </div>`;
+                }).join('');
+                const media = totTotal ? Math.round((totDone / totTotal) * 100) : 0;
+                const mediaLabel = isAdmin ? 'Média do time' : 'Sua conclusão';
+                el.innerHTML = `<div class="fluxo-media"><span>📊 Conclusão das atividades no dia selecionado</span><span>${mediaLabel}: <strong>${media}%</strong> · ${totDone}/${totTotal}</span></div>` + rows;
+            }
+            renderizarFluxoCargo();
+        }
+        function renderizarFluxoCargo() { const cargo = document.getElementById('fluxoCargoSelect').value; const fluxo = (config.cargos[cargo] && config.cargos[cargo].fluxo) || []; const el = document.getElementById('fluxoConteudo'); el.innerHTML = !cargo ? '' : fluxo.length ? fluxo.map(f => `<div class="fluxo-step"><div class="t">${escapeHtml(f.titulo)}</div><ul>${(f.itens || []).map(i => `<li>${escapeHtml(i)}</li>`).join('')}</ul></div>`).join('') : '<div style="color:var(--text-muted);">Nenhum fluxo diário definido para este cargo.</div>'; }
+
+        function fecharModal(id) { document.getElementById(id).classList.remove('active'); }
+        document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('active'); }));
 
         async function init() {
             document.getElementById('dataSelecionada').value = hojeISO();
             await carregarConfig();
+            await carregarUsuarios();
             await carregarDia();
         }
         init();
