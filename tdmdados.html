@@ -234,6 +234,28 @@
             .saved-toast { left: 16px; right: 16px; bottom: 14px; }
             .warn-list { grid-template-columns: 1fr; }
         }
+
+        /* drag & drop */
+        .tdm-card.dragging, .user-card.dragging { opacity: 0.55; box-shadow: 0 8px 28px rgba(45,50,119,0.35); transform: scale(1.02); z-index: 5; }
+        .tdm-card.drag-over, .user-card.drag-over { outline: 2px dashed var(--accent-blue); outline-offset: 2px; }
+        .drag-handle { cursor: grab; user-select: none; color: var(--text-muted); font-size: 1.1rem; padding: 2px 6px; border-radius: 6px; line-height: 1; flex: 0 0 auto; }
+        .drag-handle:active { cursor: grabbing; }
+        .drag-handle:hover { background: var(--bg-body); color: var(--accent-blue); }
+        .admin-drag-hint { font-size: 0.68rem; color: var(--text-muted); font-weight: 700; margin-top: 2px; }
+        .tag-opt { flex: 0 0 auto; background: rgba(108,92,231,0.15); color: #6C5CE7; border: 1px solid rgba(108,92,231,0.35); padding: 1px 7px; border-radius: 12px; font-size: 0.62rem; font-weight: 900; white-space: nowrap; margin-top: 1px; }
+        .activity-row.is-opt input { accent-color: #6C5CE7; }
+        .backup-flag { display: inline-flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: 800; color: var(--text-muted); white-space: nowrap; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border-card); background: var(--bg-body); cursor: pointer; user-select: none; }
+        .backup-flag input { width: 15px; height: 15px; accent-color: #6C5CE7; cursor: pointer; }
+        .activity-editor-head { flex-wrap: wrap; }
+        .progress-row { display: flex; align-items: center; gap: 10px; }
+        .progress-bar { flex: 1; height: 10px; border-radius: 20px; background: var(--bg-body); border: 1px solid var(--border-card); overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 20px; transition: width 0.4s; }
+        .progress-fill.p-green { background: var(--accent-green); }
+        .progress-fill.p-warn { background: var(--accent-warn); }
+        .progress-fill.p-red { background: var(--accent-red); }
+        .progress-pct { font-weight: 900; color: var(--text-title); min-width: 42px; text-align: right; }
+        .progress-meta { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; }
+
     </style>
 </head>
 <body data-theme="light">
@@ -304,7 +326,7 @@
             <div class="field"><label>Vincular a conta que poderá marcar as atividades</label><select id="colabConta"></select></div>
             <div class="field">
                 <label>Atividades deste colaborador</label>
-                <div class="editor-help">A lista abaixo pertence somente a este colaborador. O cargo não copia nem altera esta lista. Cada item tem nome e detalhes que aparecem no accordion.</div>
+                <div class="editor-help">Cada atividade pode ser marcada como <strong>🔁 Atividade backup</strong>: só conta positivamente quando for feita. Se não for feita, <strong>não puxa a porcentagem para baixo</strong>.</div>
                 <div id="activityEditors"></div>
                 <button class="mini-btn" type="button" onclick="adicionarEditorAtividade()">➕ Adicionar atividade</button>
             </div>
@@ -418,23 +440,55 @@
                 if (used.has(id)) id = `${id}_${index + 1}`;
                 used.add(id);
                 const detalhes = typeof item === 'object' && item ? String(item.detalhes ?? item.detalhe ?? item.details ?? ACTIVITY_DETAILS[nome] ?? '').trim() : String(ACTIVITY_DETAILS[nome] || '').trim();
-                return { id, nome, detalhes };
+                const isBackup = !!(typeof item === 'object' && item && (item.isBackup === true || item.backup === true || item.atividadeBackup === true || item.opcional === true));
+                return { id, nome, detalhes, isBackup };
             }).filter(Boolean);
         }
-        function activityIsChecked(activity, checks) { return Array.isArray(checks) && (checks.includes(activity.id) || checks.includes(activity.nome)); }
-        function checkedActivityIds(activities, checks) { return normalizeActivities(activities).filter(a => activityIsChecked(a, checks)).map(a => a.id); }
-        function registroChecks(colab, reg) {
-            const own = checkedActivityIds(colab.atividades, reg && reg.checks);
-            const support = checkedActivityIds(colab.atividades, reg && reg.supportChecks);
-            return [...new Set([...own, ...support])];
+        function activityIsChecked(activity, checks) {
+            if (!Array.isArray(checks) || !activity) return false;
+            if (checks.includes(activity.id) || checks.includes(activity.nome)) return true;
+            try { if (checks.includes(slug(activity.nome))) return true; } catch (e) {}
+            return false;
         }
+        function checkedActivityIds(activities, checks) { return normalizeActivities(activities).filter(a => activityIsChecked(a, checks)).map(a => a.id); }
+
+        /** Contabilização: atividades isBackup só contam positivamente se feitas; se não feitas, não entram no denominador. */
+        function metricasAtividades(colab, reg) {
+            const activities = normalizeActivities(colab && colab.atividades);
+            const checks = reg && Array.isArray(reg.checks) ? reg.checks : [];
+            const supportChecks = reg && Array.isArray(reg.supportChecks) ? reg.supportChecks : [];
+            let done = 0, total = 0, supportDone = 0, optDone = 0, optTotal = 0;
+            const doneIds = [];
+            activities.forEach(a => {
+                const own = activityIsChecked(a, checks);
+                const sup = activityIsChecked(a, supportChecks);
+                const isDone = own || sup;
+                if (a.isBackup) {
+                    optTotal++;
+                    if (isDone) { optDone++; done++; total++; doneIds.push(a.id); if (sup && !own) supportDone++; }
+                } else {
+                    total++;
+                    if (isDone) { done++; doneIds.push(a.id); if (sup && !own) supportDone++; }
+                }
+            });
+            const pct = total ? Math.round((done / total) * 100) : 0;
+            return { activities, done, total, pct, supportDone, optDone, optTotal, doneIds, checks, supportChecks };
+        }
+
+        function registroChecks(colab, reg) { return metricasAtividades(colab, reg).doneIds; }
+
         function nomeDoBackup(colab) {
             if (!colab) return '';
             if (colab.backupKey && config.colaboradores[colab.backupKey]) return config.colaboradores[colab.backupKey].nome || '';
             return colab.backup || '';
         }
         function listaColaboradores() {
-            return Object.keys(config.colaboradores || {}).map(key => ({ key, ...config.colaboradores[key] })).filter(c => c.ativo !== false).sort((a,b) => (a.ordem || 0) - (b.ordem || 0));
+            return Object.keys(config.colaboradores || {}).map(key => ({ key, ...config.colaboradores[key] })).filter(c => c.ativo !== false).sort((a,b) => {
+                const oa = Number.isFinite(+a.ordem) ? +a.ordem : 9999;
+                const ob = Number.isFinite(+b.ordem) ? +b.ordem : 9999;
+                if (oa !== ob) return oa - ob;
+                return String(a.nome || '').localeCompare(String(b.nome || ''), 'pt-BR');
+            });
         }
         function usuarioVinculado(colab) { return !!(colab && colab.conta && userName && String(colab.conta).toLowerCase() === userName.toLowerCase()); }
         function souBackupDe(colab) {
@@ -447,7 +501,8 @@
         function regPreenchido(reg) {
             if (!reg) return false;
             const temCheckProprio = Array.isArray(reg.checks) && reg.checks.length > 0;
-            return !!(temCheckProprio || reg.status || reg.entrada || reg.saida);
+            const temSupport = Array.isArray(reg.supportChecks) && reg.supportChecks.length > 0;
+            return !!(temCheckProprio || temSupport || reg.status || reg.entrada || reg.saida || reg.folga === true || reg.folga === false);
         }
         function isHojeSelecionado() { return (document.getElementById('dataSelecionada').value || hojeISO()) === hojeISO(); }
         function apoioPermitido(colab, reg) { return isHojeSelecionado() && souBackupDe(colab) && !!reg && (reg.folga === true || reg.status === 'folga'); }
@@ -457,7 +512,7 @@
             try {
                 const res = await fetch(`${FIREBASE_URL}${NODE_CONFIG}.json`);
                 const data = await res.json();
-                config = data && data.cargos ? data : { cargos: {}, colaboradores: {} };
+                config = (data && typeof data === 'object' && (data.cargos || data.colaboradores)) ? data : { cargos: {}, colaboradores: {} };
             } catch (e) { config = { cargos: {}, colaboradores: {} }; }
             config.cargos = config.cargos || {};
             config.colaboradores = config.colaboradores || {};
@@ -543,9 +598,9 @@
                 const reg = diarioDia[c.key] || {};
                 if (regPreenchido(reg)) preenchidos++;
                 if (reg.folga === true) folgas++;
-                const total = normalizeActivities(c.atividades).length;
-                totDone += registroChecks(c, reg).length;
-                totTotal += total;
+                const m = metricasAtividades(c, reg);
+                totDone += m.done;
+                totTotal += m.total;
             });
             document.getElementById('kpiTotal').textContent = colabs.length;
             document.getElementById('kpiPreenchidos').textContent = preenchidos;
@@ -563,13 +618,14 @@
 
         function renderCard(colab) {
             const reg = diarioDia[colab.key] || {};
-            const activities = normalizeActivities(colab.atividades);
-            const total = activities.length;
-            const checks = Array.isArray(reg.checks) ? reg.checks : [];
-            const supportChecks = Array.isArray(reg.supportChecks) ? reg.supportChecks : [];
-            const doneIds = registroChecks(colab, reg);
-            const supportCount = checkedActivityIds(colab.atividades, supportChecks).length;
-            const pct = total ? Math.round((doneIds.length / total) * 100) : 0;
+            const m = metricasAtividades(colab, reg);
+            const activities = m.activities;
+            const total = m.total;
+            const checks = m.checks;
+            const supportChecks = m.supportChecks;
+            const doneIds = m.doneIds;
+            const supportCount = m.supportDone;
+            const pct = m.pct;
             const folga = reg.folga === true;
             const status = reg.status || (folga ? 'folga' : '');
             const preenchido = regPreenchido(reg);
@@ -602,11 +658,14 @@
                 const isSupportMode = support && !isAdmin && !owner;
                 const enabled = isAdmin || (owner && canOwn) || (support && canSupport);
                 const checked = isSupportMode ? supDone : ownDone;
-                return `<div class="activity-row ${done ? 'done' : ''} ${supDone && !ownDone ? 'is-backup' : ''}">
+                const tags = [];
+                if (a.isBackup) tags.push('<span class="tag-opt" title="Atividade backup: só conta positivo se feita">⭐ backup</span>');
+                if (supDone && !ownDone) tags.push('<span class="tag-backup">🔁 apoio</span>');
+                return `<div class="activity-row ${done ? 'done' : ''} ${supDone && !ownDone ? 'is-backup' : ''} ${a.isBackup ? 'is-opt' : ''}">
                     <input type="checkbox" aria-label="Marcar ${escapeHtml(a.nome)}" ${checked ? 'checked' : ''} ${enabled ? '' : 'disabled'} onchange="toggleCheck(${jsonAttr(colab.key)},${jsonAttr(a.id)},this,${jsonAttr(isSupportMode ? 'support' : 'owner')})">
                     <div class="activity-text">
-                        <button type="button" class="activity-name" aria-expanded="false" onclick="toggleActivity(this)"><span class="chevron">▸</span><span class="txt">${escapeHtml(a.nome)}</span>${supDone && !ownDone ? '<span class="tag-backup">🔁 backup</span>' : ''}</button>
-                        <div class="activity-details">${escapeHtml(a.detalhes || 'Sem detalhes cadastrados para esta atividade.')}</div>
+                        <button type="button" class="activity-name" aria-expanded="false" onclick="toggleActivity(this)"><span class="chevron">▸</span><span class="txt">${escapeHtml(a.nome)}</span>${tags.join('')}</button>
+                        <div class="activity-details">${escapeHtml(a.detalhes || 'Sem detalhes cadastrados para esta atividade.')}${a.isBackup ? '<br><em>⭐ Atividade backup: se não for feita, não reduz a porcentagem.</em>' : ''}</div>
                     </div>
                 </div>`;
             }).join('') : '<div class="check-empty">Sem atividades cadastradas para este colaborador.</div>';
@@ -617,11 +676,19 @@
                     ? '<div class="owner-note">☑️ Você pode marcar as suas atividades como feitas neste dia. As demais ficam somente para visualização.</div>'
                     : '<div class="owner-note">👁️ Somente leitura para você — só a própria conta pode marcar as atividades no dia atual.</div>');
 
-            return `<div class="user-card glass-panel" data-key="${escapeHtml(colab.key)}">
+            const dragAttrs = isAdmin
+                ? `draggable="true" ondragstart="onCardDragStart(event, ${jsonAttr(colab.key)})" ondragend="onCardDragEnd(event)" ondragover="onCardDragOver(event)" ondragleave="onCardDragLeave(event)" ondrop="onCardDrop(event, ${jsonAttr(colab.key)})"`
+                : '';
+            const handle = isAdmin ? `<span class="drag-handle" title="Arraste para reordenar">⠿</span>` : '';
+            return `<div class="user-card glass-panel" data-key="${escapeHtml(colab.key)}" ${dragAttrs}>
                 <div class="user-card-head">
-                    <div>
-                        <div class="nome">${escapeHtml(colab.nome)}</div>
-                        <div class="badges"><span class="badge-cargo">${escapeHtml(colab.cargo || 'Sem cargo')}</span>${backupName ? `<span class="badge-backup">Backup: ${escapeHtml(backupName)}</span>` : ''}${folga ? '<span class="badge-folga">🛌 Folga</span>' : ''}</div>
+                    <div style="display:flex;gap:8px;align-items:flex-start;min-width:0;flex:1;">
+                        ${handle}
+                        <div style="min-width:0;">
+                            <div class="nome">${escapeHtml(colab.nome)}</div>
+                            <div class="badges"><span class="badge-cargo">${escapeHtml(colab.cargo || 'Sem cargo')}</span>${backupName ? `<span class="badge-backup">Backup: ${escapeHtml(backupName)}</span>` : ''}${folga ? '<span class="badge-folga">🛌 Folga</span>' : ''}</div>
+                            ${isAdmin ? '<div class="admin-drag-hint">Arraste para mudar a ordem</div>' : ''}
+                        </div>
                     </div>
                     ${(isAdmin || owner) ? `<span class="pill ${preenchido ? 'ok' : 'pend'}" title="${preenchido ? 'Já há registro neste dia' : 'Sem registro neste dia'}">${preenchido ? '✅ Preenchido' : '⏳ Pendente'}</span>` : ''}
                 </div>
@@ -629,7 +696,7 @@
                 ${folgaHtml}
                 <div class="user-row"><span class="tdm-label">🕐 Entrada:</span>${entradaHtml}<span class="tdm-label" style="margin-left:6px;">Saída:</span>${saidaHtml}</div>
                 <div class="progress-row"><div class="progress-bar"><div class="progress-fill ${barCls}" style="width:${pct}%"></div></div><span class="progress-pct">${pct}%</span></div>
-                <div class="progress-meta"><strong>${doneIds.length}/${total}</strong> atividades concluídas${supportCount ? ` · <span class="backup-tag-line">🔁 ${supportCount} de backup</span>` : ''}</div>
+                <div class="progress-meta"><strong>${doneIds.length}/${total}</strong> atividades concluídas${supportCount ? ` · <span class="backup-tag-line">🔁 ${supportCount} de apoio</span>` : ''}${m.optTotal ? ` · <span style="color:#6C5CE7;font-weight:800;">⭐ ${m.optDone}/${m.optTotal} backup</span>` : ''}</div>
                 ${obs}
                 <div class="checklist">${activityHtml}</div>
                 ${acoes}
@@ -682,8 +749,9 @@
         }
         function toggleCheck(key, activityId, checkbox, mode) {
             const colab = config.colaboradores[key];
-            if (!colab) return;
-            const reg = diarioDia[key] || {};
+            if (!colab) { if (checkbox) checkbox.checked = !checkbox.checked; return; }
+            // FIX: sempre gravar no mapa diarioDia (antes o objeto local se perdia)
+            const reg = diarioDia[key] = (diarioDia[key] && typeof diarioDia[key] === 'object') ? diarioDia[key] : {};
             const support = mode === 'support' && apoioPermitido({ key, ...colab }, reg);
             if (!podeEditarChecks({ key, ...colab }, support)) { checkbox.checked = !checkbox.checked; return alert('Você só pode marcar as caixas permitidas para sua conta vinculada.'); }
             const field = mode === 'support' ? 'supportChecks' : 'checks';
@@ -696,10 +764,58 @@
                 if (mode === 'support' && reg.supportBy) delete reg.supportBy[activityId];
             }
             reg.updatedAt = Date.now(); reg.preenchidoPor = reg.preenchidoPor || userName;
-            gravarRegistro(key).then(() => { toast(mode === 'support' ? '🔁 Apoio registrado!' : '☑️ Atividade atualizada!'); renderizar(); }).catch(() => alert('Erro ao salvar a atividade.'));
+            diarioDia[key] = reg;
+            gravarRegistro(key).then(() => { toast(mode === 'support' ? '🔁 Apoio registrado!' : '☑️ Atividade atualizada!'); renderizar(); }).catch(() => { alert('Erro ao salvar a atividade.'); checkbox.checked = !checkbox.checked; });
             registrarLog('TDM-DADOS', `${mode === 'support' ? 'Apoio' : 'Atividade'} ${activityId} para ${key}`);
         }
         function vincularConta(key, username) { if (!isAdmin) return; config.colaboradores[key].conta = username; salvarConfig().then(() => { toast('🔗 Conta vinculada!'); renderizar(); }).catch(() => alert('Erro ao vincular conta.')); registrarLog('TDM-DADOS', `Vinculou conta ${username} ao colaborador ${key}`); }
+
+
+        /* ---- drag & drop ordem (admin) ---- */
+        let dragKey = null;
+        let dragSaveTimer = null;
+        function onCardDragStart(ev, key) {
+            if (!isAdmin) { ev.preventDefault(); return; }
+            dragKey = key;
+            ev.dataTransfer.effectAllowed = 'move';
+            try { ev.dataTransfer.setData('text/plain', key); } catch (e) {}
+            const card = ev.currentTarget;
+            setTimeout(() => card && card.classList.add('dragging'), 0);
+        }
+        function onCardDragEnd(ev) {
+            if (ev.currentTarget) ev.currentTarget.classList.remove('dragging');
+            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+            dragKey = null;
+        }
+        function onCardDragOver(ev) {
+            if (!isAdmin || !dragKey) return;
+            ev.preventDefault();
+            ev.dataTransfer.dropEffect = 'move';
+            const card = ev.currentTarget;
+            if (card && card.dataset.key !== dragKey) card.classList.add('drag-over');
+        }
+        function onCardDragLeave(ev) { if (ev.currentTarget) ev.currentTarget.classList.remove('drag-over'); }
+        function onCardDrop(ev, targetKey) {
+            if (!isAdmin) return;
+            ev.preventDefault();
+            if (ev.currentTarget) ev.currentTarget.classList.remove('drag-over');
+            let fromKey = dragKey;
+            try { fromKey = fromKey || ev.dataTransfer.getData('text/plain'); } catch (e) {}
+            if (!fromKey || fromKey === targetKey) return;
+            const order = listaColaboradores().map(c => c.key);
+            const fromIdx = order.indexOf(fromKey);
+            const toIdx = order.indexOf(targetKey);
+            if (fromIdx < 0 || toIdx < 0) return;
+            order.splice(fromIdx, 1);
+            order.splice(toIdx, 0, fromKey);
+            order.forEach((k, i) => { if (config.colaboradores[k]) config.colaboradores[k].ordem = i + 1; });
+            if (typeof renderizar === 'function') renderizar();
+            clearTimeout(dragSaveTimer);
+            dragSaveTimer = setTimeout(() => {
+                salvarConfig().then(() => toast('📑 Ordem dos colaboradores salva!')).catch(() => alert('Erro ao salvar a ordem.'));
+                registrarLog('TDM', 'Reordenou colaboradores');
+            }, 350);
+        }
 
         /* ---------------- CRUD DE COLABORADORES (apenas admin) ---------------- */
         function preencherSelectCargos(selected) { const select = document.getElementById('colabCargo'); const cargos = Object.keys(config.cargos || {}); if (selected && !cargos.includes(selected)) cargos.push(selected); select.innerHTML = cargos.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('') || '<option value="">—</option>'; select.value = selected || cargos[0] || ''; }
@@ -713,10 +829,10 @@
             const wrap = document.getElementById('activityEditors'); wrap.innerHTML = ''; activityEditorCount = 0;
             normalizeActivities(activities).forEach(a => adicionarEditorAtividade(a));
         }
-        function adicionarEditorAtividade(activity = { id:'', nome:'', detalhes:'' }) {
+        function adicionarEditorAtividade(activity = { id:'', nome:'', detalhes:'', isBackup:false }) {
             const index = activityEditorCount++;
             const el = document.createElement('div'); el.className = 'activity-editor'; el.dataset.index = index;
-            el.innerHTML = `<div class="activity-editor-head"><span class="activity-number">${index + 1}.</span><input class="editor-activity-name" type="text" placeholder="Nome da atividade" value="${escapeHtml(activity.nome)}"><button class="mini-btn danger" type="button" onclick="this.closest('.activity-editor').remove()">🗑️</button></div><textarea class="editor-activity-details" placeholder="Detalhes exibidos ao abrir o accordion">${escapeHtml(activity.detalhes || ACTIVITY_DETAILS[activity.nome] || '')}</textarea><input type="hidden" class="editor-activity-id" value="${escapeHtml(activity.id || '')}">`;
+            el.innerHTML = `<div class="activity-editor-head"><span class="activity-number">${index + 1}.</span><input class="editor-activity-name" type="text" placeholder="Nome da atividade" value="${escapeHtml(activity.nome || '')}"><label class="backup-flag" title="Só conta positivo se feita; se não feita, não reduz a %"><input type="checkbox" class="editor-activity-backup" ${activity.isBackup ? 'checked' : ''}> 🔁 Atividade backup</label><button class="mini-btn danger" type="button" onclick="this.closest('.activity-editor').remove()">🗑️</button></div><textarea class="editor-activity-details" placeholder="Detalhes exibidos ao abrir o accordion">${escapeHtml(activity.detalhes || ACTIVITY_DETAILS[activity.nome] || '')}</textarea><input type="hidden" class="editor-activity-id" value="${escapeHtml(activity.id || '')}">`;
             document.getElementById('activityEditors').appendChild(el);
         }
         function abrirModalColaborador(key = '') {
@@ -731,7 +847,7 @@
         async function salvarColaborador() {
             if (!isAdmin) return;
             const key = document.getElementById('colabEditKey').value; const nome = document.getElementById('colabNome').value.trim(); if (!nome) return alert('Informe o nome do colaborador.');
-            const activities = [...document.querySelectorAll('#activityEditors .activity-editor')].map(el => ({ id: el.querySelector('.editor-activity-id').value || slug(el.querySelector('.editor-activity-name').value), nome: el.querySelector('.editor-activity-name').value.trim(), detalhes: el.querySelector('.editor-activity-details').value.trim() })).filter(a => a.nome);
+            const activities = [...document.querySelectorAll('#activityEditors .activity-editor')].map(el => ({ id: el.querySelector('.editor-activity-id').value || slug(el.querySelector('.editor-activity-name').value), nome: el.querySelector('.editor-activity-name').value.trim(), detalhes: el.querySelector('.editor-activity-details').value.trim(), isBackup: !!(el.querySelector('.editor-activity-backup') && el.querySelector('.editor-activity-backup').checked) })).filter(a => a.nome);
             const backupKey = document.getElementById('colabBackup').value; const backupName = backupKey && config.colaboradores[backupKey] ? config.colaboradores[backupKey].nome : '';
             const obj = { nome, cargo: document.getElementById('colabCargo').value, backupKey, backup: backupName, conta: document.getElementById('colabConta').value, atividades: normalizeActivities(activities) };
             if (key) Object.assign(config.colaboradores[key], obj); else { const newKey = 'c_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); config.colaboradores[newKey] = { ...obj, ativo: true, ordem: Object.keys(config.colaboradores).length + 1 }; }
@@ -759,11 +875,12 @@
                 let totDone = 0, totTotal = 0;
                 const rows = visiveis.map(colab => {
                     const reg = diarioDia[colab.key] || {};
-                    const total = normalizeActivities(colab.atividades).length;
-                    const done = registroChecks(colab, reg).length;
-                    const support = checkedActivityIds(colab.atividades, reg.supportChecks).length;
+                    const mm = metricasAtividades(colab, reg);
+                    const total = mm.total;
+                    const done = mm.done;
+                    const support = mm.supportDone;
                     totDone += done; totTotal += total;
-                    const pct = total ? Math.round((done / total) * 100) : 0;
+                    const pct = mm.pct;
                     const folga = reg.folga === true;
                     const status = reg.status || (folga ? 'folga' : '');
                     const bar = pct >= 100 ? 'green' : pct >= 50 ? 'warn' : 'red';
