@@ -196,14 +196,13 @@
         .modal-box.wide { max-width: 780px; }
         /* ====== FLUXO DIÁRIO LADO A LADO ====== */
         .modal-box.xwide { max-width: 1180px; }
-        .fluxo-split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
         .fluxo-col { min-width: 0; }
         .fluxo-col > h3 { font-size: 0.8rem; font-weight: 900; color: var(--text-title); text-transform: uppercase; letter-spacing: 0.4px; margin: 0 0 10px; padding-bottom: 6px; border-bottom: 2px solid var(--accent-blue); }
         .fluxo-scroll { max-height: 56vh; overflow-y: auto; padding-right: 4px; }
         .fluxo-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
         .fluxo-toolbar select { padding: 8px 12px; border-radius: 20px; border: 1px solid var(--border-card); background: var(--bg-body); color: var(--text-main); font-weight: 700; font-family: Inter, sans-serif; font-size: 0.8rem; max-width: 260px; cursor: pointer; }
         .fluxo-toolbar label { font-weight: 800; color: var(--text-muted); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.25px; }
-        @media (max-width: 820px) { .fluxo-split { grid-template-columns: 1fr; } .fluxo-scroll { max-height: none; } }
+        @media (max-width: 820px) { .fluxo-scroll { max-height: none; } }
         .modal-box h2 { color: var(--text-title); margin: 0; font-size: 1.1rem; }
         .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 10px; }
         .modal-close { font-size: 1.8rem; cursor: pointer; color: var(--text-muted); line-height: 1; }
@@ -284,6 +283,37 @@
         .progress-fill.p-red { background: var(--accent-red); }
         .progress-pct { font-weight: 900; color: var(--text-title); min-width: 42px; text-align: right; }
         .progress-meta { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; }
+
+
+        /* sinalização de atividades e mensagens */
+        .activity-row.has-signal { border-color: rgba(230,126,34,0.55); background: rgba(230,126,34,0.07); }
+        .tag-signal, .tag-admin-done { flex: 0 0 auto; padding: 1px 7px; border-radius: 12px; font-size: 0.62rem; font-weight: 900; white-space: nowrap; margin-top: 1px; }
+        .tag-signal { color: #B45309; background: rgba(245,158,11,0.14); border: 1px solid rgba(245,158,11,0.38); }
+        .tag-admin-done { color: #087F5B; background: rgba(0,184,148,0.13); border: 1px solid rgba(0,184,148,0.35); }
+        .activity-signal-box { grid-column: 1 / -1; margin: 5px 0 2px 30px; padding: 9px 10px; border-radius: 8px; border: 1px solid rgba(230,126,34,0.35); background: rgba(255,247,237,0.92); color: #7C3E0B; font-size: 0.72rem; line-height: 1.4; word-break: break-word; }
+        body[data-theme="dark"] .activity-signal-box { background: rgba(180,83,9,0.16); color: #FCD9AE; }
+        .activity-signal-box.is-private { font-style: italic; color: var(--text-muted); }
+        .signal-status { margin-top: 5px; display: flex; gap: 6px; flex-wrap: wrap; color: var(--text-muted); font-size: 0.68rem; font-weight: 800; }
+        .signal-actions, .admin-signal-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 7px; }
+        .signal-btn { border: 1px solid var(--border-card); background: var(--card-bg); color: var(--text-title); border-radius: 7px; padding: 5px 8px; font-size: 0.68rem; font-weight: 900; cursor: pointer; }
+        .signal-btn:hover { border-color: #E67E22; color: #B45309; }
+        .signal-btn.danger { color: var(--accent-red); }
+        .signal-btn.seen { color: var(--accent-blue); }
+        .signal-btn.done { color: #087F5B; }
+        .signal-btn.message { color: #6C5CE7; }
+        .signal-btn:disabled { opacity: 0.55; cursor: default; }
+        .fluxo-cargo-heading { margin: 12px 0 6px; padding: 7px 10px; border-radius: 8px; background: var(--bg-body); border: 1px solid var(--border-card); color: var(--text-title); font-size: 0.74rem; font-weight: 900; display: flex; align-items: center; justify-content: space-between; }
+        .fluxo-cargo-heading:first-child { margin-top: 0; }
+        .fluxo-cargo-order { color: var(--text-muted); font-size: 0.66rem; }
+        .message-copy { white-space: pre-wrap; max-height: 34vh; overflow-y: auto; padding: 12px; border-radius: 9px; background: var(--bg-body); border: 1px solid var(--border-card); color: var(--text-title); font-size: 0.88rem; line-height: 1.55; }
+        .message-context { margin-bottom: 10px; color: var(--text-muted); font-size: 0.76rem; font-weight: 700; line-height: 1.45; }
+        .message-read-btn { width: 100%; margin-top: 14px; }
+        .modal-obrigatorio { z-index: 12000; }
+        .cargo-edit-btn { color: var(--accent-blue); }
+        @media (max-width: 620px) {
+            .activity-signal-box { margin-left: 0; }
+            .signal-actions .signal-btn, .admin-signal-actions .signal-btn { flex: 1 1 auto; }
+        }
 
     </style>
 </head>
@@ -374,7 +404,34 @@
         </div>
     </div>
 
-    <!-- MODAL FLUXO DIÁRIO: porcentagem de conclusão de cada usuário + fluxo do cargo -->
+
+
+    <!-- MODAL RENOMEAR CARGO -->
+    <div class="modal-overlay" id="modalEditarCargo">
+        <div class="modal-box">
+            <div class="modal-head"><h2>✏️ Renomear cargo</h2><span class="modal-close" onclick="fecharModal('modalEditarCargo')">&times;</span></div>
+            <input type="hidden" id="cargoNomeOriginal">
+            <div class="field"><label>Novo nome do cargo</label><input type="text" id="cargoNovoNome" placeholder="Nome do cargo"></div>
+            <div class="editor-help">Todos os colaboradores vinculados serão atualizados. A posição do cargo na ordem configurada será preservada.</div>
+            <div class="modal-actions"><button class="btn-header btn-dark" onclick="fecharModal('modalEditarCargo')">Cancelar</button><button class="btn-header btn-green" onclick="salvarRenomeacaoCargo()">💾 Salvar nome</button></div>
+        </div>
+    </div>
+
+
+
+    <!-- MODAL SINALIZAR ATIVIDADE -->
+    <div class="modal-overlay" id="modalSinalizacao">
+        <div class="modal-box">
+            <div class="modal-head"><h2 id="sinalizacaoTitulo">⚠️ Sinalizar atividade não realizada</h2><span class="modal-close" onclick="fecharModal('modalSinalizacao')">&times;</span></div>
+            <input type="hidden" id="sinalizacaoColabKey">
+            <input type="hidden" id="sinalizacaoAtividadeId">
+            <div class="editor-help" id="sinalizacaoContexto"></div>
+            <div class="field"><label>Por que você não conseguiu concluir esta atividade?</label><textarea id="sinalizacaoMotivo" rows="5" maxlength="1000" placeholder="Descreva o motivo para o administrador..."></textarea></div>
+            <div class="modal-actions"><button class="btn-header btn-dark" onclick="fecharModal('modalSinalizacao')">Cancelar</button><button class="btn-header btn-green" onclick="salvarSinalizacao()">💾 Salvar sinalização</button></div>
+        </div>
+    </div>
+
+    <!-- MODAL FLUXO DIÁRIO: conclusão em coluna única, agrupada pela ordem configurada dos cargos -->
     <div class="modal-overlay" id="modalFluxo">
         <div class="modal-box xwide">
             <div class="modal-head"><h2>📋 Fluxo Diário — <span id="fluxoDiaLabel" style="color:var(--accent-blue);"></span></h2><span class="modal-close" onclick="fecharModal('modalFluxo')">&times;</span></div>
@@ -382,17 +439,36 @@
                 <label for="fluxoFiltroCargo">🏷️ Filtrar por cargo:</label>
                 <select id="fluxoFiltroCargo" onchange="renderizarFluxo()"><option value="">Todos os cargos</option></select>
             </div>
-            <div class="fluxo-split">
-                <div class="fluxo-col">
-                    <h3>📊 Conclusão por colaborador</h3>
-                    <div class="fluxo-scroll" id="fluxoPercentuais"></div>
-                </div>
-                <div class="fluxo-col">
-                    <h3>🗂️ Fluxo padrão do cargo</h3>
-                    <div class="field" style="margin-bottom:10px;"><select id="fluxoCargoSelect" onchange="renderizarFluxoCargo()"></select></div>
-                    <div class="fluxo-scroll" id="fluxoConteudo"></div>
-                </div>
+            <div class="fluxo-col">
+                <h3>📊 Conclusão por colaborador — ordem dos cargos</h3>
+                <div class="fluxo-scroll" id="fluxoPercentuais"></div>
             </div>
+        </div>
+    </div>
+
+
+
+    <!-- MODAL MENSAGEM DO ADMINISTRADOR -->
+    <div class="modal-overlay" id="modalMensagemAdmin">
+        <div class="modal-box">
+            <div class="modal-head"><h2>💬 Mensagem para o colaborador</h2><span class="modal-close" onclick="fecharModal('modalMensagemAdmin')">&times;</span></div>
+            <input type="hidden" id="mensagemColabKey">
+            <input type="hidden" id="mensagemAtividadeId">
+            <div class="editor-help" id="mensagemAdminContexto"></div>
+            <div class="field"><label>Mensagem que será exibida a partir do dia seguinte</label><textarea id="mensagemAdminTexto" rows="6" maxlength="1500" placeholder="Escreva a orientação para o colaborador..."></textarea></div>
+            <div class="modal-actions"><button class="btn-header btn-dark" onclick="fecharModal('modalMensagemAdmin')">Cancelar</button><button class="btn-header btn-green" onclick="enviarMensagemAdmin()">📨 Enviar mensagem</button></div>
+        </div>
+    </div>
+
+
+
+    <!-- MENSAGEM OBRIGATÓRIA DO ADMINISTRADOR -->
+    <div class="modal-overlay modal-obrigatorio" id="modalMensagemPendente">
+        <div class="modal-box">
+            <div class="modal-head"><h2>💬 Mensagem do administrador</h2></div>
+            <div class="message-context" id="mensagemPendenteContexto"></div>
+            <div class="message-copy" id="mensagemPendenteTexto"></div>
+            <button class="btn-header btn-green message-read-btn" id="btnMensagemLida" onclick="marcarMensagemLida()">✅ Li e entendi</button>
         </div>
     </div>
 
@@ -402,6 +478,7 @@
         const FIREBASE_URL = "https://reportes-bdb0a-default-rtdb.firebaseio.com/";
         const NODE_CONFIG = "tdm_config";
         const NODE_DIARIO = "tdm_diario";
+        const NODE_MENSAGENS = "tdm_mensagens";
 
         const currentUser = JSON.parse(localStorage.getItem('loggedUser')) || null;
         const userName = currentUser && currentUser.usuario ? String(currentUser.usuario) : '';
@@ -412,6 +489,7 @@
         let diarioDia = {};   // { <colabKey>: {...} } para a data selecionada
         let chipStatus = '';
         let activityEditorCount = 0;
+        let mensagensPendentes = [];
         let ultimoCargosHash = '';
 
         /* Detalhes operacionais das atividades (mesma referência do tdm.html) */
@@ -492,17 +570,32 @@
         }
         function checkedActivityIds(activities, checks) { return normalizeActivities(activities).filter(a => activityIsChecked(a, checks)).map(a => a.id); }
 
-        /** Contabilização: atividades isBackup só contam positivamente se feitas; se não feitas, não entram no denominador. */
+        function getSinalizacao(reg, activityOrId) {
+            if (!reg || !reg.sinalizacoes || typeof reg.sinalizacoes !== 'object') return null;
+            const id = typeof activityOrId === 'object' && activityOrId ? activityOrId.id : activityOrId;
+            return id && reg.sinalizacoes[id] && typeof reg.sinalizacoes[id] === 'object' ? reg.sinalizacoes[id] : null;
+        }
+        function adicionarDiasISO(iso, dias) {
+            const d = new Date(`${iso || hojeISO()}T12:00:00`);
+            d.setDate(d.getDate() + Number(dias || 0));
+            return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        }
+
+        /** Atividade sinalizada só conta como feita quando marcada normalmente ou classificada como concluída pelo admin. */
         function metricasAtividades(colab, reg) {
             const activities = normalizeActivities(colab && colab.atividades);
             const checks = reg && Array.isArray(reg.checks) ? reg.checks : [];
             const supportChecks = reg && Array.isArray(reg.supportChecks) ? reg.supportChecks : [];
-            let done = 0, total = 0, supportDone = 0, optDone = 0, optTotal = 0;
+            let done = 0, total = 0, supportDone = 0, optDone = 0, optTotal = 0, classifiedDone = 0, signalTotal = 0, signalPending = 0;
             const doneIds = [];
             activities.forEach(a => {
                 const own = activityIsChecked(a, checks);
                 const sup = activityIsChecked(a, supportChecks);
-                const isDone = own || sup;
+                const signal = getSinalizacao(reg, a);
+                const classified = !!(signal && signal.classificadaFeita === true);
+                const isDone = own || sup || classified;
+                if (signal) { signalTotal++; if (!isDone) signalPending++; }
+                if (classified && !own && !sup) classifiedDone++;
                 if (a.isBackup) {
                     optTotal++;
                     if (isDone) { optDone++; done++; total++; doneIds.push(a.id); if (sup && !own) supportDone++; }
@@ -512,7 +605,7 @@
                 }
             });
             const pct = total ? Math.round((done / total) * 100) : 0;
-            return { activities, done, total, pct, supportDone, optDone, optTotal, doneIds, checks, supportChecks };
+            return { activities, done, total, pct, supportDone, optDone, optTotal, classifiedDone, signalTotal, signalPending, doneIds, checks, supportChecks };
         }
 
         function registroChecks(colab, reg) { return metricasAtividades(colab, reg).doneIds; }
@@ -560,7 +653,8 @@
             if (!reg) return false;
             const temCheckProprio = Array.isArray(reg.checks) && reg.checks.length > 0;
             const temSupport = Array.isArray(reg.supportChecks) && reg.supportChecks.length > 0;
-            return !!(temCheckProprio || temSupport || reg.status || reg.entrada || reg.saida || reg.folga === true || reg.folga === false);
+            const temSinalizacao = !!(reg.sinalizacoes && typeof reg.sinalizacoes === 'object' && Object.keys(reg.sinalizacoes).length);
+            return !!(temCheckProprio || temSupport || temSinalizacao || reg.status || reg.entrada || reg.saida || reg.folga === true || reg.folga === false);
         }
         function isHojeSelecionado() { return (document.getElementById('dataSelecionada').value || hojeISO()) === hojeISO(); }
         function isFuturoSelecionado() { return (document.getElementById('dataSelecionada').value || hojeISO()) > hojeISO(); }
@@ -582,7 +676,7 @@
             pendente:    { cls: 'pend', texto: '⏳ Pendente',      title: 'Dia encerrado sem registro' }
         };
         function apoioPermitido(colab, reg) { return isHojeSelecionado() && souBackupDe(colab) && !!reg && (reg.folga === true || reg.status === 'folga'); }
-        function podeEditarChecks(colab, isSupport) { return isAdmin || (isHojeSelecionado() && (usuarioVinculado(colab) || isSupport)); }
+        function podeEditarChecks(colab) { return isAdmin || (isHojeSelecionado() && usuarioVinculado(colab)); }
 
         async function carregarConfig() {
             try {
@@ -622,7 +716,8 @@
         async function salvarConfig() {
             const payload = sanitizarConfigParaSalvar();
             config.cargos = payload.cargos;
-            await fetch(`${FIREBASE_URL}${NODE_CONFIG}.json`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+            const res = await fetch(`${FIREBASE_URL}${NODE_CONFIG}.json`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+            if (!res.ok) throw new Error('Falha ao salvar configuração');
         }
         async function carregarUsuarios() {
             try { const res = await fetch(`${FIREBASE_URL}users.json`); allUsers = await res.json() || {}; } catch (e) { allUsers = {}; }
@@ -737,7 +832,7 @@
             const preenchido = regPreenchido(reg);
             const estadoPill = ESTADO_PILL[estadoPreenchimento(reg)] || ESTADO_PILL.pendente;
             const owner = usuarioVinculado(colab);
-            const support = apoioPermitido(colab, reg) && !owner;
+            const support = false; // usuário comum nunca edita atividades de outro colaborador
             const canOwn = podeEditarChecks(colab, false);
             const canSupport = podeEditarChecks(colab, support);
             const backupName = nomeDoBackup(colab);
@@ -761,26 +856,49 @@
             const activityHtml = activities.length ? activities.map(a => {
                 const ownDone = activityIsChecked(a, checks);
                 const supDone = activityIsChecked(a, supportChecks);
-                const done = ownDone || supDone;
+                const signal = getSinalizacao(reg, a);
+                const classified = !!(signal && signal.classificadaFeita === true);
+                const done = ownDone || supDone || classified;
                 const isSupportMode = support && !isAdmin && !owner;
                 const enabled = isAdmin || (owner && canOwn) || (support && canSupport);
                 const checked = isSupportMode ? supDone : ownDone;
+                const canSignal = owner && isHojeSelecionado();
+                const canViewReason = isAdmin || owner;
                 const tags = [];
                 if (a.isBackup) tags.push('<span class="tag-opt" title="Atividade backup: só conta positivo se feita">⭐ backup</span>');
                 if (supDone && !ownDone) tags.push('<span class="tag-backup">🔁 apoio</span>');
-                return `<div class="activity-row ${done ? 'done' : ''} ${supDone && !ownDone ? 'is-backup' : ''} ${a.isBackup ? 'is-opt' : ''}">
+                if (signal) tags.push('<span class="tag-signal">⚠️ sinalizada</span>');
+                if (classified) tags.push('<span class="tag-admin-done">✅ concluída pelo admin</span>');
+                let signalHtml = '';
+                if (signal) {
+                    const conclusaoSignal = classified ? '✅ Classificada como concluída' : (ownDone || supDone ? '☑️ Já marcada como executada; a sinalização pode ser removida' : '❌ Permanece não concluída nos dados finais');
+                    const statusSignal = `${signal.vistoAdmin ? '👁️ Visto pelo admin' : '⏳ Não visto'} · ${conclusaoSignal}`;
+                    let actionsSignal = '';
+                    if (isAdmin) {
+                        actionsSignal = `<div class="admin-signal-actions"><button type="button" class="signal-btn seen" ${signal.vistoAdmin ? 'disabled' : ''} onclick="marcarSinalizacaoVista(${jsonAttr(colab.key)},${jsonAttr(a.id)})">${signal.vistoAdmin ? '👁️ Já visto' : '👁️ Marcar como visto'}</button><button type="button" class="signal-btn done" onclick="classificarSinalizacaoFeita(${jsonAttr(colab.key)},${jsonAttr(a.id)})">${classified ? '↩️ Desfazer conclusão' : '✅ Classificar como concluída'}</button><button type="button" class="signal-btn message" onclick="abrirModalMensagemAdmin(${jsonAttr(colab.key)},${jsonAttr(a.id)})">💬 Adicionar mensagem</button></div>`;
+                    } else if (canSignal) {
+                        actionsSignal = `<div class="signal-actions"><button type="button" class="signal-btn" onclick="abrirModalSinalizacao(${jsonAttr(colab.key)},${jsonAttr(a.id)})">✏️ Editar motivo</button><button type="button" class="signal-btn danger" onclick="removerSinalizacao(${jsonAttr(colab.key)},${jsonAttr(a.id)})">🗑️ Remover sinalização</button></div>`;
+                    }
+                    signalHtml = canViewReason
+                        ? `<div class="activity-signal-box"><strong>⚠️ Motivo informado:</strong> ${escapeHtml(signal.motivo || 'Sem motivo informado.')}<div class="signal-status">${statusSignal}${signal.ultimaMensagemEm ? ' · 💬 Mensagem programada' : ''}</div>${actionsSignal}</div>`
+                        : '<div class="activity-signal-box is-private">⚠️ Atividade sinalizada. O motivo é restrito ao colaborador vinculado e aos administradores.</div>';
+                } else if (canSignal && !done) {
+                    signalHtml = `<div class="signal-actions" style="grid-column:1/-1;margin-left:30px;"><button type="button" class="signal-btn" onclick="abrirModalSinalizacao(${jsonAttr(colab.key)},${jsonAttr(a.id)})">⚠️ Não consegui concluir</button></div>`;
+                }
+                return `<div class="activity-row ${done ? 'done' : ''} ${signal ? 'has-signal' : ''} ${supDone && !ownDone ? 'is-backup' : ''} ${a.isBackup ? 'is-opt' : ''}">
                     <input type="checkbox" aria-label="Marcar ${escapeHtml(a.nome)}" ${checked ? 'checked' : ''} ${enabled ? '' : 'disabled'} onchange="toggleCheck(${jsonAttr(colab.key)},${jsonAttr(a.id)},this,${jsonAttr(isSupportMode ? 'support' : 'owner')})">
                     <div class="activity-text">
                         <button type="button" class="activity-name" aria-expanded="false" onclick="toggleActivity(this)"><span class="chevron">▸</span><span class="txt">${escapeHtml(a.nome)}</span>${tags.join('')}</button>
                         <div class="activity-details">${escapeHtml(a.detalhes || 'Sem detalhes cadastrados para esta atividade.')}${a.isBackup ? '<br><em>⭐ Atividade backup: se não for feita, não reduz a porcentagem.</em>' : ''}</div>
                     </div>
+                    ${signalHtml}
                 </div>`;
             }).join('') : '<div class="check-empty">Sem atividades cadastradas para este colaborador.</div>';
 
             const acoes = isAdmin
                 ? `<div class="card-actions"><span class="save-state">${doneIds.length}/${total} concluídas${supportCount ? ` · ${supportCount} backup` : ''}</span><button class="mini-btn" onclick="abrirModalColaborador(${jsonAttr(colab.key)})">✏️ Editar</button><button class="mini-btn danger" onclick="excluirColaborador(${jsonAttr(colab.key)})">🗑️ Excluir</button></div>`
                 : (owner && isHojeSelecionado()
-                    ? '<div class="owner-note">☑️ Você pode marcar as suas atividades como feitas neste dia. As demais ficam somente para visualização.</div>'
+                    ? '<div class="owner-note">☑️ Você pode marcar as suas atividades ou sinalizar as que não conseguiu concluir neste dia. As demais ficam somente para visualização.</div>'
                     : '<div class="owner-note">👁️ Somente leitura para você — só a própria conta pode marcar as atividades no dia atual.</div>');
 
             const dragAttrs = isAdmin
@@ -803,7 +921,7 @@
                 ${folgaHtml}
                 <div class="user-row"><span class="tdm-label">🕐 Entrada:</span>${entradaHtml}<span class="tdm-label" style="margin-left:6px;">Saída:</span>${saidaHtml}</div>
                 <div class="progress-row"><div class="progress-bar"><div class="progress-fill ${barCls}" style="width:${pct}%"></div></div><span class="progress-pct">${pct}%</span></div>
-                <div class="progress-meta"><strong>${doneIds.length}/${total}</strong> atividades concluídas${supportCount ? ` · <span class="backup-tag-line">🔁 ${supportCount} de apoio</span>` : ''}${m.optTotal ? ` · <span style="color:#6C5CE7;font-weight:800;">⭐ ${m.optDone}/${m.optTotal} backup</span>` : ''}</div>
+                <div class="progress-meta"><strong>${doneIds.length}/${total}</strong> atividades concluídas${supportCount ? ` · <span class="backup-tag-line">🔁 ${supportCount} de apoio</span>` : ''}${m.classifiedDone ? ` · <span style="color:#087F5B;font-weight:800;">✅ ${m.classifiedDone} pelo admin</span>` : ''}${m.signalPending ? ` · <span style="color:#B45309;font-weight:800;">⚠️ ${m.signalPending} não concluída(s)</span>` : ''}${m.optTotal ? ` · <span style="color:#6C5CE7;font-weight:800;">⭐ ${m.optDone}/${m.optTotal} backup</span>` : ''}</div>
                 ${obs}
                 <div class="checklist">${activityHtml}</div>
                 ${acoes}
@@ -859,6 +977,210 @@
             gravarRegistro(key).then(() => { toast(valor ? '✅ Marcado como folga.' : '❌ Marcado como NÃO folga.'); renderizar(); }).catch(() => alert('Erro ao salvar.'));
             registrarLog('TDM-DADOS', `Folga ${valor} para ${key}`);
         }
+        async function marcarSinalizacaoVista(key, activityId) {
+            if (!isAdmin) return;
+            const colab = config.colaboradores[key];
+            const reg = diarioDia[key] || {};
+            const activity = normalizeActivities(colab && colab.atividades).find(a => a.id === activityId);
+            const signal = getSinalizacao(reg, activity);
+            if (!signal || signal.vistoAdmin) return;
+            signal.vistoAdmin = true;
+            signal.vistoPor = userName;
+            signal.vistoEm = Date.now();
+            reg.updatedAt = Date.now();
+            try {
+                await gravarRegistro(key);
+                renderizar();
+                toast('👁️ Sinalização marcada como vista. A atividade continua não concluída.');
+                registrarLog('TDM-DADOS', `Marcou como vista a sinalização ${activity.nome} de ${colab.nome}`);
+            } catch (e) { alert('Erro ao salvar a análise da sinalização.'); }
+        }
+        async function classificarSinalizacaoFeita(key, activityId) {
+            if (!isAdmin) return;
+            const colab = config.colaboradores[key];
+            const reg = diarioDia[key] || {};
+            const activity = normalizeActivities(colab && colab.atividades).find(a => a.id === activityId);
+            const signal = getSinalizacao(reg, activity);
+            if (!signal) return;
+            const classificadaFeita = signal.classificadaFeita !== true;
+            signal.classificadaFeita = classificadaFeita;
+            signal.classificadaPor = userName;
+            signal.classificadaEm = Date.now();
+            reg.updatedAt = Date.now();
+            try {
+                await gravarRegistro(key);
+                renderizar();
+                toast(classificadaFeita ? '✅ Atividade classificada como concluída!' : '↩️ Classificação de conclusão removida.');
+                registrarLog('TDM-DADOS', `${classificadaFeita ? 'Classificou como concluída' : 'Desfez conclusão'} a sinalização ${activity.nome} de ${colab.nome}`);
+            } catch (e) { alert('Erro ao salvar a classificação.'); }
+        }
+        function abrirModalMensagemAdmin(key, activityId) {
+            if (!isAdmin) return;
+            const colab = config.colaboradores[key];
+            const reg = diarioDia[key] || {};
+            const activity = normalizeActivities(colab && colab.atividades).find(a => a.id === activityId);
+            const signal = getSinalizacao(reg, activity);
+            if (!colab || !activity || !signal) return;
+            if (!colab.conta) return alert('Vincule uma conta a este colaborador antes de enviar a mensagem.');
+            document.getElementById('mensagemColabKey').value = key;
+            document.getElementById('mensagemAtividadeId').value = activityId;
+            document.getElementById('mensagemAdminTexto').value = '';
+            document.getElementById('mensagemAdminContexto').textContent = `${colab.nome} (${colab.conta}) · ${activity.nome} · a mensagem será exibida a partir de ${formatDataBR(adicionarDiasISO(hojeISO(), 1))} e permanecerá até a confirmação de leitura.`;
+            document.getElementById('modalMensagemAdmin').classList.add('active');
+            setTimeout(() => document.getElementById('mensagemAdminTexto').focus(), 50);
+        }
+        async function enviarMensagemAdmin() {
+            if (!isAdmin) return;
+            const key = document.getElementById('mensagemColabKey').value;
+            const activityId = document.getElementById('mensagemAtividadeId').value;
+            const texto = document.getElementById('mensagemAdminTexto').value.trim();
+            if (!texto) return alert('Escreva a mensagem para o colaborador.');
+            const colab = config.colaboradores[key];
+            const reg = diarioDia[key] || {};
+            const activity = normalizeActivities(colab && colab.atividades).find(a => a.id === activityId);
+            const signal = getSinalizacao(reg, activity);
+            if (!colab || !colab.conta || !activity || !signal) return alert('Não foi possível localizar o destinatário ou a sinalização.');
+            const dataOrigem = document.getElementById('dataSelecionada').value || hojeISO();
+            const disponivelEm = adicionarDiasISO(hojeISO(), 1);
+            const payload = {
+                colaborador: colab.nome,
+                destinatarioConta: colab.conta,
+                atividadeId: activity.id,
+                atividadeNome: activity.nome,
+                motivoOriginal: signal.motivo || '',
+                mensagem: texto,
+                criadoPor: userName,
+                criadoEm: Date.now(),
+                dataOrigem,
+                disponivelEm
+            };
+            try {
+                const res = await fetch(`${FIREBASE_URL}${NODE_MENSAGENS}/${key}.json`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+                if (!res.ok) throw new Error('Falha ao enviar mensagem');
+                let criado = {};
+                try { criado = await res.json(); } catch (e) {}
+                signal.ultimaMensagemId = criado && criado.name ? criado.name : '';
+                signal.ultimaMensagemEm = payload.criadoEm;
+                signal.ultimaMensagemPor = userName;
+                signal.ultimaMensagemDisponivelEm = disponivelEm;
+                reg.updatedAt = Date.now();
+                // A mensagem já está persistida no nó próprio; falha neste metadado não deve provocar envio duplicado.
+                try { await gravarRegistro(key); } catch (e) { console.warn('Mensagem enviada, mas o resumo da sinalização não foi atualizado.', e); }
+                fecharModal('modalMensagemAdmin');
+                renderizar();
+                toast(`📨 Mensagem programada para ${formatDataBR(disponivelEm)}!`);
+                registrarLog('TDM-DADOS', `Enviou mensagem sobre ${activity.nome} para ${colab.nome}`);
+            } catch (e) { alert('Erro ao enviar a mensagem. Tente novamente.'); }
+        }
+
+        function podeAlterarSinalizacao(key) {
+            const colab = config.colaboradores && config.colaboradores[key];
+            return !!(colab && (isAdmin || (isHojeSelecionado() && usuarioVinculado({ key, ...colab }))));
+        }
+        function abrirModalSinalizacao(key, activityId) {
+            if (!podeAlterarSinalizacao(key)) return alert('Você só pode sinalizar as atividades vinculadas à sua conta no dia atual.');
+            const colab = config.colaboradores[key];
+            const activity = normalizeActivities(colab && colab.atividades).find(a => a.id === activityId);
+            if (!activity) return;
+            const reg = diarioDia[key] || {};
+            const signal = getSinalizacao(reg, activity);
+            document.getElementById('sinalizacaoColabKey').value = key;
+            document.getElementById('sinalizacaoAtividadeId').value = activity.id;
+            document.getElementById('sinalizacaoTitulo').textContent = signal ? '✏️ Editar motivo da sinalização' : '⚠️ Sinalizar atividade não realizada';
+            document.getElementById('sinalizacaoContexto').textContent = `${colab.nome} · ${activity.nome}`;
+            document.getElementById('sinalizacaoMotivo').value = signal && signal.motivo ? signal.motivo : '';
+            document.getElementById('modalSinalizacao').classList.add('active');
+            setTimeout(() => document.getElementById('sinalizacaoMotivo').focus(), 50);
+        }
+        async function salvarSinalizacao() {
+            const key = document.getElementById('sinalizacaoColabKey').value;
+            const activityId = document.getElementById('sinalizacaoAtividadeId').value;
+            const motivo = document.getElementById('sinalizacaoMotivo').value.trim();
+            if (!podeAlterarSinalizacao(key)) return alert('Você não tem permissão para alterar esta sinalização.');
+            if (!motivo) return alert('Informe o motivo pelo qual a atividade não foi concluída.');
+            const colab = config.colaboradores[key];
+            const activity = normalizeActivities(colab && colab.atividades).find(a => a.id === activityId);
+            if (!activity) return alert('Atividade não encontrada.');
+            const reg = diarioDia[key] = (diarioDia[key] && typeof diarioDia[key] === 'object') ? diarioDia[key] : {};
+            reg.sinalizacoes = reg.sinalizacoes && typeof reg.sinalizacoes === 'object' ? reg.sinalizacoes : {};
+            const anterior = getSinalizacao(reg, activity) || {};
+            reg.sinalizacoes[activity.id] = {
+                ...anterior,
+                atividadeId: activity.id,
+                atividadeNome: activity.nome,
+                motivo,
+                criadoPor: anterior.criadoPor || userName,
+                criadoEm: anterior.criadoEm || Date.now(),
+                atualizadoPor: userName,
+                atualizadoEm: Date.now()
+            };
+            reg.updatedAt = Date.now();
+            reg.preenchidoPor = reg.preenchidoPor || userName;
+            try {
+                await gravarRegistro(key);
+                fecharModal('modalSinalizacao');
+                renderizar();
+                toast(anterior.motivo ? '✏️ Motivo atualizado!' : '⚠️ Atividade sinalizada!');
+                registrarLog('TDM-DADOS', `Sinalizou atividade ${activity.nome} de ${colab.nome}`);
+            } catch (e) { alert('Erro ao salvar a sinalização.'); }
+        }
+        async function removerSinalizacao(key, activityId) {
+            if (!podeAlterarSinalizacao(key)) return alert('Você não tem permissão para remover esta sinalização.');
+            const colab = config.colaboradores[key];
+            const activity = normalizeActivities(colab && colab.atividades).find(a => a.id === activityId);
+            const reg = diarioDia[key] || {};
+            if (!activity || !getSinalizacao(reg, activity)) return;
+            if (!confirm('Remover a sinalização desta atividade? Use esta opção quando você tiver conseguido concluí-la.')) return;
+            delete reg.sinalizacoes[activity.id];
+            if (!Object.keys(reg.sinalizacoes).length) delete reg.sinalizacoes;
+            reg.updatedAt = Date.now();
+            try {
+                await gravarRegistro(key);
+                renderizar();
+                toast('✅ Sinalização removida!');
+                registrarLog('TDM-DADOS', `Removeu sinalização da atividade ${activity.nome} de ${colab.nome}`);
+            } catch (e) { alert('Erro ao remover a sinalização.'); }
+        }
+
+        async function carregarMensagensPendentes() {
+            mensagensPendentes = [];
+            if (!currentUser || isAdmin || !userName) return;
+            const meusCadastros = listaColaboradores().filter(usuarioVinculado);
+            const resultados = await Promise.all(meusCadastros.map(async colab => {
+                try {
+                    const res = await fetch(`${FIREBASE_URL}${NODE_MENSAGENS}/${colab.key}.json`);
+                    const data = res.ok ? await res.json() : {};
+                    return Object.entries(data || {}).map(([id, mensagem]) => ({ id, colabKey:colab.key, colabNome:colab.nome, ...mensagem }));
+                } catch (e) { return []; }
+            }));
+            mensagensPendentes = resultados.flat().filter(m => m && !m.lidaEm && (!m.disponivelEm || m.disponivelEm <= hojeISO())).sort((a,b) => (+a.criadoEm || 0) - (+b.criadoEm || 0));
+            exibirProximaMensagem();
+        }
+        function exibirProximaMensagem() {
+            const modal = document.getElementById('modalMensagemPendente');
+            const mensagem = mensagensPendentes[0];
+            if (!modal || !mensagem) { if (modal) modal.classList.remove('active'); return; }
+            const partes = [mensagem.colabNome || mensagem.colaborador, mensagem.atividadeNome, mensagem.dataOrigem ? `atividade de ${formatDataBR(mensagem.dataOrigem)}` : '', mensagem.criadoPor ? `enviada por ${mensagem.criadoPor}` : ''].filter(Boolean);
+            document.getElementById('mensagemPendenteContexto').textContent = partes.join(' · ');
+            document.getElementById('mensagemPendenteTexto').textContent = mensagem.mensagem || '';
+            document.getElementById('btnMensagemLida').disabled = false;
+            modal.classList.add('active');
+        }
+        async function marcarMensagemLida() {
+            const mensagem = mensagensPendentes[0];
+            if (!mensagem) return;
+            const btn = document.getElementById('btnMensagemLida');
+            btn.disabled = true;
+            try {
+                const res = await fetch(`${FIREBASE_URL}${NODE_MENSAGENS}/${mensagem.colabKey}/${mensagem.id}.json`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ lidaEm:Date.now(), lidaPor:userName }) });
+                if (!res.ok) throw new Error('Falha ao confirmar leitura');
+                mensagensPendentes.shift();
+                document.getElementById('modalMensagemPendente').classList.remove('active');
+                registrarLog('TDM-DADOS', `Confirmou leitura da mensagem ${mensagem.id}`);
+                exibirProximaMensagem();
+            } catch (e) { btn.disabled = false; alert('Não foi possível confirmar a leitura. Tente novamente.'); }
+        }
+
         function toggleCheck(key, activityId, checkbox, mode) {
             const colab = config.colaboradores[key];
             if (!colab) { if (checkbox) checkbox.checked = !checkbox.checked; return; }
@@ -1025,10 +1347,47 @@
                         <button class="mini-btn" ${i === 0 ? 'disabled' : ''} title="Subir" onclick="moverCargo(${jsonAttr(c)},-1)">▲</button>
                         <button class="mini-btn" ${i === cargos.length - 1 ? 'disabled' : ''} title="Descer" onclick="moverCargo(${jsonAttr(c)},1)">▼</button>
                     </span>
-                    <button class="mini-btn danger" onclick="excluirCargo(${jsonAttr(c)})">🗑️</button>
+                    <button class="mini-btn cargo-edit-btn" title="Renomear cargo" onclick="abrirEditarCargo(${jsonAttr(c)})">✏️ Renomear</button>
+                    <button class="mini-btn danger" title="Excluir cargo" onclick="excluirCargo(${jsonAttr(c)})">🗑️</button>
                 </div>`;
             }).join('');
         }
+        function abrirEditarCargo(cargo) {
+            if (!isAdmin || !config.cargos[cargo]) return;
+            document.getElementById('cargoNomeOriginal').value = cargo;
+            document.getElementById('cargoNovoNome').value = cargo;
+            document.getElementById('modalEditarCargo').classList.add('active');
+            setTimeout(() => { const input = document.getElementById('cargoNovoNome'); input.focus(); input.select(); }, 50);
+        }
+        async function salvarRenomeacaoCargo() {
+            if (!isAdmin) return;
+            const original = document.getElementById('cargoNomeOriginal').value;
+            const novo = document.getElementById('cargoNovoNome').value.trim();
+            if (!original || !config.cargos[original]) return alert('Cargo original não encontrado.');
+            if (!novo) return alert('Informe o novo nome do cargo.');
+            if (novo === original) { fecharModal('modalEditarCargo'); return; }
+            const duplicado = Object.keys(config.cargos || {}).find(nome => nome !== original && nome.toLocaleLowerCase('pt-BR') === novo.toLocaleLowerCase('pt-BR'));
+            if (duplicado) return alert('Já existe um cargo com este nome.');
+            const cargoConfig = config.cargos[original];
+            config.cargos[novo] = cargoConfig;
+            delete config.cargos[original];
+            Object.values(config.colaboradores || {}).forEach(colab => { if (colab && colab.cargo === original) colab.cargo = novo; });
+            try {
+                await salvarConfig();
+                ultimoCargosHash = ''; preencherFiltroCargos();
+                fecharModal('modalEditarCargo');
+                renderizarCargosList();
+                renderizar();
+                toast('✏️ Cargo renomeado!');
+                registrarLog('TDM-DADOS', `Renomeou cargo ${original} para ${novo}`);
+            } catch (e) {
+                await carregarConfig();
+                renderizarCargosList();
+                renderizar();
+                alert('Erro ao renomear o cargo.');
+            }
+        }
+
         function aplicarOrdemCargos(ordem) {
             ordem.forEach((nome, i) => { if (config.cargos[nome]) config.cargos[nome].ordem = i + 1; });
             ultimoCargosHash = '';
@@ -1089,8 +1448,6 @@
         function abrirModalFluxo() {
             normalizarOrdemCargos();
             const cargos = listaCargos();
-            const sel = document.getElementById('fluxoCargoSelect');
-            sel.innerHTML = cargos.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('') || '<option value="">—</option>';
             const filtro = document.getElementById('fluxoFiltroCargo');
             const atual = filtro.value || document.getElementById('filtroCargo').value || '';
             filtro.innerHTML = '<option value="">Todos os cargos</option>' + cargos.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
@@ -1108,53 +1465,60 @@
             const el = document.getElementById('fluxoPercentuais');
             if (!visiveis.length) {
                 el.innerHTML = '<div class="fluxo-empty">Nenhum colaborador disponível para exibir as porcentagens.</div>';
-            } else {
-                let totDone = 0, totTotal = 0;
-                const rows = visiveis.map(colab => {
-                    const reg = diarioDia[colab.key] || {};
-                    const mm = metricasAtividades(colab, reg);
-                    const total = mm.total;
-                    const done = mm.done;
-                    const support = mm.supportDone;
-                    totDone += done; totTotal += total;
-                    const pct = mm.pct;
-                    const folga = reg.folga === true;
-                    const status = reg.status || (folga ? 'folga' : '');
-                    const bar = pct >= 100 ? 'green' : pct >= 50 ? 'warn' : 'red';
-                    return `<div class="fluxo-user">
-                        <div class="fluxo-user-head">
-                            <span class="fluxo-avatar">${escapeHtml(iniciais(colab.nome))}</span>
-                            <div class="fluxo-names"><strong>${escapeHtml(colab.nome)}</strong><small>${escapeHtml(colab.cargo || 'Sem cargo')}</small></div>
-                            ${status ? `<span class="fluxo-pill ${status}">${escapeHtml(statusLabel(status))}</span>` : ''}
-                            ${folga && status !== 'folga' ? '<span class="fluxo-pill folga">Folga</span>' : ''}
-                        </div>
-                        <div class="fluxo-bar-wrap">
-                            <div class="fluxo-bar"><div class="fluxo-bar-fill ${bar}" style="width:${pct}%"></div></div>
-                            <span class="fluxo-pct">${pct}%</span>
-                            <span class="fluxo-frac">${done}/${total} atividades</span>
-                            ${support ? `<span class="fluxo-support">🔁 ${support} de backup</span>` : ''}
-                        </div>
-                    </div>`;
-                }).join('');
-                const media = totTotal ? Math.round((totDone / totTotal) * 100) : 0;
-                const mediaLabel = isAdmin ? 'Média do time' : 'Sua conclusão';
-                const escopo = filtroCargo ? `🏷️ ${escapeHtml(filtroCargo)}` : '📊 Todos os cargos';
-                el.innerHTML = `<div class="fluxo-media"><span>${escopo}</span><span>${mediaLabel}: <strong>${media}%</strong> · ${totDone}/${totTotal}</span></div>` + rows;
+                return;
             }
-            const selCargo = document.getElementById('fluxoCargoSelect');
-            if (filtroCargo && [...selCargo.options].some(o => o.value === filtroCargo)) selCargo.value = filtroCargo;
-            renderizarFluxoCargo();
+            let totDone = 0, totTotal = 0, cargoAnterior = null;
+            const cargosOrdenados = listaCargos();
+            const rows = visiveis.map(colab => {
+                const reg = diarioDia[colab.key] || {};
+                const mm = metricasAtividades(colab, reg);
+                const total = mm.total;
+                const done = mm.done;
+                const support = mm.supportDone;
+                totDone += done; totTotal += total;
+                const pct = mm.pct;
+                const folga = reg.folga === true;
+                const status = reg.status || (folga ? 'folga' : '');
+                const bar = pct >= 100 ? 'green' : pct >= 50 ? 'warn' : 'red';
+                const cargo = colab.cargo || 'Sem cargo';
+                let cabecalhoCargo = '';
+                if (cargo !== cargoAnterior) {
+                    cargoAnterior = cargo;
+                    const posicao = cargosOrdenados.indexOf(colab.cargo) + 1;
+                    cabecalhoCargo = `<div class="fluxo-cargo-heading"><span>🏷️ ${escapeHtml(cargo)}</span><span class="fluxo-cargo-order">${posicao > 0 ? `${posicao}º na ordem dos cargos` : 'Sem ordem configurada'}</span></div>`;
+                }
+                return `${cabecalhoCargo}<div class="fluxo-user">
+                    <div class="fluxo-user-head">
+                        <span class="fluxo-avatar">${escapeHtml(iniciais(colab.nome))}</span>
+                        <div class="fluxo-names"><strong>${escapeHtml(colab.nome)}</strong><small>${escapeHtml(cargo)}</small></div>
+                        ${status ? `<span class="fluxo-pill ${status}">${escapeHtml(statusLabel(status))}</span>` : ''}
+                        ${folga && status !== 'folga' ? '<span class="fluxo-pill folga">Folga</span>' : ''}
+                    </div>
+                    <div class="fluxo-bar-wrap">
+                        <div class="fluxo-bar"><div class="fluxo-bar-fill ${bar}" style="width:${pct}%"></div></div>
+                        <span class="fluxo-pct">${pct}%</span>
+                        <span class="fluxo-frac">${done}/${total} atividades</span>
+                        ${support ? `<span class="fluxo-support">🔁 ${support} de backup</span>` : ''}
+                        ${mm.classifiedDone ? `<span class="fluxo-support">✅ ${mm.classifiedDone} pelo admin</span>` : ''}
+                        ${mm.signalPending ? `<span class="fluxo-support" style="color:#B45309;">⚠️ ${mm.signalPending} não concluída(s)</span>` : ''}
+                    </div>
+                </div>`;
+            }).join('');
+            const media = totTotal ? Math.round((totDone / totTotal) * 100) : 0;
+            const mediaLabel = isAdmin ? 'Média do time' : 'Sua conclusão';
+            const escopo = filtroCargo ? `🏷️ ${escapeHtml(filtroCargo)}` : '📊 Todos os cargos na ordem configurada';
+            el.innerHTML = `<div class="fluxo-media"><span>${escopo}</span><span>${mediaLabel}: <strong>${media}%</strong> · ${totDone}/${totTotal}</span></div>` + rows;
         }
-        function renderizarFluxoCargo() { const cargo = document.getElementById('fluxoCargoSelect').value; const fluxo = (config.cargos[cargo] && config.cargos[cargo].fluxo) || []; const el = document.getElementById('fluxoConteudo'); el.innerHTML = !cargo ? '<div style="color:var(--text-muted);">Selecione um cargo.</div>' : fluxo.length ? fluxo.map(f => `<div class="fluxo-step"><div class="t">${escapeHtml(f.titulo)}</div><ul>${(f.itens || []).map(i => `<li>${escapeHtml(i)}</li>`).join('')}</ul></div>`).join('') : '<div style="color:var(--text-muted);">Nenhum fluxo diário definido para este cargo.</div>'; }
 
         function fecharModal(id) { document.getElementById(id).classList.remove('active'); }
-        document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('active'); }));
+        document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if (e.target === m && !m.classList.contains('modal-obrigatorio')) m.classList.remove('active'); }));
 
         async function init() {
             document.getElementById('dataSelecionada').value = hojeISO();
             await carregarConfig();
             await carregarUsuarios();
             await carregarDia();
+            await carregarMensagensPendentes();
         }
         init();
     </script>
