@@ -17,6 +17,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 
+    <!-- Captura em alta qualidade do card individual -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
     <style>
         :root { --border-light: rgba(255,255,255,.2); --bg-header: rgba(15,23,42,.6); }
         [data-theme="light"] { --border-light: rgba(0,0,0,.1); }
@@ -44,9 +47,14 @@
         .legend span { padding:3px 8px; border-radius:20px; border:1px solid var(--border-card); }
 
         .cards-scroll { flex:1; overflow-y:auto; padding:4px; }
-        .cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(335px,100%),1fr)); gap:14px; align-items:start; }
-        .tdm-card { padding:16px; display:flex; flex-direction:column; gap:12px; min-width:0; }
-        .tdm-card-head { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+        /* PADRÃO DE TAMANHO: todos os cards com a mesma altura, independente da quantidade de atividades */
+        :root { --tdm-card-h: 560px; }
+        .cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(335px,100%),1fr)); gap:14px; align-items:stretch; grid-auto-rows:var(--tdm-card-h); }
+        .tdm-card { padding:16px; display:flex; flex-direction:column; gap:10px; min-width:0; height:100%; overflow:hidden; }
+        /* nada encolhe, só a lista de atividades ocupa/cede o espaço restante */
+        .tdm-card > * { flex:0 0 auto; }
+        .tdm-card > .checklist { flex:1 1 auto; min-height:0; }
+        .tdm-card-head { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex:0 0 auto; }
         .tdm-card-head .nome { font-size:1.1rem; font-weight:900; color:var(--text-title); line-height:1.2; }
         .badge-cargo { display:inline-block; background:var(--accent-blue); color:#fff; padding:3px 10px; border-radius:20px; font-size:.67rem; font-weight:900; text-transform:uppercase; letter-spacing:.3px; }
         .badge-backup { display:inline-block; background:var(--bg-body); color:var(--text-muted); border:1px solid var(--border-card); padding:3px 10px; border-radius:20px; font-size:.67rem; font-weight:700; }
@@ -63,7 +71,7 @@
         .active-ferias { background:#8E44AD; color:#fff; border-color:#8E44AD; }
         .active-folga { background:#6C5CE7; color:#fff; border-color:#6C5CE7; }
 
-        .checklist { display:flex; flex-direction:column; gap:5px; max-height:270px; overflow-y:auto; padding:10px 4px 2px 0; border-top:1px solid var(--border-card); }
+        .checklist { display:flex; flex-direction:column; gap:5px; overflow-y:auto; padding:10px 4px 2px 0; border-top:1px solid var(--border-card); }
         .activity-row { display:grid; grid-template-columns:auto 1fr; gap:7px; align-items:start; padding:4px 0; }
         .activity-row input { margin-top:4px; width:16px; height:16px; cursor:pointer; accent-color:var(--accent-green); }
         .activity-row input:disabled { cursor:not-allowed; }
@@ -151,7 +159,6 @@
             .tdm-card-head .nome { font-size:1rem; }
             .badge-cargo, .badge-backup, .badge-folga { font-size:.62rem; padding:2px 8px; }
             .backup-line { font-size:.72rem; padding:6px 8px; }
-            .checklist { max-height:320px; }
             .date-bar input[type="date"] { flex:1 1 150px; }
             .date-bar .info-user { margin-left:0; width:100%; text-align:center; }
             .conta-box select { max-width:100%; }
@@ -215,6 +222,59 @@
         .progress-pct { font-weight: 900; color: var(--text-title); min-width: 42px; text-align: right; }
         .progress-meta { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; }
 
+        /* ====== PADRONIZAÇÃO DOS CARDS ====== */
+        .tdm-card > .backup-line,
+        .tdm-card > .tdm-row,
+        .tdm-card > .progress-row,
+        .tdm-card > .progress-meta,
+        .tdm-card > .conta-box,
+        .tdm-card > .card-actions,
+        .tdm-card > .support-note,
+        .tdm-card > .owner-note { flex: 0 0 auto; }
+        .tdm-card .backup-line { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+        .card-actions { margin-top: auto; }
+
+        /* Botão de câmera do card */
+        .card-tools { display:flex; align-items:center; gap:6px; flex:0 0 auto; }
+        .snap-btn { width:34px; height:34px; display:inline-flex; align-items:center; justify-content:center; border-radius:9px; border:1px solid var(--border-card); background:var(--bg-body); color:var(--text-title); font-size:1rem; cursor:pointer; transition:.15s; line-height:1; padding:0; }
+        .snap-btn:hover { border-color:var(--accent-blue); color:var(--accent-blue); transform:translateY(-1px); box-shadow:0 4px 10px rgba(0,0,0,.15); }
+        .snap-btn:disabled { opacity:.55; cursor:progress; transform:none; }
+
+        /* Modo captura: card renderizado inteiro, sem cortes e sem controles */
+        .tdm-card.snapshot-mode { height:auto !important; max-height:none !important; overflow:visible !important; width:420px; padding:20px; box-shadow:none; }
+        .tdm-card.snapshot-mode .checklist { max-height:none !important; overflow:visible !important; flex:0 0 auto; }
+        .tdm-card.snapshot-mode .activity-details { display:block !important; }
+        .tdm-card.snapshot-mode .card-actions,
+        .tdm-card.snapshot-mode .drag-handle,
+        .tdm-card.snapshot-mode .admin-drag-hint,
+        .tdm-card.snapshot-mode .card-tools,
+        .tdm-card.snapshot-mode .support-note,
+        .tdm-card.snapshot-mode .owner-note { display:none !important; }
+        .tdm-card.snapshot-mode .status-btn:not([class*="active-"]) { display:none; }
+        .tdm-card.snapshot-mode .conta-box select { pointer-events:none; }
+        .snapshot-stage { position:fixed; left:-10000px; top:0; z-index:-1; background:var(--bg-body); padding:20px; }
+        .snap-brand { display:flex; align-items:center; justify-content:space-between; gap:10px; border-top:1px solid var(--border-card); margin-top:10px; padding-top:8px; font-size:.68rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:.3px; }
+
+        /* ====== FLUXO DIÁRIO LADO A LADO ====== */
+        .modal-box.xwide { max-width:1180px; }
+        .fluxo-split { display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start; }
+        .fluxo-col { min-width:0; }
+        .fluxo-col > h3 { font-size:.8rem; font-weight:900; color:var(--text-title); text-transform:uppercase; letter-spacing:.4px; margin:0 0 10px; padding-bottom:6px; border-bottom:2px solid var(--accent-blue); }
+        .fluxo-scroll { max-height:56vh; overflow-y:auto; padding-right:4px; }
+        .fluxo-toolbar { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+        .fluxo-toolbar select { padding:8px 12px; border-radius:20px; border:1px solid var(--border-card); background:var(--bg-body); color:var(--text-main); font-weight:700; font-family:Inter,sans-serif; font-size:.8rem; max-width:260px; cursor:pointer; }
+        .fluxo-toolbar label { font-weight:800; color:var(--text-muted); text-transform:uppercase; font-size:.7rem; letter-spacing:.25px; }
+        @media (max-width:820px) { .fluxo-split { grid-template-columns:1fr; } .fluxo-scroll { max-height:none; } }
+
+        /* ====== ORDEM DOS CARGOS (admin) ====== */
+        .cargo-line { align-items:center; }
+        .cargo-line.dragging { opacity:.55; }
+        .cargo-line.drag-over { outline:2px dashed var(--accent-blue); outline-offset:2px; border-radius:6px; }
+        .cargo-order-num { font-weight:900; color:var(--accent-blue); min-width:26px; }
+        .cargo-arrows { display:flex; gap:4px; }
+        .cargo-arrows .mini-btn { padding:4px 8px; }
+
+        @media (max-width:640px) { :root { --tdm-card-h: 520px; } }
     </style>
 </head>
 <body data-theme="light">
@@ -240,7 +300,7 @@
     </div>
     <div class="hint-bar glass-panel">
         <strong>Atividades individuais:</strong> clique no nome para abrir os detalhes. Apenas a caixa de seleção registra a execução.
-        <div class="legend"><span>☑️ Própria</span><span>🔁 Apoio do backup</span><span>⭐ Atividade backup (só +)</span><span id="dragHint" style="display:none;">⠿ Arraste os cards (admin)</span><span>🔗 Conta vinculada</span></div>
+        <div class="legend"><span>☑️ Própria</span><span>🔁 Apoio do backup</span><span>⭐ Atividade backup (só +)</span><span>📷 Gerar imagem do card</span><span id="dragHint" style="display:none;">⠿ Arraste os cards (admin)</span><span>🔗 Conta vinculada</span></div>
     </div>
 
     <div class="cards-scroll"><div class="cards-grid" id="cardsGrid"></div></div>
@@ -251,7 +311,7 @@
             <div class="modal-head"><h2 id="modalColabTitle">➕ Adicionar Colaborador</h2><span class="modal-close" onclick="fecharModal('modalColaborador')">&times;</span></div>
             <input type="hidden" id="colabEditKey">
             <div class="field"><label>Nome do colaborador</label><input type="text" id="colabNome" placeholder="Nome completo"></div>
-            <div class="field"><label>Cargo / função</label><select id="colabCargo"></select></div>
+            <div class="field"><label>Cargo / função</label><select id="colabCargo"></select><div class="editor-help" id="avisoSemCargo" style="display:none;margin-top:6px;color:var(--accent-warn);">⚠️ Nenhum cargo cadastrado ainda. Abra <strong>🗂️ Cargos</strong> e cadastre ao menos um.</div></div>
             <div class="field"><label>Quem é o backup deste colaborador?</label><select id="colabBackup"></select></div>
             <div class="field"><label>Vincular a conta que poderá marcar as atividades</label><select id="colabConta"></select></div>
             <div class="field">
@@ -268,21 +328,32 @@
     <div class="modal-overlay" id="modalCargos">
         <div class="modal-box wide">
             <div class="modal-head"><h2>🗂️ Mapeamento de Cargos</h2><span class="modal-close" onclick="fecharModal('modalCargos')">&times;</span></div>
-            <div class="editor-help">O cargo organiza o fluxo de trabalho. As atividades executáveis são mantidas individualmente no cadastro de cada colaborador.</div>
+            <div class="editor-help">O cargo organiza o fluxo de trabalho. As atividades executáveis são mantidas individualmente no cadastro de cada colaborador.<br><strong>⠿ Arraste os cargos</strong> (ou use ▲ ▼) para definir a <strong>ordem de importância</strong>, do primeiro ao último a ser exibido.</div>
             <div id="cargosList"></div>
             <div class="field" style="margin-top:16px;"><label>Novo cargo</label><div style="display:flex;gap:8px;"><input type="text" id="novoCargoNome" placeholder="Nome do cargo"><button class="btn-header btn-green" onclick="adicionarCargo()">➕</button></div></div>
             <div class="modal-actions"><button class="btn-header btn-dark" onclick="fecharModal('modalCargos')">Fechar</button></div>
         </div>
     </div>
 
-    <!-- MODAL FLUXO DIÁRIO: porcentagem de conclusão de cada usuário + fluxo do cargo -->
+    <!-- MODAL FLUXO DIÁRIO: porcentagem de conclusão de cada usuário + fluxo do cargo (lado a lado) -->
     <div class="modal-overlay" id="modalFluxo">
-        <div class="modal-box wide">
+        <div class="modal-box xwide">
             <div class="modal-head"><h2>📋 Fluxo Diário — <span id="fluxoDiaLabel" style="color:var(--accent-blue);"></span></h2><span class="modal-close" onclick="fecharModal('modalFluxo')">&times;</span></div>
-            <div id="fluxoPercentuais"></div>
-            <div class="fluxo-divider"></div>
-            <div class="field"><label>Fluxo padrão do cargo</label><select id="fluxoCargoSelect" onchange="renderizarFluxoCargo()"></select></div>
-            <div id="fluxoConteudo"></div>
+            <div class="fluxo-toolbar">
+                <label for="fluxoFiltroCargo">🏷️ Filtrar por cargo:</label>
+                <select id="fluxoFiltroCargo" onchange="renderizarFluxo()"><option value="">Todos os cargos</option></select>
+            </div>
+            <div class="fluxo-split">
+                <div class="fluxo-col">
+                    <h3>📊 Conclusão por colaborador</h3>
+                    <div class="fluxo-scroll" id="fluxoPercentuais"></div>
+                </div>
+                <div class="fluxo-col">
+                    <h3>🗂️ Fluxo padrão do cargo</h3>
+                    <div class="field" style="margin-bottom:10px;"><select id="fluxoCargoSelect" onchange="renderizarFluxoCargo()"></select></div>
+                    <div class="fluxo-scroll" id="fluxoConteudo"></div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -408,8 +479,26 @@
             if (colab.backupKey && config.colaboradores[colab.backupKey]) return config.colaboradores[colab.backupKey].nome || '';
             return colab.backup || '';
         }
+        /* ---------- ORDEM DE IMPORTÂNCIA DOS CARGOS (configurável pelo admin) ---------- */
+        function ordemCargo(nome) {
+            const c = (config.cargos || {})[nome];
+            const v = c && typeof c === 'object' ? +c.ordem : NaN;
+            return Number.isFinite(v) ? v : 9999;
+        }
+        function listaCargos() {
+            const nomes = [...new Set([...Object.keys(config.cargos || {}), ...Object.values(config.colaboradores || {}).map(c => c && c.cargo).filter(Boolean)])];
+            return nomes.sort((a, b) => {
+                const oa = ordemCargo(a), ob = ordemCargo(b);
+                if (oa !== ob) return oa - ob;
+                return String(a).localeCompare(String(b), 'pt-BR');
+            });
+        }
         function listaColaboradores() {
             return Object.keys(config.colaboradores || {}).map(key => ({ key, ...config.colaboradores[key] })).filter(c => c.ativo !== false).sort((a,b) => {
+                const ca = ordemCargo(a.cargo), cb = ordemCargo(b.cargo);
+                if (ca !== cb) return ca - cb;
+                const na = String(a.cargo || ''), nb = String(b.cargo || '');
+                if (na !== nb) return na.localeCompare(nb, 'pt-BR');
                 const oa = Number.isFinite(+a.ordem) ? +a.ordem : 9999;
                 const ob = Number.isFinite(+b.ordem) ? +b.ordem : 9999;
                 if (oa !== ob) return oa - ob;
@@ -439,6 +528,7 @@
                     const key = 'seed_' + slug(c.nome);
                     config.colaboradores[key] = { nome:c.nome, cargo:c.cargo, backup:'', backupKey:'', conta:'', atividades:normalizeActivities(c.atividades), ativo:true, ordem:index + 1 };
                 });
+                Object.keys(config.cargos).forEach((nome, i) => { config.cargos[nome].ordem = i + 1; });
                 changed = true;
             } else {
                 config.cargos = config.cargos || {};
@@ -459,11 +549,31 @@
                         changed = true;
                     }
                 });
+                // FIX: recria cargos que o Firebase apagou por estarem vazios e garante a ordem de importância
+                if (normalizarOrdemCargos()) changed = true;
             }
             if (changed) await salvarConfig();
         }
+        /**
+         * FIX: o Firebase RTDB apaga nós vazios. Um cargo salvo como { fluxo: [] } virava null
+         * e desaparecia da lista. Agora todo cargo carrega ao menos { fluxo:[], ordem:n, criadoEm }.
+         */
+        function sanitizarConfigParaSalvar() {
+            const out = { cargos: {}, colaboradores: config.colaboradores || {} };
+            Object.keys(config.cargos || {}).forEach((nome, i) => {
+                const c = config.cargos[nome] && typeof config.cargos[nome] === 'object' ? config.cargos[nome] : {};
+                out.cargos[nome] = {
+                    fluxo: Array.isArray(c.fluxo) ? c.fluxo : [],
+                    ordem: Number.isFinite(+c.ordem) ? +c.ordem : i + 1,
+                    criadoEm: c.criadoEm || Date.now()
+                };
+            });
+            return out;
+        }
         async function salvarConfig() {
-            await fetch(`${FIREBASE_URL}${NODE_CONFIG}.json`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(config) });
+            const payload = sanitizarConfigParaSalvar();
+            config.cargos = payload.cargos;
+            await fetch(`${FIREBASE_URL}${NODE_CONFIG}.json`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
         }
         async function carregarUsuarios() {
             try { const res = await fetch(`${FIREBASE_URL}users.json`); allUsers = await res.json() || {}; } catch (e) { allUsers = {}; }
@@ -569,7 +679,7 @@
                 : '';
             const handle = isAdmin ? `<span class="drag-handle" title="Arraste para reordenar">⠿</span>` : '';
             return `<div class="tdm-card glass-panel" data-key="${escapeHtml(colab.key)}" ${dragAttrs}>
-                <div class="tdm-card-head"><div style="display:flex;gap:8px;align-items:flex-start;min-width:0;flex:1;">${handle}<div style="min-width:0;"><div class="nome">${escapeHtml(colab.nome)}</div><div class="badges" style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;"><span class="badge-cargo">${escapeHtml(colab.cargo || 'Sem cargo')}</span>${backupName ? `<span class="badge-backup">Backup: ${escapeHtml(backupName)}</span>` : ''}${reg.folga === true ? '<span class="badge-folga">Folga registrada</span>' : ''}</div>${isAdmin ? '<div class="admin-drag-hint">Arraste o card para mudar a ordem</div>' : ''}</div></div></div>
+                <div class="tdm-card-head"><div style="display:flex;gap:8px;align-items:flex-start;min-width:0;flex:1;">${handle}<div style="min-width:0;"><div class="nome">${escapeHtml(colab.nome)}</div><div class="badges" style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;"><span class="badge-cargo">${escapeHtml(colab.cargo || 'Sem cargo')}</span>${backupName ? `<span class="badge-backup">Backup: ${escapeHtml(backupName)}</span>` : ''}${reg.folga === true ? '<span class="badge-folga">Folga registrada</span>' : ''}</div>${isAdmin ? '<div class="admin-drag-hint">Arraste o card para mudar a ordem</div>' : ''}</div></div><div class="card-tools"><button type="button" class="snap-btn" title="Gerar imagem em alta qualidade deste card" aria-label="Gerar imagem deste card" onclick="capturarCard(this, ${jsonAttr(colab.key)})">📷</button></div></div>
                 ${backupName ? `<div class="backup-line">🔁 <strong>${escapeHtml(backupName)}</strong> substitui este colaborador no dia a dia.</div>` : '<div class="backup-line" style="border-left-color:var(--border-card);">🔁 Nenhum backup definido.</div>'}
                 ${backupOf.length ? `<div class="backup-line">🛟 Este colaborador é backup de: <strong>${escapeHtml(backupOf.map(c => c.nome).join(', '))}</strong>.</div>` : ''}
                 <div class="tdm-row"><span class="tdm-label">Status:</span><div class="status-group">${statusHtml}</div></div>
@@ -581,6 +691,73 @@
         }
 
         function toggleActivity(button) { const details = button.parentElement.querySelector('.activity-details'); const open = details.classList.toggle('open'); button.setAttribute('aria-expanded', String(open)); button.querySelector('.chevron').textContent = open ? '▾' : '▸'; }
+
+        /* ---------- 📷 CAPTURA DO CARD EM ALTA QUALIDADE ---------- */
+        function corDeFundoAtual() { return document.body.getAttribute('data-theme') === 'dark' ? '#0f172a' : '#ffffff'; }
+        async function capturarCard(botao, key) {
+            const card = document.querySelector(`.tdm-card[data-key="${CSS.escape(key)}"]`);
+            const colab = config.colaboradores[key];
+            if (!card || !colab) return;
+            if (typeof html2canvas !== 'function') return alert('Biblioteca de captura ainda carregando. Tente novamente em instantes.');
+
+            const txt = botao.textContent;
+            botao.disabled = true; botao.textContent = '⏳';
+
+            const stage = document.createElement('div');
+            stage.className = 'snapshot-stage';
+            stage.setAttribute('data-theme', document.body.getAttribute('data-theme') || 'light');
+            stage.style.background = corDeFundoAtual();
+
+            const clone = card.cloneNode(true);
+            clone.classList.add('snapshot-mode');
+            clone.removeAttribute('draggable');
+            // remove elementos interativos que não fazem sentido na imagem
+            clone.querySelectorAll('.card-actions, .drag-handle, .admin-drag-hint, .card-tools, .support-note, .owner-note').forEach(el => el.remove());
+            clone.querySelectorAll('.status-btn').forEach(b => { if (!/active-/.test(b.className)) b.remove(); else b.disabled = true; });
+            // abre todos os detalhes das atividades
+            clone.querySelectorAll('.activity-details').forEach(d => d.classList.add('open'));
+            clone.querySelectorAll('.activity-name .chevron').forEach(c => c.textContent = '▾');
+            clone.querySelectorAll('input, select, textarea, button').forEach(el => { el.disabled = true; });
+            // substitui o select de conta vinculada por texto simples
+            clone.querySelectorAll('.conta-box select').forEach(sel => {
+                const span = document.createElement('span');
+                span.style.cssText = 'font-weight:800;color:var(--accent-blue);';
+                span.textContent = colab.conta || '—';
+                sel.replaceWith(span);
+            });
+            // substitui inputs de horário por texto
+            clone.querySelectorAll('input[type="time"]').forEach(inp => {
+                const span = document.createElement('span');
+                span.style.cssText = 'font-weight:900;color:var(--text-title);font-size:.85rem;';
+                span.textContent = inp.value || '—:—';
+                inp.replaceWith(span);
+            });
+
+            const dataKey = document.getElementById('dataSelecionada').value || hojeISO();
+            const rodape = document.createElement('div');
+            rodape.className = 'snap-brand';
+            rodape.innerHTML = `<span>TDM — Inventário</span><span>📅 ${escapeHtml(formatDataBR(dataKey))}</span>`;
+            clone.appendChild(rodape);
+
+            stage.appendChild(clone);
+            document.body.appendChild(stage);
+
+            try {
+                await new Promise(r => setTimeout(r, 120));
+                const canvas = await html2canvas(clone, { scale: 3, useCORS: true, backgroundColor: corDeFundoAtual(), logging: false, windowWidth: clone.scrollWidth, windowHeight: clone.scrollHeight });
+                const link = document.createElement('a');
+                link.download = `TDM_${slug(colab.nome)}_${dataKey}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                toast('📷 Imagem gerada em alta qualidade!');
+                registrarLog('TDM', `Gerou imagem do card de ${colab.nome}`);
+            } catch (e) {
+                alert('Não foi possível gerar a imagem deste card.');
+            } finally {
+                stage.remove();
+                botao.disabled = false; botao.textContent = txt;
+            }
+        }
 
         /* ---- drag & drop ordem (admin) ---- */
         let dragKey = null;
@@ -613,6 +790,12 @@
             let fromKey = dragKey;
             try { fromKey = fromKey || ev.dataTransfer.getData('text/plain'); } catch (e) {}
             if (!fromKey || fromKey === targetKey) return;
+            const de = config.colaboradores[fromKey], para = config.colaboradores[targetKey];
+            if (!de || !para) return;
+            // A exibição é agrupada pela ordem de importância dos cargos (🗂️ Cargos).
+            if (String(de.cargo || '') !== String(para.cargo || '')) {
+                return toast('🗂️ Cards são agrupados por cargo. Use o botão Cargos para mudar a ordem entre cargos.');
+            }
             const order = listaColaboradores().map(c => c.key);
             const fromIdx = order.indexOf(fromKey);
             const toIdx = order.indexOf(targetKey);
@@ -664,7 +847,22 @@
         }
         function vincularConta(key, username) { if (!isAdmin) return; config.colaboradores[key].conta = username; salvarConfig().then(() => { toast('🔗 Conta vinculada!'); renderizar(); }).catch(() => alert('Erro ao vincular conta.')); registrarLog('TDM', `Vinculou conta ${username} ao colaborador ${key}`); }
 
-        function preencherSelectCargos(selected) { const select = document.getElementById('colabCargo'); const cargos = Object.keys(config.cargos || {}); if (selected && !cargos.includes(selected)) cargos.push(selected); select.innerHTML = cargos.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('') || '<option value="">—</option>'; select.value = selected || cargos[0] || ''; }
+        /**
+         * FIX: a lista de cargos não aparecia ao cadastrar um usuário novo.
+         * Causas corrigidas: (1) só lia config.cargos, ignorando cargos existentes nos colaboradores;
+         * (2) o Firebase remove nós vazios, então um cargo salvo como { fluxo: [] } sumia do banco;
+         * (3) não havia opção "sem cargo" nem fallback quando a lista vinha vazia.
+         */
+        function preencherSelectCargos(selected) {
+            const select = document.getElementById('colabCargo');
+            if (!select) return;
+            const cargos = listaCargos();
+            if (selected && !cargos.includes(selected)) cargos.unshift(selected);
+            select.innerHTML = '<option value="">— Sem cargo —</option>' + cargos.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+            select.value = selected || cargos[0] || '';
+            const aviso = document.getElementById('avisoSemCargo');
+            if (aviso) aviso.style.display = cargos.length ? 'none' : 'block';
+        }
         function preencherSelectBackups(key, selectedKey, selectedName) {
             const select = document.getElementById('colabBackup');
             select.innerHTML = '<option value="">— Sem backup —</option>' + listaColaboradores().filter(c => c.key !== key).map(c => `<option value="${escapeHtml(c.key)}">${escapeHtml(c.nome)}</option>`).join('');
@@ -683,6 +881,7 @@
         }
         function abrirModalColaborador(key='') {
             if (!isAdmin) return;
+            normalizarOrdemCargos(); // garante que a lista de cargos esteja completa antes de montar o select
             const c = key ? config.colaboradores[key] : null;
             document.getElementById('colabEditKey').value = key;
             document.getElementById('modalColabTitle').textContent = key ? '✏️ Editar Colaborador' : '➕ Adicionar Colaborador';
@@ -695,24 +894,128 @@
             const key = document.getElementById('colabEditKey').value; const nome = document.getElementById('colabNome').value.trim(); if (!nome) return alert('Informe o nome do colaborador.');
             const activities = [...document.querySelectorAll('#activityEditors .activity-editor')].map(el => ({ id:el.querySelector('.editor-activity-id').value || slug(el.querySelector('.editor-activity-name').value), nome:el.querySelector('.editor-activity-name').value.trim(), detalhes:el.querySelector('.editor-activity-details').value.trim(), isBackup: !!(el.querySelector('.editor-activity-backup') && el.querySelector('.editor-activity-backup').checked) })).filter(a => a.nome);
             const backupKey = document.getElementById('colabBackup').value; const backupName = backupKey && config.colaboradores[backupKey] ? config.colaboradores[backupKey].nome : '';
-            const obj = { nome, cargo:document.getElementById('colabCargo').value, backupKey, backup:backupName, conta:document.getElementById('colabConta').value, atividades:normalizeActivities(activities) };
+            const cargo = document.getElementById('colabCargo').value;
+            // FIX: se o cargo escolhido ainda não existir no nó de cargos, cria para não sumir da lista
+            if (cargo && !config.cargos[cargo]) config.cargos[cargo] = { fluxo: [], ordem: listaCargos().length + 1 };
+            const obj = { nome, cargo, backupKey, backup:backupName, conta:document.getElementById('colabConta').value, atividades:normalizeActivities(activities) };
             if (key) Object.assign(config.colaboradores[key], obj); else { const newKey = 'c_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); config.colaboradores[newKey] = { ...obj, ativo:true, ordem:Object.keys(config.colaboradores).length + 1 }; }
             try { await salvarConfig(); await registrarLog('TDM', key ? `Editou colaborador ${nome}` : `Adicionou colaborador ${nome}`); fecharModal('modalColaborador'); toast(); renderizar(); } catch (e) { alert('Erro ao salvar o colaborador.'); }
         }
         async function excluirColaborador(key) { if (!isAdmin) return; const c = config.colaboradores[key]; if (!c || !confirm(`Excluir o colaborador "${c.nome}"?`)) return; delete config.colaboradores[key]; Object.values(config.colaboradores).forEach(item => { if (item.backupKey === key) { item.backupKey = ''; item.backup = ''; } }); try { await salvarConfig(); await registrarLog('TDM', `Excluiu colaborador ${c.nome}`); toast('🗑️ Colaborador removido.'); renderizar(); } catch (e) { alert('Erro ao excluir o colaborador.'); } }
 
-        function abrirModalCargos() { if (!isAdmin) return; renderizarCargosList(); document.getElementById('modalCargos').classList.add('active'); }
-        function renderizarCargosList() { const el = document.getElementById('cargosList'); const cargos = Object.keys(config.cargos || {}); el.innerHTML = cargos.length ? cargos.map(c => `<div class="cargo-line"><strong>${escapeHtml(c)}</strong><button class="mini-btn danger" onclick="excluirCargo(${jsonAttr(c)})">🗑️</button></div>`).join('') : '<div style="color:var(--text-muted);">Nenhum cargo cadastrado.</div>'; }
-        async function adicionarCargo() { if (!isAdmin) return; const nome = document.getElementById('novoCargoNome').value.trim(); if (!nome) return alert('Informe o nome do cargo.'); if (config.cargos[nome]) return alert('Este cargo já existe.'); config.cargos[nome] = { fluxo:[] }; try { await salvarConfig(); document.getElementById('novoCargoNome').value = ''; renderizarCargosList(); preencherSelectCargos(); toast('Cargo adicionado!'); } catch (e) { alert('Erro ao adicionar cargo.'); } }
-        async function excluirCargo(cargo) { if (!isAdmin) return; if (!confirm(`Excluir o cargo "${cargo}"?`)) return; delete config.cargos[cargo]; try { await salvarConfig(); renderizarCargosList(); toast('Cargo removido.'); } catch (e) { alert('Erro ao excluir cargo.'); } }
+        function abrirModalCargos() { if (!isAdmin) return; normalizarOrdemCargos(); renderizarCargosList(); document.getElementById('modalCargos').classList.add('active'); }
+        /** Garante que todo cargo tenha objeto { fluxo, ordem } — inclusive cargos vindos só dos colaboradores. */
+        function normalizarOrdemCargos() {
+            config.cargos = config.cargos || {};
+            let mudou = false;
+            Object.values(config.colaboradores || {}).forEach(c => {
+                if (c && c.cargo && !config.cargos[c.cargo]) { config.cargos[c.cargo] = { fluxo: [] }; mudou = true; }
+            });
+            Object.keys(config.cargos).forEach(nome => {
+                if (!config.cargos[nome] || typeof config.cargos[nome] !== 'object') { config.cargos[nome] = { fluxo: [] }; mudou = true; }
+                if (!Array.isArray(config.cargos[nome].fluxo)) { config.cargos[nome].fluxo = []; mudou = true; }
+            });
+            listaCargos().forEach((nome, i) => {
+                if (+config.cargos[nome].ordem !== i + 1) { config.cargos[nome].ordem = i + 1; mudou = true; }
+            });
+            return mudou;
+        }
+        function renderizarCargosList() {
+            const el = document.getElementById('cargosList');
+            const cargos = listaCargos();
+            if (!cargos.length) { el.innerHTML = '<div style="color:var(--text-muted);">Nenhum cargo cadastrado.</div>'; return; }
+            el.innerHTML = cargos.map((c, i) => {
+                const usados = Object.values(config.colaboradores || {}).filter(x => x && x.cargo === c).length;
+                return `<div class="cargo-line" data-cargo="${escapeHtml(c)}" draggable="true"
+                    ondragstart="onCargoDragStart(event, ${jsonAttr(c)})" ondragend="onCargoDragEnd(event)"
+                    ondragover="onCargoDragOver(event)" ondragleave="onCargoDragLeave(event)" ondrop="onCargoDrop(event, ${jsonAttr(c)})">
+                    <span class="drag-handle" title="Arraste para mudar a ordem de importância">⠿</span>
+                    <span class="cargo-order-num">${i + 1}º</span>
+                    <strong>${escapeHtml(c)}<br><span style="font-weight:600;font-size:.7rem;color:var(--text-muted);">${usados} colaborador(es)</span></strong>
+                    <span class="cargo-arrows">
+                        <button class="mini-btn" ${i === 0 ? 'disabled' : ''} title="Subir" onclick="moverCargo(${jsonAttr(c)},-1)">▲</button>
+                        <button class="mini-btn" ${i === cargos.length - 1 ? 'disabled' : ''} title="Descer" onclick="moverCargo(${jsonAttr(c)},1)">▼</button>
+                    </span>
+                    <button class="mini-btn danger" onclick="excluirCargo(${jsonAttr(c)})">🗑️</button>
+                </div>`;
+            }).join('');
+        }
+        function aplicarOrdemCargos(ordem) {
+            ordem.forEach((nome, i) => { if (config.cargos[nome]) config.cargos[nome].ordem = i + 1; });
+            renderizarCargosList();
+            preencherSelectCargos(document.getElementById('colabCargo') ? document.getElementById('colabCargo').value : '');
+            renderizar();
+            clearTimeout(cargoSaveTimer);
+            cargoSaveTimer = setTimeout(() => {
+                salvarConfig().then(() => toast('🗂️ Ordem dos cargos salva!')).catch(() => alert('Erro ao salvar a ordem dos cargos.'));
+                registrarLog('TDM', 'Reordenou cargos');
+            }, 350);
+        }
+        function moverCargo(cargo, delta) {
+            if (!isAdmin) return;
+            const ordem = listaCargos();
+            const i = ordem.indexOf(cargo);
+            const j = i + delta;
+            if (i < 0 || j < 0 || j >= ordem.length) return;
+            ordem.splice(j, 0, ordem.splice(i, 1)[0]);
+            aplicarOrdemCargos(ordem);
+        }
+        let cargoDrag = null, cargoSaveTimer = null;
+        function onCargoDragStart(ev, cargo) { if (!isAdmin) { ev.preventDefault(); return; } cargoDrag = cargo; ev.dataTransfer.effectAllowed = 'move'; try { ev.dataTransfer.setData('text/plain', cargo); } catch (e) {} const li = ev.currentTarget; setTimeout(() => li && li.classList.add('dragging'), 0); }
+        function onCargoDragEnd(ev) { if (ev.currentTarget) ev.currentTarget.classList.remove('dragging'); document.querySelectorAll('.cargo-line.drag-over').forEach(el => el.classList.remove('drag-over')); cargoDrag = null; }
+        function onCargoDragOver(ev) { if (!isAdmin || !cargoDrag) return; ev.preventDefault(); ev.dataTransfer.dropEffect = 'move'; const li = ev.currentTarget; if (li && li.dataset.cargo !== cargoDrag) li.classList.add('drag-over'); }
+        function onCargoDragLeave(ev) { if (ev.currentTarget) ev.currentTarget.classList.remove('drag-over'); }
+        function onCargoDrop(ev, alvo) {
+            if (!isAdmin) return;
+            ev.preventDefault();
+            if (ev.currentTarget) ev.currentTarget.classList.remove('drag-over');
+            let de = cargoDrag;
+            try { de = de || ev.dataTransfer.getData('text/plain'); } catch (e) {}
+            if (!de || de === alvo) return;
+            const ordem = listaCargos();
+            const i = ordem.indexOf(de), j = ordem.indexOf(alvo);
+            if (i < 0 || j < 0) return;
+            ordem.splice(i, 1);
+            ordem.splice(j, 0, de);
+            aplicarOrdemCargos(ordem);
+        }
+        async function adicionarCargo() {
+            if (!isAdmin) return;
+            const nome = document.getElementById('novoCargoNome').value.trim();
+            if (!nome) return alert('Informe o nome do cargo.');
+            if (config.cargos[nome]) return alert('Este cargo já existe.');
+            config.cargos[nome] = { fluxo:[], ordem: listaCargos().length + 1 };
+            try { await salvarConfig(); document.getElementById('novoCargoNome').value = ''; renderizarCargosList(); preencherSelectCargos(); toast('Cargo adicionado!'); registrarLog('TDM', `Adicionou cargo ${nome}`); } catch (e) { alert('Erro ao adicionar cargo.'); }
+        }
+        async function excluirCargo(cargo) {
+            if (!isAdmin) return;
+            const usados = Object.values(config.colaboradores || {}).filter(c => c && c.cargo === cargo).length;
+            if (!confirm(`Excluir o cargo "${cargo}"?${usados ? `\n\n${usados} colaborador(es) usam este cargo e ficarão sem cargo definido.` : ''}`)) return;
+            delete config.cargos[cargo];
+            normalizarOrdemCargos();
+            try { await salvarConfig(); renderizarCargosList(); preencherSelectCargos(); renderizar(); toast('Cargo removido.'); } catch (e) { alert('Erro ao excluir cargo.'); }
+        }
         function formatDataBR(iso) { const p = String(iso || '').split('-'); return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : (iso || ''); }
         function iniciais(nome) { const parts = String(nome || '').trim().split(/\s+/).filter(Boolean); if (!parts.length) return '?'; if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase(); return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase(); }
-        function abrirModalFluxo() { const sel = document.getElementById('fluxoCargoSelect'); sel.innerHTML = Object.keys(config.cargos || {}).map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('') || '<option value="">—</option>'; renderizarFluxo(); document.getElementById('modalFluxo').classList.add('active'); }
+        function abrirModalFluxo() {
+            normalizarOrdemCargos();
+            const cargos = listaCargos();
+            const sel = document.getElementById('fluxoCargoSelect');
+            sel.innerHTML = cargos.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('') || '<option value="">—</option>';
+            const filtro = document.getElementById('fluxoFiltroCargo');
+            const atual = filtro.value;
+            filtro.innerHTML = '<option value="">Todos os cargos</option>' + cargos.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+            if ([...filtro.options].some(o => o.value === atual)) filtro.value = atual;
+            renderizarFluxo();
+            document.getElementById('modalFluxo').classList.add('active');
+        }
         function renderizarFluxo() {
             const dataKey = document.getElementById('dataSelecionada').value || hojeISO();
             document.getElementById('fluxoDiaLabel').textContent = formatDataBR(dataKey);
+            const filtroCargo = (document.getElementById('fluxoFiltroCargo') || {}).value || '';
             const colabs = listaColaboradores();
-            const visiveis = isAdmin ? colabs : colabs.filter(usuarioVinculado);
+            let visiveis = isAdmin ? colabs : colabs.filter(usuarioVinculado);
+            if (filtroCargo) visiveis = visiveis.filter(c => c.cargo === filtroCargo);
             const el = document.getElementById('fluxoPercentuais');
             if (!visiveis.length) {
                 el.innerHTML = '<div class="fluxo-empty">Nenhum colaborador disponível para exibir as porcentagens.</div>';
@@ -746,11 +1049,15 @@
                 }).join('');
                 const media = totTotal ? Math.round((totDone / totTotal) * 100) : 0;
                 const mediaLabel = isAdmin ? 'Média do time' : 'Sua conclusão';
-                el.innerHTML = `<div class="fluxo-media"><span>📊 Conclusão das atividades no dia selecionado</span><span>${mediaLabel}: <strong>${media}%</strong> · ${totDone}/${totTotal}</span></div>` + rows;
+                const escopo = filtroCargo ? `🏷️ ${escapeHtml(filtroCargo)}` : '📊 Todos os cargos';
+                el.innerHTML = `<div class="fluxo-media"><span>${escopo}</span><span>${mediaLabel}: <strong>${media}%</strong> · ${totDone}/${totTotal}</span></div>` + rows;
             }
+            // ao filtrar por cargo, a coluna da direita acompanha o mesmo cargo
+            const selCargo = document.getElementById('fluxoCargoSelect');
+            if (filtroCargo && [...selCargo.options].some(o => o.value === filtroCargo)) selCargo.value = filtroCargo;
             renderizarFluxoCargo();
         }
-        function renderizarFluxoCargo() { const cargo = document.getElementById('fluxoCargoSelect').value; const fluxo = config.cargos[cargo] && config.cargos[cargo].fluxo || []; const el = document.getElementById('fluxoConteudo'); el.innerHTML = !cargo ? '' : fluxo.length ? fluxo.map(f => `<div class="fluxo-step"><div class="t">${escapeHtml(f.titulo)}</div><ul>${(f.itens || []).map(i => `<li>${escapeHtml(i)}</li>`).join('')}</ul></div>`).join('') : '<div style="color:var(--text-muted);">Nenhum fluxo diário definido para este cargo.</div>'; }
+        function renderizarFluxoCargo() { const cargo = document.getElementById('fluxoCargoSelect').value; const fluxo = (config.cargos[cargo] && config.cargos[cargo].fluxo) || []; const el = document.getElementById('fluxoConteudo'); el.innerHTML = !cargo ? '<div style="color:var(--text-muted);">Selecione um cargo.</div>' : fluxo.length ? fluxo.map(f => `<div class="fluxo-step"><div class="t">${escapeHtml(f.titulo)}</div><ul>${(f.itens || []).map(i => `<li>${escapeHtml(i)}</li>`).join('')}</ul></div>`).join('') : '<div style="color:var(--text-muted);">Nenhum fluxo diário definido para este cargo.</div>'; }
         function trocarDia() { carregarDiario().then(renderizar); }
         function irParaHoje() { document.getElementById('dataSelecionada').value = hojeISO(); carregarDiario().then(renderizar); }
         function mudarDia(delta) {

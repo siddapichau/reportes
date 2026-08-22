@@ -79,9 +79,15 @@
 
         /* ============ BLOCOS DE USUÁRIOS ============ */
         .cards-scroll { flex: 1; overflow-y: auto; padding: 4px; overscroll-behavior: contain; }
-        .user-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); gap: 14px; align-items: start; }
-        .user-card { padding: 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
-        .user-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+        /* PADRÃO DE TAMANHO: todos os cards com a mesma altura, independente da quantidade de atividades */
+        :root { --tdm-card-h: 560px; }
+        .user-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); gap: 14px; align-items: stretch; grid-auto-rows: var(--tdm-card-h); }
+        .user-card { padding: 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; height: 100%; overflow: hidden; }
+        /* nada encolhe, só a lista de atividades ocupa/cede o espaço restante */
+        .user-card > * { flex: 0 0 auto; }
+        .user-card > .checklist { flex: 1 1 auto; min-height: 0; }
+        .user-card > .card-actions, .user-card > .owner-note { margin-top: auto; flex: 0 0 auto; }
+        .user-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex: 0 0 auto; }
         .user-card .nome { font-size: 1.08rem; font-weight: 900; color: var(--text-title); line-height: 1.2; word-break: break-word; }
         .badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
         .badge-cargo { display: inline-block; background: var(--accent-blue); color: #fff; padding: 3px 10px; border-radius: 20px; font-size: 0.66rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.3px; }
@@ -106,6 +112,14 @@
         .pill.vazio { background: var(--text-muted); }
         .pill.ok { background: var(--accent-green); }
         .pill.pend { background: var(--accent-red); }
+        /* Dia atual ainda em andamento: não é "pendente", está sendo feito */
+        .pill.proc { background: var(--accent-blue); }
+        .pill.proc::after { content: ''; display: inline-block; width: 6px; height: 6px; margin-left: 6px; border-radius: 50%; background: #fff; vertical-align: middle; animation: pulseDot 1.2s ease-in-out infinite; }
+        @keyframes pulseDot { 0%, 100% { opacity: 0.25; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.15); } }
+        .chip.proc-chip { --chip-color: var(--accent-blue); }
+        .warn-panel.processing { border-left-color: var(--accent-blue); }
+        .warn-panel.processing .warn-title { color: var(--accent-blue); }
+        .kpi-card.blue { border-left-color: var(--accent-blue); }
         .folga-btn { padding: 5px 11px; border-radius: 20px; font-size: 0.68rem; font-weight: 800; border: 1px solid var(--border-card); background: var(--bg-body); color: var(--text-muted); cursor: pointer; transition: 0.15s; }
         .folga-btn.sim { background: var(--accent-green); color: #fff; border-color: var(--accent-green); }
         .folga-btn.nao { background: var(--accent-red); color: #fff; border-color: var(--accent-red); }
@@ -124,7 +138,7 @@
         .backup-tag-line { color: var(--accent-blue); font-weight: 800; }
         .card-obs { padding: 8px 10px; border-left: 3px solid var(--accent-blue); border-radius: 6px; background: rgba(52,131,250,0.08); color: var(--text-muted); font-size: 0.74rem; line-height: 1.4; }
 
-        .checklist { display: flex; flex-direction: column; gap: 5px; max-height: 300px; overflow-y: auto; padding: 10px 4px 2px 0; border-top: 1px solid var(--border-card); }
+        .checklist { display: flex; flex-direction: column; gap: 5px; overflow-y: auto; padding: 10px 4px 2px 0; border-top: 1px solid var(--border-card); }
         .activity-row { display: grid; grid-template-columns: auto 1fr; gap: 7px; align-items: start; padding: 4px 0; min-width: 0; }
         .activity-row input { margin-top: 4px; width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent-green); }
         .activity-row input:disabled { cursor: not-allowed; }
@@ -169,12 +183,27 @@
         .fluxo-step li { margin-left: 20px; font-size: 0.82rem; color: var(--text-main); }
         .cargo-line { display: flex; gap: 8px; align-items: center; border-bottom: 1px solid var(--border-card); padding: 9px 0; }
         .cargo-line strong { flex: 1; color: var(--text-title); }
+        .cargo-line.dragging { opacity: 0.55; }
+        .cargo-line.drag-over { outline: 2px dashed var(--accent-blue); outline-offset: 2px; border-radius: 6px; }
+        .cargo-order-num { font-weight: 900; color: var(--accent-blue); min-width: 26px; }
+        .cargo-arrows { display: flex; gap: 4px; }
+        .cargo-arrows .mini-btn { padding: 4px 8px; }
 
         /* ============ MODAIS ============ */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .modal-overlay.active { display: flex; }
         .modal-box { background: var(--bg-card); width: 95%; max-width: 680px; max-height: 90vh; overflow-y: auto; padding: 24px; border-radius: 12px; border: 1px solid var(--border-light); box-shadow: 0 15px 50px rgba(0,0,0,0.6); }
         .modal-box.wide { max-width: 780px; }
+        /* ====== FLUXO DIÁRIO LADO A LADO ====== */
+        .modal-box.xwide { max-width: 1180px; }
+        .fluxo-split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+        .fluxo-col { min-width: 0; }
+        .fluxo-col > h3 { font-size: 0.8rem; font-weight: 900; color: var(--text-title); text-transform: uppercase; letter-spacing: 0.4px; margin: 0 0 10px; padding-bottom: 6px; border-bottom: 2px solid var(--accent-blue); }
+        .fluxo-scroll { max-height: 56vh; overflow-y: auto; padding-right: 4px; }
+        .fluxo-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .fluxo-toolbar select { padding: 8px 12px; border-radius: 20px; border: 1px solid var(--border-card); background: var(--bg-body); color: var(--text-main); font-weight: 700; font-family: Inter, sans-serif; font-size: 0.8rem; max-width: 260px; cursor: pointer; }
+        .fluxo-toolbar label { font-weight: 800; color: var(--text-muted); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.25px; }
+        @media (max-width: 820px) { .fluxo-split { grid-template-columns: 1fr; } .fluxo-scroll { max-height: none; } }
         .modal-box h2 { color: var(--text-title); margin: 0; font-size: 1.1rem; }
         .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 10px; }
         .modal-close { font-size: 1.8rem; cursor: pointer; color: var(--text-muted); line-height: 1; }
@@ -220,13 +249,13 @@
             .tb-search { flex: 1 1 100%; }
             .tb-select { max-width: 100%; flex: 1 1 45%; }
             .chips { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; flex: 1 1 100%; }
+            :root { --tdm-card-h: 520px; }
             .user-grid { grid-template-columns: 1fr; }
             .user-card { padding: 12px; }
             .user-card .nome { font-size: 1rem; }
             .badge-cargo, .badge-backup, .badge-folga { font-size: 0.62rem; padding: 2px 8px; }
             .kpi-row { grid-template-columns: repeat(2, 1fr); }
             .kpi-value { font-size: 1.3rem; }
-            .checklist { max-height: 320px; }
             .status-btn { padding: 6px 9px; font-size: 0.66rem; }
             .mini-btn { padding: 6px 9px; font-size: 0.68rem; }
             .modal-box { padding: 16px; width: 96%; }
@@ -293,7 +322,7 @@
             <button class="chip" data-st="atestado" style="--chip-color:var(--accent-warn)" onclick="setChip('atestado')">Atestado</button>
             <button class="chip" data-st="ferias" style="--chip-color:#8E44AD" onclick="setChip('ferias')">Férias</button>
             <button class="chip" data-st="folga" style="--chip-color:#6C5CE7" onclick="setChip('folga')">Folga</button>
-            <button class="chip" data-st="pendente" style="--chip-color:#64748b" onclick="setChip('pendente')">⏳ Pendentes</button>
+            <button class="chip" data-st="pendente" id="chipPendente" style="--chip-color:#64748b" onclick="setChip('pendente')">⏳ Pendentes</button>
         </div>
     </div>
 
@@ -301,14 +330,14 @@
     <div class="kpi-row">
         <div class="kpi-card glass-panel"><div class="kpi-title">Colaboradores</div><div class="kpi-value" id="kpiTotal">0</div></div>
         <div class="kpi-card green glass-panel"><div class="kpi-title">Preencheram</div><div class="kpi-value" id="kpiPreenchidos">0</div></div>
-        <div class="kpi-card red glass-panel"><div class="kpi-title">Não preencheram</div><div class="kpi-value" id="kpiNaoPreenchidos">0</div></div>
+        <div class="kpi-card red glass-panel" id="kpiCardNaoPreenchidos"><div class="kpi-title" id="kpiNaoPreenchidosTitle">Não preencheram</div><div class="kpi-value" id="kpiNaoPreenchidos">0</div></div>
         <div class="kpi-card purple glass-panel"><div class="kpi-title">Folgas registradas</div><div class="kpi-value" id="kpiFolgas">0</div></div>
         <div class="kpi-card warn glass-panel"><div class="kpi-title">Média de conclusão</div><div class="kpi-value" id="kpiMedia">0%</div></div>
     </div>
 
     <!-- AVISOS: quem não preencheu (apenas admin) -->
     <div class="warn-panel glass-panel" id="warnPanel" style="display:none;">
-        <div class="warn-title">⚠️ Não preencheram o dia — avalie se foi folga</div>
+        <div class="warn-title" id="warnTitle">⚠️ Não preencheram o dia — avalie se foi folga</div>
         <div class="warn-list" id="warnList"></div>
     </div>
 
@@ -321,7 +350,7 @@
             <div class="modal-head"><h2 id="modalColabTitle">➕ Adicionar Colaborador</h2><span class="modal-close" onclick="fecharModal('modalColaborador')">&times;</span></div>
             <input type="hidden" id="colabEditKey">
             <div class="field"><label>Nome do colaborador</label><input type="text" id="colabNome" placeholder="Nome completo"></div>
-            <div class="field"><label>Cargo / função</label><select id="colabCargo"></select></div>
+            <div class="field"><label>Cargo / função</label><select id="colabCargo"></select><div class="editor-help" id="avisoSemCargo" style="display:none;margin-top:6px;color:var(--accent-warn);">⚠️ Nenhum cargo cadastrado ainda. Abra <strong>🗂️ Cargos</strong> e cadastre ao menos um.</div></div>
             <div class="field"><label>Quem é o backup deste colaborador?</label><select id="colabBackup"></select></div>
             <div class="field"><label>Vincular a conta que poderá marcar as atividades</label><select id="colabConta"></select></div>
             <div class="field">
@@ -338,7 +367,7 @@
     <div class="modal-overlay" id="modalCargos">
         <div class="modal-box wide">
             <div class="modal-head"><h2>🗂️ Mapeamento de Cargos</h2><span class="modal-close" onclick="fecharModal('modalCargos')">&times;</span></div>
-            <div class="editor-help">O cargo organiza o fluxo de trabalho. As atividades executáveis são mantidas individualmente no cadastro de cada colaborador.</div>
+            <div class="editor-help">O cargo organiza o fluxo de trabalho. As atividades executáveis são mantidas individualmente no cadastro de cada colaborador.<br><strong>⠿ Arraste os cargos</strong> (ou use ▲ ▼) para definir a <strong>ordem de importância</strong>, do primeiro ao último a ser exibido.</div>
             <div id="cargosList"></div>
             <div class="field" style="margin-top:16px;"><label>Novo cargo</label><div style="display:flex;gap:8px;"><input type="text" id="novoCargoNome" placeholder="Nome do cargo"><button class="btn-header btn-green" onclick="adicionarCargo()">➕</button></div></div>
             <div class="modal-actions"><button class="btn-header btn-dark" onclick="fecharModal('modalCargos')">Fechar</button></div>
@@ -347,12 +376,23 @@
 
     <!-- MODAL FLUXO DIÁRIO: porcentagem de conclusão de cada usuário + fluxo do cargo -->
     <div class="modal-overlay" id="modalFluxo">
-        <div class="modal-box wide">
+        <div class="modal-box xwide">
             <div class="modal-head"><h2>📋 Fluxo Diário — <span id="fluxoDiaLabel" style="color:var(--accent-blue);"></span></h2><span class="modal-close" onclick="fecharModal('modalFluxo')">&times;</span></div>
-            <div id="fluxoPercentuais"></div>
-            <div class="fluxo-divider"></div>
-            <div class="field"><label>Fluxo padrão do cargo</label><select id="fluxoCargoSelect" onchange="renderizarFluxoCargo()"></select></div>
-            <div id="fluxoConteudo"></div>
+            <div class="fluxo-toolbar">
+                <label for="fluxoFiltroCargo">🏷️ Filtrar por cargo:</label>
+                <select id="fluxoFiltroCargo" onchange="renderizarFluxo()"><option value="">Todos os cargos</option></select>
+            </div>
+            <div class="fluxo-split">
+                <div class="fluxo-col">
+                    <h3>📊 Conclusão por colaborador</h3>
+                    <div class="fluxo-scroll" id="fluxoPercentuais"></div>
+                </div>
+                <div class="fluxo-col">
+                    <h3>🗂️ Fluxo padrão do cargo</h3>
+                    <div class="field" style="margin-bottom:10px;"><select id="fluxoCargoSelect" onchange="renderizarFluxoCargo()"></select></div>
+                    <div class="fluxo-scroll" id="fluxoConteudo"></div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -482,8 +522,26 @@
             if (colab.backupKey && config.colaboradores[colab.backupKey]) return config.colaboradores[colab.backupKey].nome || '';
             return colab.backup || '';
         }
+        /* ---------- ORDEM DE IMPORTÂNCIA DOS CARGOS (definida pelo admin no tdm.html / botão Cargos) ---------- */
+        function ordemCargo(nome) {
+            const c = (config.cargos || {})[nome];
+            const v = c && typeof c === 'object' ? +c.ordem : NaN;
+            return Number.isFinite(v) ? v : 9999;
+        }
+        function listaCargos() {
+            const nomes = [...new Set([...Object.keys(config.cargos || {}), ...Object.values(config.colaboradores || {}).map(c => c && c.cargo).filter(Boolean)])];
+            return nomes.sort((a, b) => {
+                const oa = ordemCargo(a), ob = ordemCargo(b);
+                if (oa !== ob) return oa - ob;
+                return String(a).localeCompare(String(b), 'pt-BR');
+            });
+        }
         function listaColaboradores() {
             return Object.keys(config.colaboradores || {}).map(key => ({ key, ...config.colaboradores[key] })).filter(c => c.ativo !== false).sort((a,b) => {
+                const ca = ordemCargo(a.cargo), cb = ordemCargo(b.cargo);
+                if (ca !== cb) return ca - cb;
+                const na = String(a.cargo || ''), nb = String(b.cargo || '');
+                if (na !== nb) return na.localeCompare(nb, 'pt-BR');
                 const oa = Number.isFinite(+a.ordem) ? +a.ordem : 9999;
                 const ob = Number.isFinite(+b.ordem) ? +b.ordem : 9999;
                 if (oa !== ob) return oa - ob;
@@ -505,6 +563,24 @@
             return !!(temCheckProprio || temSupport || reg.status || reg.entrada || reg.saida || reg.folga === true || reg.folga === false);
         }
         function isHojeSelecionado() { return (document.getElementById('dataSelecionada').value || hojeISO()) === hojeISO(); }
+        function isFuturoSelecionado() { return (document.getElementById('dataSelecionada').value || hojeISO()) > hojeISO(); }
+        /**
+         * No dia atual o turno ainda está correndo: nada está "pendente", está "em processamento".
+         * Dias passados continuam como pendente (de fato ficou sem registro).
+         */
+        function estadoPreenchimento(reg) {
+            if (regPreenchido(reg)) return isHojeSelecionado() ? 'andamento' : 'ok';
+            if (isHojeSelecionado()) return 'processando';
+            if (isFuturoSelecionado()) return 'agendado';
+            return 'pendente';
+        }
+        const ESTADO_PILL = {
+            ok:          { cls: 'ok',   texto: '✅ Preenchido',    title: 'Registro concluído neste dia' },
+            andamento:   { cls: 'proc', texto: '🔄 Em andamento',  title: 'Já há registros hoje e o dia continua em execução' },
+            processando: { cls: 'proc', texto: '🔄 Processando',   title: 'Dia de hoje — ainda está sendo feito' },
+            agendado:    { cls: 'vazio',texto: '📅 Dia futuro',    title: 'Data ainda não chegou' },
+            pendente:    { cls: 'pend', texto: '⏳ Pendente',      title: 'Dia encerrado sem registro' }
+        };
         function apoioPermitido(colab, reg) { return isHojeSelecionado() && souBackupDe(colab) && !!reg && (reg.folga === true || reg.status === 'folga'); }
         function podeEditarChecks(colab, isSupport) { return isAdmin || (isHojeSelecionado() && (usuarioVinculado(colab) || isSupport)); }
 
@@ -524,9 +600,29 @@
                     colab.backupKey = found || '';
                 }
             });
+            // FIX: recria localmente cargos que o Firebase apagou por estarem vazios
+            normalizarOrdemCargos();
+        }
+        /**
+         * FIX: o Firebase RTDB apaga nós vazios. Um cargo salvo como { fluxo: [] } virava null
+         * e sumia da lista ao cadastrar um usuário novo. Todo cargo passa a ter { fluxo, ordem, criadoEm }.
+         */
+        function sanitizarConfigParaSalvar() {
+            const out = { cargos: {}, colaboradores: config.colaboradores || {} };
+            Object.keys(config.cargos || {}).forEach((nome, i) => {
+                const c = config.cargos[nome] && typeof config.cargos[nome] === 'object' ? config.cargos[nome] : {};
+                out.cargos[nome] = {
+                    fluxo: Array.isArray(c.fluxo) ? c.fluxo : [],
+                    ordem: Number.isFinite(+c.ordem) ? +c.ordem : i + 1,
+                    criadoEm: c.criadoEm || Date.now()
+                };
+            });
+            return out;
         }
         async function salvarConfig() {
-            await fetch(`${FIREBASE_URL}${NODE_CONFIG}.json`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(config) });
+            const payload = sanitizarConfigParaSalvar();
+            config.cargos = payload.cargos;
+            await fetch(`${FIREBASE_URL}${NODE_CONFIG}.json`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
         }
         async function carregarUsuarios() {
             try { const res = await fetch(`${FIREBASE_URL}users.json`); allUsers = await res.json() || {}; } catch (e) { allUsers = {}; }
@@ -560,7 +656,7 @@
         function setChip(st) { chipStatus = st; document.querySelectorAll('#statusChips .chip').forEach(c => c.classList.toggle('active', c.dataset.st === st)); renderizar(); }
         function preencherFiltroCargos() {
             const sel = document.getElementById('filtroCargo');
-            const cargos = [...new Set([...Object.keys(config.cargos || {}), ...Object.values(config.colaboradores || {}).map(c => c.cargo).filter(Boolean)])];
+            const cargos = listaCargos();
             const hash = cargos.join('|');
             if (hash === ultimoCargosHash) return;
             ultimoCargosHash = hash;
@@ -602,10 +698,20 @@
                 totDone += m.done;
                 totTotal += m.total;
             });
+            const hoje = isHojeSelecionado();
             document.getElementById('kpiTotal').textContent = colabs.length;
             document.getElementById('kpiPreenchidos').textContent = preenchidos;
             document.getElementById('kpiNaoPreenchidos').textContent = colabs.length - preenchidos;
             document.getElementById('kpiFolgas').textContent = folgas;
+            // No dia atual não é "não preencheu" — o turno ainda está em processamento
+            document.getElementById('kpiNaoPreenchidosTitle').textContent = hoje ? 'Em processamento' : 'Não preencheram';
+            document.getElementById('kpiCardNaoPreenchidos').classList.toggle('blue', hoje);
+            document.getElementById('kpiCardNaoPreenchidos').classList.toggle('red', !hoje);
+            const chipPend = document.getElementById('chipPendente');
+            chipPend.textContent = hoje ? '🔄 Processando' : '⏳ Pendentes';
+            chipPend.title = hoje ? 'Colaboradores que ainda estão executando o dia de hoje' : 'Colaboradores sem registro neste dia';
+            chipPend.classList.toggle('proc-chip', hoje);
+            chipPend.style.setProperty('--chip-color', hoje ? 'var(--accent-blue)' : '#64748b');
             document.getElementById('kpiMedia').textContent = (totTotal ? Math.round((totDone / totTotal) * 100) : 0) + '%';
 
             const grid = document.getElementById('userGrid');
@@ -629,6 +735,7 @@
             const folga = reg.folga === true;
             const status = reg.status || (folga ? 'folga' : '');
             const preenchido = regPreenchido(reg);
+            const estadoPill = ESTADO_PILL[estadoPreenchimento(reg)] || ESTADO_PILL.pendente;
             const owner = usuarioVinculado(colab);
             const support = apoioPermitido(colab, reg) && !owner;
             const canOwn = podeEditarChecks(colab, false);
@@ -690,7 +797,7 @@
                             ${isAdmin ? '<div class="admin-drag-hint">Arraste para mudar a ordem</div>' : ''}
                         </div>
                     </div>
-                    ${(isAdmin || owner) ? `<span class="pill ${preenchido ? 'ok' : 'pend'}" title="${preenchido ? 'Já há registro neste dia' : 'Sem registro neste dia'}">${preenchido ? '✅ Preenchido' : '⏳ Pendente'}</span>` : ''}
+                    ${(isAdmin || owner) ? `<span class="pill ${estadoPill.cls}" title="${escapeHtml(estadoPill.title)}">${estadoPill.texto}</span>` : ''}
                 </div>
                 <div class="user-row"><span class="tdm-label">Status:</span>${statusHtml}</div>
                 ${folgaHtml}
@@ -708,12 +815,17 @@
             if (!isAdmin) { panel.style.display = 'none'; return; }
             const pendentes = colabs.filter(c => !regPreenchido(diarioDia[c.key] || {}));
             if (!pendentes.length) { panel.style.display = 'none'; return; }
+            const hoje = isHojeSelecionado();
             panel.style.display = 'block';
+            panel.classList.toggle('processing', hoje);
+            document.getElementById('warnTitle').textContent = hoje
+                ? '🔄 Em processamento — o dia de hoje ainda está sendo executado'
+                : '⚠️ Não preencheram o dia — avalie se foi folga';
             document.getElementById('warnList').innerHTML = pendentes.map(c => {
                 const reg = diarioDia[c.key] || {};
                 return `<div class="warn-item">
                     <span class="nm">${escapeHtml(c.nome)}</span>
-                    <span style="color:var(--text-muted);font-weight:700;">não preencheu neste dia.</span>
+                    <span style="color:var(--text-muted);font-weight:700;">${hoje ? 'ainda está processando o dia de hoje.' : 'não preencheu neste dia.'}</span>
                     <span class="mt">${escapeHtml(c.cargo || 'sem cargo')}</span>
                     <button class="folga-btn ${reg.folga === true ? 'sim' : ''}" onclick="setFolga(${jsonAttr(c.key)}, true)">✅ Foi folga</button>
                     <button class="folga-btn ${reg.folga === false ? 'nao' : ''}" onclick="setFolga(${jsonAttr(c.key)}, false)">❌ Não foi</button>
@@ -802,6 +914,12 @@
             let fromKey = dragKey;
             try { fromKey = fromKey || ev.dataTransfer.getData('text/plain'); } catch (e) {}
             if (!fromKey || fromKey === targetKey) return;
+            const de = config.colaboradores[fromKey], para = config.colaboradores[targetKey];
+            if (!de || !para) return;
+            // A exibição é agrupada pela ordem de importância dos cargos (🗂️ Cargos).
+            if (String(de.cargo || '') !== String(para.cargo || '')) {
+                return toast('🗂️ Cards são agrupados por cargo. Use o botão Cargos para mudar a ordem entre cargos.');
+            }
             const order = listaColaboradores().map(c => c.key);
             const fromIdx = order.indexOf(fromKey);
             const toIdx = order.indexOf(targetKey);
@@ -818,7 +936,20 @@
         }
 
         /* ---------------- CRUD DE COLABORADORES (apenas admin) ---------------- */
-        function preencherSelectCargos(selected) { const select = document.getElementById('colabCargo'); const cargos = Object.keys(config.cargos || {}); if (selected && !cargos.includes(selected)) cargos.push(selected); select.innerHTML = cargos.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('') || '<option value="">—</option>'; select.value = selected || cargos[0] || ''; }
+        /**
+         * FIX: a lista de cargos não aparecia ao adicionar um usuário novo.
+         * Agora considera também os cargos já usados pelos colaboradores e traz opção "sem cargo".
+         */
+        function preencherSelectCargos(selected) {
+            const select = document.getElementById('colabCargo');
+            if (!select) return;
+            const cargos = listaCargos();
+            if (selected && !cargos.includes(selected)) cargos.unshift(selected);
+            select.innerHTML = '<option value="">— Sem cargo —</option>' + cargos.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+            select.value = selected || cargos[0] || '';
+            const aviso = document.getElementById('avisoSemCargo');
+            if (aviso) aviso.style.display = cargos.length ? 'none' : 'block';
+        }
         function preencherSelectBackups(key, selectedKey, selectedName) {
             const select = document.getElementById('colabBackup');
             select.innerHTML = '<option value="">— Sem backup —</option>' + listaColaboradores().filter(c => c.key !== key).map(c => `<option value="${escapeHtml(c.key)}">${escapeHtml(c.nome)}</option>`).join('');
@@ -837,6 +968,7 @@
         }
         function abrirModalColaborador(key = '') {
             if (!isAdmin) return;
+            normalizarOrdemCargos(); // garante que a lista de cargos esteja completa antes de montar o select
             const c = key ? config.colaboradores[key] : null;
             document.getElementById('colabEditKey').value = key;
             document.getElementById('modalColabTitle').textContent = key ? '✏️ Editar Colaborador' : '➕ Adicionar Colaborador';
@@ -849,25 +981,130 @@
             const key = document.getElementById('colabEditKey').value; const nome = document.getElementById('colabNome').value.trim(); if (!nome) return alert('Informe o nome do colaborador.');
             const activities = [...document.querySelectorAll('#activityEditors .activity-editor')].map(el => ({ id: el.querySelector('.editor-activity-id').value || slug(el.querySelector('.editor-activity-name').value), nome: el.querySelector('.editor-activity-name').value.trim(), detalhes: el.querySelector('.editor-activity-details').value.trim(), isBackup: !!(el.querySelector('.editor-activity-backup') && el.querySelector('.editor-activity-backup').checked) })).filter(a => a.nome);
             const backupKey = document.getElementById('colabBackup').value; const backupName = backupKey && config.colaboradores[backupKey] ? config.colaboradores[backupKey].nome : '';
-            const obj = { nome, cargo: document.getElementById('colabCargo').value, backupKey, backup: backupName, conta: document.getElementById('colabConta').value, atividades: normalizeActivities(activities) };
+            const cargo = document.getElementById('colabCargo').value;
+            // FIX: se o cargo escolhido ainda não existir no nó de cargos, cria para não sumir da lista
+            if (cargo && !config.cargos[cargo]) config.cargos[cargo] = { fluxo: [], ordem: listaCargos().length + 1 };
+            const obj = { nome, cargo, backupKey, backup: backupName, conta: document.getElementById('colabConta').value, atividades: normalizeActivities(activities) };
             if (key) Object.assign(config.colaboradores[key], obj); else { const newKey = 'c_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); config.colaboradores[newKey] = { ...obj, ativo: true, ordem: Object.keys(config.colaboradores).length + 1 }; }
             try { await salvarConfig(); await registrarLog('TDM-DADOS', key ? `Editou colaborador ${nome}` : `Adicionou colaborador ${nome}`); fecharModal('modalColaborador'); ultimoCargosHash = ''; toast(); renderizar(); } catch (e) { alert('Erro ao salvar o colaborador.'); }
         }
         async function excluirColaborador(key) { if (!isAdmin) return; const c = config.colaboradores[key]; if (!c || !confirm(`Excluir o colaborador "${c.nome}"?`)) return; delete config.colaboradores[key]; Object.values(config.colaboradores).forEach(item => { if (item.backupKey === key) { item.backupKey = ''; item.backup = ''; } }); try { await salvarConfig(); await registrarLog('TDM-DADOS', `Excluiu colaborador ${c.nome}`); toast('🗑️ Colaborador removido.'); ultimoCargosHash = ''; renderizar(); } catch (e) { alert('Erro ao excluir o colaborador.'); } }
 
         /* ---------------- CARGOS (apenas admin) ---------------- */
-        function abrirModalCargos() { if (!isAdmin) return; renderizarCargosList(); document.getElementById('modalCargos').classList.add('active'); }
-        function renderizarCargosList() { const el = document.getElementById('cargosList'); const cargos = Object.keys(config.cargos || {}); el.innerHTML = cargos.length ? cargos.map(c => `<div class="cargo-line"><strong>${escapeHtml(c)}</strong><button class="mini-btn danger" onclick="excluirCargo(${jsonAttr(c)})">🗑️</button></div>`).join('') : '<div style="color:var(--text-muted);">Nenhum cargo cadastrado.</div>'; }
-        async function adicionarCargo() { if (!isAdmin) return; const nome = document.getElementById('novoCargoNome').value.trim(); if (!nome) return alert('Informe o nome do cargo.'); if (config.cargos[nome]) return alert('Este cargo já existe.'); config.cargos[nome] = { fluxo: [] }; try { await salvarConfig(); document.getElementById('novoCargoNome').value = ''; renderizarCargosList(); ultimoCargosHash = ''; toast('Cargo adicionado!'); } catch (e) { alert('Erro ao adicionar cargo.'); } }
-        async function excluirCargo(cargo) { if (!isAdmin) return; if (!confirm(`Excluir o cargo "${cargo}"?`)) return; delete config.cargos[cargo]; try { await salvarConfig(); ultimoCargosHash = ''; renderizarCargosList(); renderizar(); toast('Cargo removido.'); } catch (e) { alert('Erro ao excluir cargo.'); } }
+        function abrirModalCargos() { if (!isAdmin) return; normalizarOrdemCargos(); renderizarCargosList(); document.getElementById('modalCargos').classList.add('active'); }
+        /** Garante que todo cargo exista no nó de cargos com { fluxo, ordem } — inclusive os vindos dos colaboradores. */
+        function normalizarOrdemCargos() {
+            config.cargos = config.cargos || {};
+            let mudou = false;
+            Object.values(config.colaboradores || {}).forEach(c => {
+                if (c && c.cargo && !config.cargos[c.cargo]) { config.cargos[c.cargo] = { fluxo: [] }; mudou = true; }
+            });
+            Object.keys(config.cargos).forEach(nome => {
+                if (!config.cargos[nome] || typeof config.cargos[nome] !== 'object') { config.cargos[nome] = { fluxo: [] }; mudou = true; }
+                if (!Array.isArray(config.cargos[nome].fluxo)) { config.cargos[nome].fluxo = []; mudou = true; }
+            });
+            listaCargos().forEach((nome, i) => {
+                if (+config.cargos[nome].ordem !== i + 1) { config.cargos[nome].ordem = i + 1; mudou = true; }
+            });
+            if (mudou) ultimoCargosHash = '';
+            return mudou;
+        }
+        function renderizarCargosList() {
+            const el = document.getElementById('cargosList');
+            const cargos = listaCargos();
+            if (!cargos.length) { el.innerHTML = '<div style="color:var(--text-muted);">Nenhum cargo cadastrado.</div>'; return; }
+            el.innerHTML = cargos.map((c, i) => {
+                const usados = Object.values(config.colaboradores || {}).filter(x => x && x.cargo === c).length;
+                return `<div class="cargo-line" data-cargo="${escapeHtml(c)}" draggable="true"
+                    ondragstart="onCargoDragStart(event, ${jsonAttr(c)})" ondragend="onCargoDragEnd(event)"
+                    ondragover="onCargoDragOver(event)" ondragleave="onCargoDragLeave(event)" ondrop="onCargoDrop(event, ${jsonAttr(c)})">
+                    <span class="drag-handle" title="Arraste para mudar a ordem de importância">⠿</span>
+                    <span class="cargo-order-num">${i + 1}º</span>
+                    <strong>${escapeHtml(c)}<br><span style="font-weight:600;font-size:.7rem;color:var(--text-muted);">${usados} colaborador(es)</span></strong>
+                    <span class="cargo-arrows">
+                        <button class="mini-btn" ${i === 0 ? 'disabled' : ''} title="Subir" onclick="moverCargo(${jsonAttr(c)},-1)">▲</button>
+                        <button class="mini-btn" ${i === cargos.length - 1 ? 'disabled' : ''} title="Descer" onclick="moverCargo(${jsonAttr(c)},1)">▼</button>
+                    </span>
+                    <button class="mini-btn danger" onclick="excluirCargo(${jsonAttr(c)})">🗑️</button>
+                </div>`;
+            }).join('');
+        }
+        function aplicarOrdemCargos(ordem) {
+            ordem.forEach((nome, i) => { if (config.cargos[nome]) config.cargos[nome].ordem = i + 1; });
+            ultimoCargosHash = '';
+            renderizarCargosList();
+            renderizar();
+            clearTimeout(cargoSaveTimer);
+            cargoSaveTimer = setTimeout(() => {
+                salvarConfig().then(() => toast('🗂️ Ordem dos cargos salva!')).catch(() => alert('Erro ao salvar a ordem dos cargos.'));
+                registrarLog('TDM-DADOS', 'Reordenou cargos');
+            }, 350);
+        }
+        function moverCargo(cargo, delta) {
+            if (!isAdmin) return;
+            const ordem = listaCargos();
+            const i = ordem.indexOf(cargo);
+            const j = i + delta;
+            if (i < 0 || j < 0 || j >= ordem.length) return;
+            ordem.splice(j, 0, ordem.splice(i, 1)[0]);
+            aplicarOrdemCargos(ordem);
+        }
+        let cargoDrag = null, cargoSaveTimer = null;
+        function onCargoDragStart(ev, cargo) { if (!isAdmin) { ev.preventDefault(); return; } cargoDrag = cargo; ev.dataTransfer.effectAllowed = 'move'; try { ev.dataTransfer.setData('text/plain', cargo); } catch (e) {} const li = ev.currentTarget; setTimeout(() => li && li.classList.add('dragging'), 0); }
+        function onCargoDragEnd(ev) { if (ev.currentTarget) ev.currentTarget.classList.remove('dragging'); document.querySelectorAll('.cargo-line.drag-over').forEach(el => el.classList.remove('drag-over')); cargoDrag = null; }
+        function onCargoDragOver(ev) { if (!isAdmin || !cargoDrag) return; ev.preventDefault(); ev.dataTransfer.dropEffect = 'move'; const li = ev.currentTarget; if (li && li.dataset.cargo !== cargoDrag) li.classList.add('drag-over'); }
+        function onCargoDragLeave(ev) { if (ev.currentTarget) ev.currentTarget.classList.remove('drag-over'); }
+        function onCargoDrop(ev, alvo) {
+            if (!isAdmin) return;
+            ev.preventDefault();
+            if (ev.currentTarget) ev.currentTarget.classList.remove('drag-over');
+            let de = cargoDrag;
+            try { de = de || ev.dataTransfer.getData('text/plain'); } catch (e) {}
+            if (!de || de === alvo) return;
+            const ordem = listaCargos();
+            const i = ordem.indexOf(de), j = ordem.indexOf(alvo);
+            if (i < 0 || j < 0) return;
+            ordem.splice(i, 1);
+            ordem.splice(j, 0, de);
+            aplicarOrdemCargos(ordem);
+        }
+        async function adicionarCargo() {
+            if (!isAdmin) return;
+            const nome = document.getElementById('novoCargoNome').value.trim();
+            if (!nome) return alert('Informe o nome do cargo.');
+            if (config.cargos[nome]) return alert('Este cargo já existe.');
+            config.cargos[nome] = { fluxo: [], ordem: listaCargos().length + 1 };
+            try { await salvarConfig(); document.getElementById('novoCargoNome').value = ''; ultimoCargosHash = ''; renderizarCargosList(); preencherSelectCargos(); renderizar(); toast('Cargo adicionado!'); registrarLog('TDM-DADOS', `Adicionou cargo ${nome}`); } catch (e) { alert('Erro ao adicionar cargo.'); }
+        }
+        async function excluirCargo(cargo) {
+            if (!isAdmin) return;
+            const usados = Object.values(config.colaboradores || {}).filter(c => c && c.cargo === cargo).length;
+            if (!confirm(`Excluir o cargo "${cargo}"?${usados ? `\n\n${usados} colaborador(es) usam este cargo e ficarão sem cargo definido.` : ''}`)) return;
+            delete config.cargos[cargo];
+            normalizarOrdemCargos();
+            try { await salvarConfig(); ultimoCargosHash = ''; renderizarCargosList(); preencherSelectCargos(); renderizar(); toast('Cargo removido.'); } catch (e) { alert('Erro ao excluir cargo.'); }
+        }
 
         /* ---------------- FLUXO DIÁRIO (porcentagem por usuário) ---------------- */
-        function abrirModalFluxo() { const sel = document.getElementById('fluxoCargoSelect'); sel.innerHTML = Object.keys(config.cargos || {}).map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('') || '<option value="">—</option>'; renderizarFluxo(); document.getElementById('modalFluxo').classList.add('active'); }
+        function abrirModalFluxo() {
+            normalizarOrdemCargos();
+            const cargos = listaCargos();
+            const sel = document.getElementById('fluxoCargoSelect');
+            sel.innerHTML = cargos.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('') || '<option value="">—</option>';
+            const filtro = document.getElementById('fluxoFiltroCargo');
+            const atual = filtro.value || document.getElementById('filtroCargo').value || '';
+            filtro.innerHTML = '<option value="">Todos os cargos</option>' + cargos.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+            if ([...filtro.options].some(o => o.value === atual)) filtro.value = atual;
+            renderizarFluxo();
+            document.getElementById('modalFluxo').classList.add('active');
+        }
         function renderizarFluxo() {
             const dataKey = document.getElementById('dataSelecionada').value || hojeISO();
             document.getElementById('fluxoDiaLabel').textContent = formatDataBR(dataKey);
+            const filtroCargo = (document.getElementById('fluxoFiltroCargo') || {}).value || '';
             const colabs = listaColaboradores();
-            const visiveis = isAdmin ? colabs : colabs.filter(usuarioVinculado);
+            let visiveis = isAdmin ? colabs : colabs.filter(usuarioVinculado);
+            if (filtroCargo) visiveis = visiveis.filter(c => c.cargo === filtroCargo);
             const el = document.getElementById('fluxoPercentuais');
             if (!visiveis.length) {
                 el.innerHTML = '<div class="fluxo-empty">Nenhum colaborador disponível para exibir as porcentagens.</div>';
@@ -901,11 +1138,14 @@
                 }).join('');
                 const media = totTotal ? Math.round((totDone / totTotal) * 100) : 0;
                 const mediaLabel = isAdmin ? 'Média do time' : 'Sua conclusão';
-                el.innerHTML = `<div class="fluxo-media"><span>📊 Conclusão das atividades no dia selecionado</span><span>${mediaLabel}: <strong>${media}%</strong> · ${totDone}/${totTotal}</span></div>` + rows;
+                const escopo = filtroCargo ? `🏷️ ${escapeHtml(filtroCargo)}` : '📊 Todos os cargos';
+                el.innerHTML = `<div class="fluxo-media"><span>${escopo}</span><span>${mediaLabel}: <strong>${media}%</strong> · ${totDone}/${totTotal}</span></div>` + rows;
             }
+            const selCargo = document.getElementById('fluxoCargoSelect');
+            if (filtroCargo && [...selCargo.options].some(o => o.value === filtroCargo)) selCargo.value = filtroCargo;
             renderizarFluxoCargo();
         }
-        function renderizarFluxoCargo() { const cargo = document.getElementById('fluxoCargoSelect').value; const fluxo = (config.cargos[cargo] && config.cargos[cargo].fluxo) || []; const el = document.getElementById('fluxoConteudo'); el.innerHTML = !cargo ? '' : fluxo.length ? fluxo.map(f => `<div class="fluxo-step"><div class="t">${escapeHtml(f.titulo)}</div><ul>${(f.itens || []).map(i => `<li>${escapeHtml(i)}</li>`).join('')}</ul></div>`).join('') : '<div style="color:var(--text-muted);">Nenhum fluxo diário definido para este cargo.</div>'; }
+        function renderizarFluxoCargo() { const cargo = document.getElementById('fluxoCargoSelect').value; const fluxo = (config.cargos[cargo] && config.cargos[cargo].fluxo) || []; const el = document.getElementById('fluxoConteudo'); el.innerHTML = !cargo ? '<div style="color:var(--text-muted);">Selecione um cargo.</div>' : fluxo.length ? fluxo.map(f => `<div class="fluxo-step"><div class="t">${escapeHtml(f.titulo)}</div><ul>${(f.itens || []).map(i => `<li>${escapeHtml(i)}</li>`).join('')}</ul></div>`).join('') : '<div style="color:var(--text-muted);">Nenhum fluxo diário definido para este cargo.</div>'; }
 
         function fecharModal(id) { document.getElementById(id).classList.remove('active'); }
         document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('active'); }));
