@@ -79,16 +79,16 @@
         .kpi-value { font-size: 2.1rem; font-weight: 900; line-height: 1;}
 
         /* LAYOUT GERAL (GRÁFICOS) */
-        .dashboard-grid { display: grid; grid-template-columns: 0.9fr 1.3fr 1fr; grid-template-rows: auto 1fr; gap: 10px; flex: 1; min-height: 0; margin-top: 5px;}
+        .dashboard-grid { display: grid; grid-template-columns: 0.9fr 1.4fr 1fr; grid-template-rows: auto 1fr; gap: 10px; flex: 1; min-height: 0; margin-top: 5px;}
         .chart-card { display: flex; flex-direction: column; border-radius: 8px; overflow: hidden; min-height: 0; } 
         
-        .chart-title { background: var(--brand-yellow); color: var(--text-on-yellow); padding: 6px 10px; font-size: 0.8rem; font-weight: 900; text-transform: uppercase; text-align: center; letter-spacing: 0.5px; margin: 0; border-bottom: 1px solid var(--border-card); flex: 0 0 auto;}
-        .chart-wrapper { flex: 1; min-height: 0; width: 100%; position: relative; padding: 5px; box-sizing: border-box; }
+        .chart-title { background: var(--brand-yellow); color: var(--text-on-yellow); padding: 8px 10px; font-size: 0.9rem; font-weight: 900; text-transform: uppercase; text-align: center; letter-spacing: 0.5px; margin: 0; border-bottom: 1px solid var(--border-card); flex: 0 0 auto;}
+        .chart-wrapper { flex: 1; min-height: 0; width: 100%; position: relative; padding: 10px 5px; box-sizing: border-box; }
 
         /* TABELA INFERIOR (DETALHES) */
         .table-full-width { grid-column: span 3; display: flex; flex-direction: column; min-height: 0; border-radius: 8px; overflow: hidden;}
         .data-table-wrapper { flex: 1; overflow-y: auto; overflow-x: hidden; background: var(--bg-card); min-height: 0;}
-        table.data-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; text-align: left; }
+        table.data-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; text-align: left; }
         .data-table thead { background: var(--brand-yellow); color: var(--text-on-yellow); position: sticky; top: 0; z-index: 1; font-weight: 900; text-transform: uppercase;}
         .data-table th, .data-table td { padding: 6px 12px; border-bottom: 1px solid var(--border-card); color: var(--text-main); white-space: nowrap; }
         .data-table tbody tr:hover { background-color: rgba(52, 131, 250, 0.1); }
@@ -388,7 +388,6 @@
                 if(d && dateStr !== d) match = false;
 
                 if(match && globalDb[key]) {
-                    // Prevenir Call Stack com lotes
                     let arr = globalDb[key];
                     let batch = [];
                     for(let i=0; i<arr.length; i++) batch.push(arr[i]);
@@ -488,16 +487,13 @@
 
                 setAreas.add(area);
 
-                // Normaliza Situação
                 if(sit.toLowerCase().includes('verificado')) { totalVerificados++; mapSituacao['Verificados']++; sit = 'Verificado'; }
                 else if(sit.toLowerCase().includes('deslocado')) { totalDeslocados++; mapSituacao['Deslocados']++; sit = 'Deslocado'; }
 
-                // Map Area
                 if(!mapArea[area]) mapArea[area] = { verificados: 0, deslocados: 0 };
                 if(sit === 'Verificado') mapArea[area].verificados++;
                 else if(sit === 'Deslocado') mapArea[area].deslocados++;
 
-                // Map Ops
                 if(!mapOps[op]) mapOps[op] = 0;
                 mapOps[op]++;
             });
@@ -511,7 +507,7 @@
                     <td>${r.data || '-'}</td>
                     <td class="${sitNorm}">${r.situacao || '-'}</td>
                     <td>${r.area || '-'}</td>
-                    <td style="color:var(--text-muted); font-size:0.7rem;">${r.operador || '-'}</td>
+                    <td style="color:var(--text-muted); font-size:0.75rem;">${r.operador || '-'}</td>
                     <td>${r.comentario || '-'}</td>
                 </tr>`;
             });
@@ -531,15 +527,26 @@
             
             Object.keys(chartInstances).forEach(k => { if(chartInstances[k]) chartInstances[k].destroy(); });
 
-            // 1. TOTAL x SITUAÇÃO (Pie ou Bar)
+            // 1. TOTAL x SITUAÇÃO (Pie)
             chartInstances.situacao = new ApexCharts(document.querySelector("#chart-situacao"), {
                 series: [mapSituacao['Verificados'], mapSituacao['Deslocados']],
                 chart: { type: 'donut', height: '100%', background: 'transparent' },
                 labels: ['Verificados', 'Deslocados'],
                 colors: ['#059669', '#E74C3C'],
-                plotOptions: { pie: { donut: { size: '65%', labels: { show: true, name: { show: true, color: textColor }, value: { show: true, color: textColor, fontWeight: 900 } } } } },
+                plotOptions: { 
+                    pie: { 
+                        donut: { 
+                            size: '65%', 
+                            labels: { 
+                                show: true, 
+                                name: { show: true, fontSize: '14px', color: textColor }, 
+                                value: { show: true, fontSize: '24px', fontWeight: 900, color: textColor } 
+                            } 
+                        } 
+                    } 
+                },
                 dataLabels: { enabled: false },
-                legend: { position: 'bottom', labels: { colors: textColor } },
+                legend: { position: 'bottom', fontSize: '12px', labels: { colors: textColor } },
                 stroke: { show: false }
             });
             chartInstances.situacao.render();
@@ -553,34 +560,41 @@
                 series: [{name: 'Verificados', data: srVer}, {name: 'Deslocados', data: srDes}],
                 chart: { type: 'bar', height: '100%', stacked: true, background: 'transparent', toolbar: {show:false} },
                 colors: ['#059669', '#E74C3C'],
-                plotOptions: { bar: { horizontal: true } },
-                dataLabels: { enabled: true, style: { fontSize: '11px', colors: ['#fff'] }, dropShadow: {enabled:false} },
-                xaxis: { 
-                    categories: areas,
-                    labels: { style: { colors: textColor, fontSize: '10px' } },
-                    max: function(val) { return val * 1.15; }
+                plotOptions: { bar: { horizontal: true, barHeight: '70%' } },
+                dataLabels: { 
+                    enabled: true, 
+                    style: { fontSize: '12px', fontWeight: 800, colors: ['#fff'] }, 
+                    dropShadow: {enabled:false},
+                    formatter: function(val) { return val > 0 ? val : ''; }
                 },
-                yaxis: { labels: { style: { colors: textColor, fontWeight: 800, fontSize:'10px' } } },
-                legend: { position: 'top', labels: { colors: textColor }, markers: { radius: 0 } },
+                xaxis: { 
+                    min: 0,
+                    categories: areas,
+                    labels: { style: { colors: textColor, fontSize: '11px', fontWeight: 600 } },
+                    max: function(val) { return val * 1.1; }
+                },
+                yaxis: { labels: { style: { colors: textColor, fontWeight: 800, fontSize:'11px' } } },
+                legend: { position: 'top', fontSize: '12px', labels: { colors: textColor }, markers: { radius: 0 } },
                 grid: { padding: { top: 15, right: 20, bottom: 15 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.area.render();
 
             // 3. TOP OPERADORES (Horizontal)
             let arrOps = Object.keys(mapOps).map(o => ({op: o, v: mapOps[o]})).sort((a,b) => b.v - a.v).slice(0,10);
-            let dsOps = arrOps.map(x => ({ x: x.op.split(' ').slice(0,2).join('\n'), y: x.v }));
+            let dsOps = arrOps.map(x => ({ x: x.op.split(' ').slice(0,2).join(' '), y: x.v }));
 
             chartInstances.operador = new ApexCharts(document.querySelector("#chart-operador"), {
                 series: [{name: 'Escaneamentos', data: dsOps}],
                 chart: { type: 'bar', height: '100%', background: 'transparent', toolbar: {show:false} },
                 colors: ['var(--bar-yellow)'],
-                plotOptions: { bar: { horizontal: true, dataLabels: {position: 'top'} } },
-                dataLabels: { enabled: true, textAnchor: 'start', offsetX: 10, style: { fontSize: '11px', colors: [textColor] }, dropShadow: {enabled:false} },
+                plotOptions: { bar: { horizontal: true, barHeight: '70%', dataLabels: {position: 'top'} } },
+                dataLabels: { enabled: true, textAnchor: 'start', offsetX: 15, style: { fontSize: '12px', fontWeight: 800, colors: [textColor] }, dropShadow: {enabled:false} },
                 xaxis: { 
-                    labels: { style: { colors: textColor, fontSize: '10px' } },
-                    max: function(val) { return val * 1.25; } 
+                    min: 0,
+                    labels: { style: { colors: textColor, fontSize: '11px', fontWeight: 600 } },
+                    max: function(val) { return val * 1.15; } 
                 },
-                yaxis: { type: 'category', labels: { style: { colors: textColor, fontWeight: 800, fontSize:'10px' } } },
+                yaxis: { type: 'category', labels: { style: { colors: textColor, fontWeight: 800, fontSize:'11px' } } },
                 grid: { padding: { right: 35, bottom: 15 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.operador.render();
