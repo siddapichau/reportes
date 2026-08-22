@@ -24,17 +24,18 @@
         body { padding:10px; display:flex; flex-direction:column; gap:12px; height:100vh; overflow:hidden; font-size:1rem; }
         .glass-panel { background-color:var(--bg-card); backdrop-filter:blur(12px); border:1px solid var(--border-card); border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,.1); }
 
-        .header { padding:12px 20px; flex:0 0 auto; display:flex; justify-content:space-between; align-items:center; gap:20px; background:#FFF159 !important; border:none; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,.2); }
-        .header-title-wrapper { flex:1; text-align:center; color:#2D3277 !important; font-weight:900; text-transform:uppercase; letter-spacing:.5px; font-size:1.15rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .header { padding:12px 18px; flex:0 0 auto; display:flex; justify-content:space-between; align-items:center; gap:10px 20px; flex-wrap:wrap; background:#FFF159 !important; border:none; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,.2); }
+        .header-title-wrapper { flex:1; text-align:center; color:#2D3277 !important; font-weight:900; text-transform:uppercase; letter-spacing:.5px; font-size:1.15rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
         .ml-logo { height:32px; width:auto; object-fit:contain; }
         .header-controls { display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
-        .btn-header { padding:9px 14px; border:0; border-radius:8px; font-weight:800; font-size:.78rem; cursor:pointer; transition:.2s; color:#fff; text-transform:uppercase; letter-spacing:.2px; display:flex; align-items:center; gap:6px; }
+        .btn-header { padding:9px 14px; border:0; border-radius:8px; font-weight:800; font-size:.78rem; cursor:pointer; transition:.2s; color:#fff; text-transform:uppercase; letter-spacing:.2px; display:flex; align-items:center; gap:6px; white-space:nowrap; }
         .btn-blue { background:var(--accent-blue); } .btn-green { background:var(--accent-green); } .btn-dark { background:#2D3277; }
         .btn-header:hover, .mini-btn:hover { transform:translateY(-2px); box-shadow:0 4px 10px rgba(0,0,0,.2); }
 
         .date-bar { flex:0 0 auto; display:flex; align-items:center; gap:10px; padding:10px 20px; flex-wrap:wrap; }
         .date-bar label, .tdm-label { font-weight:800; color:var(--text-muted); text-transform:uppercase; font-size:.72rem; letter-spacing:.25px; }
         .date-bar input[type="date"], .hora-input, .conta-box select { padding:7px 9px; border-radius:6px; border:1px solid var(--border-light); background:var(--bg-card); color:var(--text-main); font-weight:600; font-family:Inter,sans-serif; }
+        .hora-input { flex:1 1 88px; min-width:76px; max-width:130px; }
         .date-bar .info-user { margin-left:auto; font-size:.8rem; color:var(--text-muted); font-weight:700; }
         .mini-btn { padding:7px 10px; border-radius:6px; border:1px solid var(--border-card); background:var(--bg-body); color:var(--text-main); font-size:.72rem; font-weight:800; cursor:pointer; transition:.15s; }
         .hint-bar { flex:0 0 auto; padding:9px 14px; color:var(--text-muted); font-size:.78rem; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
@@ -43,7 +44,7 @@
         .legend span { padding:3px 8px; border-radius:20px; border:1px solid var(--border-card); }
 
         .cards-scroll { flex:1; overflow-y:auto; padding:4px; }
-        .cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(335px,1fr)); gap:14px; align-items:start; }
+        .cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(335px,100%),1fr)); gap:14px; align-items:start; }
         .tdm-card { padding:16px; display:flex; flex-direction:column; gap:12px; min-width:0; }
         .tdm-card-head { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
         .tdm-card-head .nome { font-size:1.1rem; font-weight:900; color:var(--text-title); line-height:1.2; }
@@ -106,7 +107,69 @@
         .cargo-line { display:flex; gap:8px; align-items:center; border-bottom:1px solid var(--border-card); padding:9px 0; }
         .cargo-line strong { flex:1; color:var(--text-title); }
         ::-webkit-scrollbar { width:6px; height:6px; } ::-webkit-scrollbar-track { background:transparent; } ::-webkit-scrollbar-thumb { background:var(--border-light); border-radius:3px; }
-        @media (max-width:700px) { body { padding:6px; } .header { padding:10px; } .header-left { display:none; } .header-title-wrapper { text-align:left; } .date-bar .info-user { margin-left:0; width:100%; } .cards-grid { grid-template-columns:1fr; } .modal-box { padding:16px; } }
+
+        /* FLUXO DIÁRIO — PORCENTAGEM POR USUÁRIO */
+        .fluxo-media { display:flex; justify-content:space-between; align-items:center; gap:8px 14px; flex-wrap:wrap; background:rgba(52,131,250,.08); border:1px solid rgba(52,131,250,.25); padding:10px 12px; border-radius:8px; font-size:.8rem; font-weight:700; color:var(--text-title); margin-bottom:12px; }
+        .fluxo-user { border:1px solid var(--border-card); border-radius:10px; padding:10px 12px; margin-bottom:10px; background:var(--bg-body); }
+        .fluxo-user-head { display:flex; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap; }
+        .fluxo-avatar { width:34px; height:34px; border-radius:50%; background:#2D3277; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:.78rem; flex:0 0 auto; }
+        .fluxo-names { flex:1; min-width:110px; display:flex; flex-direction:column; line-height:1.15; }
+        .fluxo-names small { color:var(--text-muted); font-size:.68rem; font-weight:700; }
+        .fluxo-pill { padding:3px 9px; border-radius:20px; font-size:.66rem; font-weight:900; color:#fff; white-space:nowrap; }
+        .fluxo-pill.presente { background:var(--accent-green); } .fluxo-pill.falta { background:var(--accent-red); } .fluxo-pill.atestado { background:var(--accent-warn); } .fluxo-pill.ferias { background:#8E44AD; } .fluxo-pill.folga { background:#6C5CE7; }
+        .fluxo-bar-wrap { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+        .fluxo-bar { flex:1 1 140px; height:10px; border-radius:20px; background:var(--bg-card); border:1px solid var(--border-card); overflow:hidden; }
+        .fluxo-bar-fill { height:100%; border-radius:20px; transition:width .4s; }
+        .fluxo-bar-fill.green { background:var(--accent-green); } .fluxo-bar-fill.warn { background:var(--accent-warn); } .fluxo-bar-fill.red { background:var(--accent-red); }
+        .fluxo-pct { font-weight:900; color:var(--text-title); min-width:44px; text-align:right; }
+        .fluxo-frac { font-size:.74rem; font-weight:800; color:var(--text-muted); }
+        .fluxo-support { font-size:.7rem; font-weight:800; color:var(--accent-blue); }
+        .fluxo-divider { border:none; border-top:1px solid var(--border-card); margin:16px 0; }
+        .fluxo-empty { color:var(--text-muted); font-size:.85rem; padding:8px 0; }
+
+        /* RESPONSIVO — MONITORES MENORES */
+        @media (max-width:1100px) {
+            .cards-grid { grid-template-columns:repeat(auto-fill,minmax(min(280px,100%),1fr)); }
+            .tdm-card { padding:14px; gap:10px; }
+        }
+        @media (max-width:900px) {
+            body { gap:8px; }
+            .header { padding:10px 12px; }
+            .header-left { display:none; }
+            .header-title-wrapper { flex:1 1 100%; order:-1; font-size:1rem; }
+            .header-controls { width:100%; justify-content:center; }
+            .btn-header { padding:8px 11px; font-size:.72rem; }
+            .date-bar { padding:8px 12px; gap:8px; }
+            .hint-bar { padding:8px 12px; font-size:.72rem; }
+        }
+        /* RESPONSIVO — CELULAR */
+        @media (max-width:640px) {
+            body { padding:6px; gap:7px; }
+            .cards-scroll { padding:2px; }
+            .cards-grid { grid-template-columns:1fr; }
+            .tdm-card { padding:12px; gap:10px; }
+            .tdm-card-head .nome { font-size:1rem; }
+            .badge-cargo, .badge-backup, .badge-folga { font-size:.62rem; padding:2px 8px; }
+            .backup-line { font-size:.72rem; padding:6px 8px; }
+            .checklist { max-height:320px; }
+            .date-bar input[type="date"] { flex:1 1 150px; }
+            .date-bar .info-user { margin-left:0; width:100%; text-align:center; }
+            .conta-box select { max-width:100%; }
+            .status-btn { padding:6px 9px; font-size:.68rem; }
+            .mini-btn { padding:6px 9px; font-size:.68rem; }
+            .modal-box { padding:16px; width:96%; }
+            .field input, .field select, .field textarea { padding:9px 10px; }
+            .saved-toast { left:16px; right:16px; bottom:14px; }
+        }
+        /* RESPONSIVO — CELULAR EM PÉ (landscape) */
+        @media (max-height:660px) and (orientation:landscape) {
+            body { padding:6px; gap:6px; }
+            .header { padding:8px 12px; }
+            .header-title-wrapper { font-size:.95rem; }
+            .date-bar { padding:6px 12px; }
+            .hint-bar { padding:6px 12px; font-size:.68rem; }
+            .btn-header { padding:7px 10px; font-size:.68rem; }
+        }
     </style>
 </head>
 <body data-theme="light">
@@ -163,11 +226,13 @@
         </div>
     </div>
 
-    <!-- MODAL FLUXO DIÁRIO -->
+    <!-- MODAL FLUXO DIÁRIO: porcentagem de conclusão de cada usuário + fluxo do cargo -->
     <div class="modal-overlay" id="modalFluxo">
         <div class="modal-box wide">
-            <div class="modal-head"><h2>📋 Fluxo Diário por Cargo</h2><span class="modal-close" onclick="fecharModal('modalFluxo')">&times;</span></div>
-            <div class="field"><label>Selecione o cargo</label><select id="fluxoCargoSelect" onchange="renderizarFluxo()"></select></div>
+            <div class="modal-head"><h2>📋 Fluxo Diário — <span id="fluxoDiaLabel" style="color:var(--accent-blue);"></span></h2><span class="modal-close" onclick="fecharModal('modalFluxo')">&times;</span></div>
+            <div id="fluxoPercentuais"></div>
+            <div class="fluxo-divider"></div>
+            <div class="field"><label>Fluxo padrão do cargo</label><select id="fluxoCargoSelect" onchange="renderizarFluxoCargo()"></select></div>
             <div id="fluxoConteudo"></div>
         </div>
     </div>
@@ -501,8 +566,52 @@
         function renderizarCargosList() { const el = document.getElementById('cargosList'); const cargos = Object.keys(config.cargos || {}); el.innerHTML = cargos.length ? cargos.map(c => `<div class="cargo-line"><strong>${escapeHtml(c)}</strong><button class="mini-btn danger" onclick="excluirCargo(${jsonAttr(c)})">🗑️</button></div>`).join('') : '<div style="color:var(--text-muted);">Nenhum cargo cadastrado.</div>'; }
         async function adicionarCargo() { if (!isAdmin) return; const nome = document.getElementById('novoCargoNome').value.trim(); if (!nome) return alert('Informe o nome do cargo.'); if (config.cargos[nome]) return alert('Este cargo já existe.'); config.cargos[nome] = { fluxo:[] }; try { await salvarConfig(); document.getElementById('novoCargoNome').value = ''; renderizarCargosList(); preencherSelectCargos(); toast('Cargo adicionado!'); } catch (e) { alert('Erro ao adicionar cargo.'); } }
         async function excluirCargo(cargo) { if (!isAdmin) return; if (!confirm(`Excluir o cargo "${cargo}"?`)) return; delete config.cargos[cargo]; try { await salvarConfig(); renderizarCargosList(); toast('Cargo removido.'); } catch (e) { alert('Erro ao excluir cargo.'); } }
+        function formatDataBR(iso) { const p = String(iso || '').split('-'); return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : (iso || ''); }
+        function iniciais(nome) { const parts = String(nome || '').trim().split(/\s+/).filter(Boolean); if (!parts.length) return '?'; if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase(); return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase(); }
         function abrirModalFluxo() { const sel = document.getElementById('fluxoCargoSelect'); sel.innerHTML = Object.keys(config.cargos || {}).map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('') || '<option value="">—</option>'; renderizarFluxo(); document.getElementById('modalFluxo').classList.add('active'); }
-        function renderizarFluxo() { const cargo = document.getElementById('fluxoCargoSelect').value; const fluxo = config.cargos[cargo] && config.cargos[cargo].fluxo || []; const el = document.getElementById('fluxoConteudo'); el.innerHTML = !cargo ? '' : fluxo.length ? fluxo.map(f => `<div class="fluxo-step"><div class="t">${escapeHtml(f.titulo)}</div><ul>${(f.itens || []).map(i => `<li>${escapeHtml(i)}</li>`).join('')}</ul></div>`).join('') : '<div style="color:var(--text-muted);">Nenhum fluxo diário definido para este cargo.</div>'; }
+        function renderizarFluxo() {
+            const dataKey = document.getElementById('dataSelecionada').value || hojeISO();
+            document.getElementById('fluxoDiaLabel').textContent = formatDataBR(dataKey);
+            const colabs = listaColaboradores();
+            const visiveis = isAdmin ? colabs : colabs.filter(usuarioVinculado);
+            const el = document.getElementById('fluxoPercentuais');
+            if (!visiveis.length) {
+                el.innerHTML = '<div class="fluxo-empty">Nenhum colaborador disponível para exibir as porcentagens.</div>';
+            } else {
+                let totDone = 0, totTotal = 0;
+                const rows = visiveis.map(colab => {
+                    const reg = diarioHoje[colab.key] || {};
+                    const activities = normalizeActivities(colab.atividades);
+                    const total = activities.length;
+                    const done = registroChecks(colab, reg).length;
+                    const support = checkedActivityIds(colab.atividades, reg.supportChecks).length;
+                    totDone += done; totTotal += total;
+                    const pct = total ? Math.round((done / total) * 100) : 0;
+                    const folga = reg.folga === true;
+                    const status = reg.status || (folga ? 'folga' : '');
+                    const bar = pct >= 100 ? 'green' : pct >= 50 ? 'warn' : 'red';
+                    return `<div class="fluxo-user">
+                        <div class="fluxo-user-head">
+                            <span class="fluxo-avatar">${escapeHtml(iniciais(colab.nome))}</span>
+                            <div class="fluxo-names"><strong>${escapeHtml(colab.nome)}</strong><small>${escapeHtml(colab.cargo || 'Sem cargo')}</small></div>
+                            ${status ? `<span class="fluxo-pill ${status}">${escapeHtml(statusLabel(status))}</span>` : ''}
+                            ${folga && status !== 'folga' ? '<span class="fluxo-pill folga">Folga</span>' : ''}
+                        </div>
+                        <div class="fluxo-bar-wrap">
+                            <div class="fluxo-bar"><div class="fluxo-bar-fill ${bar}" style="width:${pct}%"></div></div>
+                            <span class="fluxo-pct">${pct}%</span>
+                            <span class="fluxo-frac">${done}/${total} atividades</span>
+                            ${support ? `<span class="fluxo-support">🔁 ${support} de backup</span>` : ''}
+                        </div>
+                    </div>`;
+                }).join('');
+                const media = totTotal ? Math.round((totDone / totTotal) * 100) : 0;
+                const mediaLabel = isAdmin ? 'Média do time' : 'Sua conclusão';
+                el.innerHTML = `<div class="fluxo-media"><span>📊 Conclusão das atividades no dia selecionado</span><span>${mediaLabel}: <strong>${media}%</strong> · ${totDone}/${totTotal}</span></div>` + rows;
+            }
+            renderizarFluxoCargo();
+        }
+        function renderizarFluxoCargo() { const cargo = document.getElementById('fluxoCargoSelect').value; const fluxo = config.cargos[cargo] && config.cargos[cargo].fluxo || []; const el = document.getElementById('fluxoConteudo'); el.innerHTML = !cargo ? '' : fluxo.length ? fluxo.map(f => `<div class="fluxo-step"><div class="t">${escapeHtml(f.titulo)}</div><ul>${(f.itens || []).map(i => `<li>${escapeHtml(i)}</li>`).join('')}</ul></div>`).join('') : '<div style="color:var(--text-muted);">Nenhum fluxo diário definido para este cargo.</div>'; }
         function trocarDia() { carregarDiario().then(renderizar); }
         function irParaHoje() { document.getElementById('dataSelecionada').value = hojeISO(); carregarDiario().then(renderizar); }
         function fecharModal(id) { document.getElementById(id).classList.remove('active'); }
