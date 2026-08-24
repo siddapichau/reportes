@@ -91,7 +91,7 @@
         
         .chart-card { display: flex; flex-direction: column; border-radius: 8px; overflow: hidden; min-height: 0; } 
         .chart-title { background: var(--brand-yellow); color: var(--text-on-yellow); padding: 6px 10px; font-size: 0.85rem; font-weight: 900; text-transform: uppercase; text-align: center; letter-spacing: 0.5px; margin: 0; border-bottom: 1px solid var(--border-card); flex: 0 0 auto;}
-        .chart-wrapper { flex: 1; min-height: 0; width: 100%; position: relative; padding: 5px; box-sizing: border-box; cursor: pointer; } /* Adicionado cursor pointer */
+        .chart-wrapper { flex: 1; min-height: 0; width: 100%; position: relative; padding: 5px; box-sizing: border-box; cursor: pointer; }
 
         /* ========================================================
            TRAVAS E AJUSTES PARA EXPORTAÇÃO (HTML2CANVAS)
@@ -116,15 +116,23 @@
         body.exporting .header-controls, body.exporting .filter-bar { display: none !important; }
         /* ======================================================== */
 
-        /* MODAL POP-UP (Drilldown de Dados) */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 10000; }
+        /* MODAL POP-UP CUSTOMIZADO */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 9999; }
         .modal-overlay.active { display: flex; }
-        
         .modal-box { background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 12px; padding: 25px; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); text-align: center; }
         .modal-box h3 { margin: 0 0 15px 0; color: var(--text-main); font-weight: 900; font-size: 1.3rem; text-transform: uppercase;}
-        
+        .modal-box p { margin: 0 0 20px 0; color: var(--text-muted); font-size: 0.95rem; line-height: 1.4;}
+        .modal-box input { width: 100%; padding: 12px; border: 1px solid var(--border-card); background: transparent; color: var(--text-main); border-radius: 8px; font-size: 1rem; text-align: center; font-weight: bold; margin-bottom: 20px; outline: none; box-sizing: border-box;}
+        .modal-box input:focus { border-color: #3483FA; }
+        .modal-buttons { display: flex; justify-content: center; gap: 15px; }
+        .modal-buttons button { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; transition: 0.2s; font-size: 0.9rem;}
+        .btn-cancel { background: var(--border-card); color: var(--text-main); }
+        .btn-cancel:hover { opacity: 0.8; }
+        .btn-confirm { background: #3483FA; color: #fff; }
+        .btn-confirm:hover { background: #2968c8; }
+
         /* Modal Específico para Drilldown de Tabela */
-        .drill-modal-box { background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 12px; padding: 20px; width: 95%; max-width: 900px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+        .drill-modal-box { background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 12px; padding: 20px; width: 95%; max-width: 900px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 10px 40px rgba(0,0,0,0.3); z-index: 10001;}
         .drill-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-card); padding-bottom: 10px; margin-bottom: 10px; }
         .drill-title { font-size: 1.1rem; font-weight: 900; color: var(--text-main); text-transform: uppercase; }
         .btn-close { background: transparent; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; font-weight: bold; }
@@ -138,13 +146,6 @@
         .col-destaque { font-weight: 800; color: var(--text-main); }
         .situacao-verificado { color: #059669; font-weight: 900; }
         .situacao-deslocado { color: #E74C3C; font-weight: 900; }
-
-        .modal-buttons { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
-        .modal-buttons button { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; transition: 0.2s; font-size: 0.9rem;}
-        .btn-cancel { background: var(--border-card); color: var(--text-main); }
-        .btn-cancel:hover { opacity: 0.8; }
-        .btn-confirm { background: #3483FA; color: #fff; }
-        .btn-confirm:hover { background: #2968c8; }
     </style>
 </head>
 <body data-theme="light">
@@ -356,7 +357,7 @@
             });
         }
 
-        // --- SISTEMA DRILLDOWN (CLIQUE NO GRÁFICO) ---
+        // --- SISTEMA DRILLDOWN (CLIQUE NO GRÁFICO COM FILTRO SEM ÁREA) ---
         function openDrilldown(chartType, seriesName, categoryName) {
             let filteredRows = [];
             let opCorrigiuMap = {};
@@ -401,18 +402,23 @@
                     if (seriesName === 'Deslocados' && p.deslocado && hasArea) match = true;
                 }
                 else if (chartType === 'CORRECAO') {
-                    if (categoryName === 'Corrigidos' && p.deslocado && p.verificado) match = true;
-                    if (categoryName === 'Não Corrigidos' && p.deslocado && !p.verificado) match = true;
+                    let areaDeslocado = p.areaDeslocado || 'Sem Área';
+                    if (areaDeslocado !== 'Sem Área') {
+                        if (categoryName === 'Corrigidos' && p.deslocado && p.verificado) match = true;
+                        if (categoryName === 'Não Corrigidos' && p.deslocado && !p.verificado) match = true;
+                    }
                 }
                 else if (chartType === 'CORRECAO_AREA') {
-                    let isCorrigido = p.deslocado && p.verificado;
-                    let isNaoCorrigido = p.deslocado && !p.verificado;
-                    
-                    // Verifica se o deslocamento ocorreu nesta área OU se ele foi lido nela
-                    let areaMatch = p.areaDeslocado === categoryName || p.rows.some(r => r.area === categoryName);
+                    let areaDeslocado = p.areaDeslocado || 'Sem Área';
+                    if (areaDeslocado !== 'Sem Área') {
+                        let isCorrigido = p.deslocado && p.verificado;
+                        let isNaoCorrigido = p.deslocado && !p.verificado;
+                        
+                        let areaMatch = p.areaDeslocado === categoryName || p.rows.some(r => r.area === categoryName);
 
-                    if (seriesName === 'Corrigidos' && isCorrigido && areaMatch) match = true;
-                    if (seriesName === 'Não Corrigidos' && isNaoCorrigido && areaMatch) match = true;
+                        if (seriesName === 'Corrigidos' && isCorrigido && areaMatch) match = true;
+                        if (seriesName === 'Não Corrigidos' && isNaoCorrigido && areaMatch) match = true;
+                    }
                 }
 
                 if (match) {
@@ -725,12 +731,15 @@
                 let area = pacoteAreaMap[idPacote] || 'Sem Área';
                 if(!mapArea[area]) mapArea[area] = { verificados: 0, deslocados: 0, corrigidos: 0, naoCorrigidos: 0 };
 
-                if (setVerificadosIds.has(idPacote)) {
-                    totalCorrigidos++;
-                    mapArea[area].corrigidos++;
-                } else {
-                    totalNaoCorrigidos++;
-                    mapArea[area].naoCorrigidos++;
+                // FILTRO: Ignora "Sem Área" nos gráficos de Correção
+                if (area !== 'Sem Área') {
+                    if (setVerificadosIds.has(idPacote)) {
+                        totalCorrigidos++;
+                        mapArea[area].corrigidos++;
+                    } else {
+                        totalNaoCorrigidos++;
+                        mapArea[area].naoCorrigidos++;
+                    }
                 }
             });
 
@@ -910,8 +919,11 @@
             });
             chartInstances.correcaoTotal.render();
 
-            // 4. CORREÇÃO POR ÁREA (Velas Verticais Empilhadas por Setor)
-            let areasCorr = Object.keys(mapArea).sort((a,b) => (mapArea[b].corrigidos + mapArea[b].naoCorrigidos) - (mapArea[a].corrigidos + mapArea[a].naoCorrigidos));
+            // 4. CORREÇÃO POR ÁREA (Velas Verticais Empilhadas por Setor OMITINDO "SEM ÁREA")
+            let areasCorr = Object.keys(mapArea)
+                .filter(a => a !== 'Sem Área' && (mapArea[a].corrigidos > 0 || mapArea[a].naoCorrigidos > 0)) // Remove 'Sem Área' e áreas vazias
+                .sort((a,b) => (mapArea[b].corrigidos + mapArea[b].naoCorrigidos) - (mapArea[a].corrigidos + mapArea[a].naoCorrigidos));
+            
             let dsCorr = areasCorr.map(a => mapArea[a].corrigidos);
             let dsNaoCorr = areasCorr.map(a => mapArea[a].naoCorrigidos);
 
