@@ -177,7 +177,7 @@
     <div class="kpi-container">
         <div class="kpi-row">
             <div class="kpi-box black">
-                <div class="kpi-title">ANALISADOS</div>
+                <div class="kpi-title">FINALIZADOS</div>
                 <div class="kpi-value" id="kpi-total">0</div>
                 <div class="kpi-sub">Total de Pacotes</div>
             </div>
@@ -219,7 +219,7 @@
                     <thead>
                         <tr>
                             <th>PACOTE (ID)</th>
-                            <th>DATA INSERIDO</th>
+                            <th>DATA FINALIZADO</th>
                             <th>DESCRIÇÃO</th>
                             <th>STATUS</th>
                             <th>RESOLUÇÃO FINAL</th>
@@ -450,7 +450,7 @@
 
             let chosenDate = await showModal({
                 title: 'Sincronizar Dados do CFTV',
-                message: `De qual data deseja extrair e salvar os dados desta planilha?<br><small>(O sistema vai buscar pela coluna "DATA INSIRIDO" ou "DATA")</small>`,
+                message: `De qual data deseja extrair e salvar os dados desta planilha?<br><small>(O sistema vai buscar pela coluna <b>"DATA FINALIZADO"</b>)</small>`,
                 type: 'prompt',
                 defaultValue: formatarDataHoje()
             });
@@ -468,7 +468,11 @@
 
                 for(let i=0; i < res.data.length; i++) {
                     let row = res.data[i];
-                    let rawDate = getVal(row, ['data insirido', 'data', 'date']);
+                    // Busca especificamente na Data Finalizado conforme solicitado
+                    let rawDate = getVal(row, ['data finalizado', 'data_finalizado', 'data finalização', 'data', 'date']);
+                    
+                    if (!rawDate) continue; // Pula pacotes que ainda não têm data de finalização
+                    
                     let d = padDate(rawDate.split(' ')[0]);
                     
                     if (d === chosenDate) {
@@ -497,7 +501,7 @@
                 await showModal({ title: 'Sincronização Concluída!', message: `Dados do CFTV do dia ${chosenDate} salvos com sucesso.<br><b>${totalAdicionados}</b> pacotes analisados.` });
                 loadDataFromFirebase();
             } else {
-                await showModal({ title: 'Aviso', message: `Nenhuma linha compatível com a data ${chosenDate} foi encontrada na planilha.` });
+                await showModal({ title: 'Aviso', message: `Nenhuma linha finalizada compatível com a data ${chosenDate} foi encontrada na planilha.` });
             }
             
             inputElement.value = '';
@@ -513,7 +517,7 @@
             let mapStatus = {};
             let mapAnalise = {};
 
-            // Dicionário de classificação simplificada (opcional) para o "No Piso"
+            // Dicionário de classificação simplificada para o "No Piso"
             const chavesPiso = ['piso na base', 'piso inventario', 'para despachar', 'pra devolução', 'para xpt', 'loc sem identificação'];
 
             flatData.forEach(r => {
