@@ -85,23 +85,29 @@
         .chart-title { background: var(--brand-yellow); color: var(--text-on-yellow); padding: 8px 12px; font-size: 0.95rem; font-weight: 900; text-transform: uppercase; text-align: center; letter-spacing: 0.5px; margin: 0; border-bottom: 1px solid var(--border-card); flex: 0 0 auto;}
         .chart-wrapper { flex: 1; min-height: 0; width: 100%; position: relative; padding: 15px 10px; box-sizing: border-box; }
 
-        /* TRAVAS E AJUSTES PARA EXPORTAÇÃO (HTML2CANVAS) */
+        /* ========================================================
+           TRAVAS E AJUSTES PARA EXPORTAÇÃO (HTML2CANVAS)
+           ======================================================== */
         body.exporting { 
             width: 1920px !important; 
             height: 1080px !important; 
-            overflow: hidden !important; 
-            position: absolute; 
-            top: 0; 
-            left: 0; 
+            min-height: 1080px !important;
+            max-height: 1080px !important;
+            position: absolute !important; 
+            top: 0 !important; 
+            left: 0 !important; 
             background: #ffffff !important; 
+            display: block !important; /* Remove o Flex do Body */
         }
         body.exporting .dashboard-grid {
-            min-height: 600px !important;
+            height: 750px !important; /* Altura fixa dos gráficos na foto para não esticarem */
+            display: grid !important;
             flex: none !important;
-            height: auto !important;
+            margin-top: 20px !important;
         }
         body.exporting .header-controls, body.exporting .filter-bar { display: none !important; }
-        
+        /* ======================================================== */
+
         /* MODAL POP-UP CUSTOMIZADO */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 9999; }
         .modal-overlay.active { display: flex; }
@@ -172,7 +178,7 @@
         </div>
     </div>
 
-    <!-- GRIDS DE GRÁFICOS (APENAS 1 LINHA DE 3 GRÁFICOS AGORA) -->
+    <!-- GRIDS DE GRÁFICOS (APENAS 1 LINHA DE 3 GRÁFICOS) -->
     <div class="dashboard-grid">
         <!-- 1. TOTAL x SITUAÇÃO -->
         <div class="chart-card glass-panel">
@@ -495,32 +501,36 @@
             
             Object.keys(chartInstances).forEach(k => { if(chartInstances[k]) chartInstances[k].destroy(); });
 
-            // 1. TOTAL x SITUAÇÃO (Convertido para Barras Verticais Limpas)
+            // 1. TOTAL x SITUAÇÃO (Colunas Verticais)
             chartInstances.situacao = new ApexCharts(document.querySelector("#chart-situacao"), {
-                series: [{ name: 'Quantidade', data: [mapSituacao['Verificados'], mapSituacao['Deslocados']] }],
+                series: [{ name: 'Quantidade', data: [
+                    {x: 'Verificados', y: mapSituacao['Verificados']}, 
+                    {x: 'Deslocados', y: mapSituacao['Deslocados']}
+                ] }],
                 chart: { type: 'bar', height: '100%', background: 'transparent', toolbar: {show:false} },
                 colors: ['#059669', '#E74C3C'], // Verde e Vermelho
                 plotOptions: { 
                     bar: { 
                         horizontal: false, 
-                        columnWidth: '45%', 
+                        columnWidth: '40%', 
                         distributed: true, 
-                        borderRadius: 4,
                         dataLabels: { position: 'top' } 
                     } 
                 },
                 dataLabels: { 
                     enabled: true, 
                     offsetY: -25, 
-                    style: { fontSize: '15px', fontWeight: 900, colors: [textColor] },
+                    style: { fontSize: '13px', fontWeight: 900, colors: [textColor] },
                     dropShadow: { enabled: false }
                 },
                 xaxis: { 
-                    categories: ['Verificados', 'Deslocados'],
-                    labels: { style: { colors: textColor, fontSize: '13px', fontWeight: 800 } } 
+                    labels: { style: { colors: textColor, fontSize: '12px', fontWeight: 800 } } 
                 },
                 yaxis: { 
-                    labels: { style: { colors: textColor, fontSize: '12px' } },
+                    labels: { 
+                        style: { colors: textColor, fontSize: '11px' },
+                        formatter: function(val) { return Math.round(val); }
+                    },
                     max: function(val) { return val * 1.25; } // Respiro no topo
                 },
                 legend: { show: false },
@@ -528,33 +538,35 @@
             });
             chartInstances.situacao.render();
 
-            // 2. SITUAÇÃO POR ÁREA (Stacked Bar Horizontal)
-            // Filtra e organiza áreas por total de itens
+            // 2. SITUAÇÃO POR ÁREA (Stacked Bar Horizontal Mapeada Certa)
             let areas = Object.keys(mapArea).sort((a,b) => (mapArea[b].verificados + mapArea[b].deslocados) - (mapArea[a].verificados + mapArea[a].deslocados));
-            let srVer = areas.map(a => mapArea[a].verificados);
-            let srDes = areas.map(a => mapArea[a].deslocados);
+            let dsVer = areas.map(a => ({x: a, y: mapArea[a].verificados}));
+            let dsDes = areas.map(a => ({x: a, y: mapArea[a].deslocados}));
 
             chartInstances.area = new ApexCharts(document.querySelector("#chart-area"), {
-                series: [{name: 'Verificados', data: srVer}, {name: 'Deslocados', data: srDes}],
+                series: [{name: 'Verificados', data: dsVer}, {name: 'Deslocados', data: dsDes}],
                 chart: { type: 'bar', height: '100%', stacked: true, background: 'transparent', toolbar: {show:false} },
                 colors: ['#059669', '#E74C3C'],
                 plotOptions: { bar: { horizontal: true, barHeight: '70%' } }, // Barras mais grossas
                 dataLabels: { 
                     enabled: true, 
-                    style: { fontSize: '13px', fontWeight: 900, colors: ['#fff'] }, 
+                    style: { fontSize: '12px', fontWeight: 900, colors: ['#fff'] }, 
                     dropShadow: {enabled:false},
                     formatter: function(val) { return val > 0 ? val : ''; } // Oculta zeros
                 },
                 xaxis: { 
-                    min: 0, // Trava o eixo X em zero para evitar números negativos
-                    labels: { style: { colors: textColor, fontSize: '12px', fontWeight: 600 } },
+                    min: 0, 
+                    labels: { 
+                        style: { colors: textColor, fontSize: '11px', fontWeight: 600 },
+                        formatter: function(val) { return Math.round(val); } 
+                    },
                     max: function(val) { return val * 1.15; }
                 },
                 yaxis: { 
+                    type: 'category',
                     labels: { 
                         show: true,
-                        style: { colors: textColor, fontWeight: 800, fontSize:'12px' },
-                        maxWidth: 200 // Espaço suficiente para os nomes
+                        style: { colors: textColor, fontWeight: 800, fontSize:'12px' }
                     } 
                 },
                 legend: { position: 'top', fontSize: '12px', labels: { colors: textColor }, markers: { radius: 0 } },
@@ -562,7 +574,7 @@
             });
             chartInstances.area.render();
 
-            // 3. TOP OPERADORES (Horizontal Amarelo)
+            // 3. TOP OPERADORES (Horizontal Amarelo Mapeado Certo)
             let arrOps = Object.keys(mapOps).map(o => ({op: o, v: mapOps[o]})).sort((a,b) => b.v - a.v).slice(0,10);
             let dsOps = arrOps.map(x => ({ x: x.op.split(' ').slice(0,2).join(' '), y: x.v }));
 
@@ -570,24 +582,26 @@
                 series: [{name: 'Escaneamentos', data: dsOps}],
                 chart: { type: 'bar', height: '100%', background: 'transparent', toolbar: {show:false} },
                 colors: ['var(--bar-yellow)'],
-                plotOptions: { bar: { horizontal: true, barHeight: '70%', dataLabels: {position: 'top'} } }, // Barras mais grossas e valor fora
+                plotOptions: { bar: { horizontal: true, barHeight: '70%', dataLabels: {position: 'top'} } }, // Valor fora da barra
                 dataLabels: { 
                     enabled: true, 
                     textAnchor: 'start', 
                     offsetX: 10, 
-                    style: { fontSize: '13px', fontWeight: 900, colors: [textColor] }, 
+                    style: { fontSize: '12px', fontWeight: 900, colors: [textColor] }, 
                     dropShadow: {enabled:false} 
                 },
                 xaxis: { 
-                    min: 0, // Trava em zero
-                    labels: { style: { colors: textColor, fontSize: '12px', fontWeight: 600 } },
+                    min: 0, 
+                    labels: { 
+                        style: { colors: textColor, fontSize: '11px', fontWeight: 600 },
+                        formatter: function(val) { return Math.round(val); }
+                    },
                     max: function(val) { return val * 1.25; } // Respiro na direita para o número
                 },
                 yaxis: { 
+                    type: 'category', 
                     labels: { 
-                        show: true,
-                        style: { colors: textColor, fontWeight: 800, fontSize:'12px' },
-                        maxWidth: 150
+                        style: { colors: textColor, fontWeight: 800, fontSize:'12px' } 
                     } 
                 },
                 grid: { padding: { top: 10, right: 40, bottom: 10, left: 10 }, borderColor: gridColor, strokeDashArray: 3 }
@@ -597,9 +611,10 @@
 
         // --- EXPORTAÇÃO ---
         function baixarImagem() {
+            // Entra em modo de exportação (força 1920x1080)
             document.body.classList.add('exporting');
             
-            // Força um Resize Event para os gráficos se ajustarem à trava Full HD
+            // Dispara Resize Event para os gráficos se ajustarem à trava Full HD
             window.dispatchEvent(new Event('resize'));
             
             setTimeout(() => {
@@ -608,17 +623,17 @@
                     scale: 2, 
                     backgroundColor: bgCor,
                     useCORS: true,
-                    windowWidth: 1920, // Força a largura nativa
-                    windowHeight: 1080 // Força a altura nativa
+                    windowWidth: 1920, // Força a largura nativa na foto
+                    windowHeight: 1080 // Força a altura nativa na foto
                 }).then(canvas => {
                     document.body.classList.remove('exporting');
-                    window.dispatchEvent(new Event('resize')); // Volta ao normal
+                    window.dispatchEvent(new Event('resize')); // Volta a responsividade
                     
                     const link = document.createElement('a');
                     link.download = `Poka_Inventario_${formatarDataHoje().replace(/\//g,'-')}.png`;
                     link.href = canvas.toDataURL('image/png'); link.click();
                 });
-            }, 800); // 800ms garante tempo hábil para a animação do gráfico terminar de se redimensionar
+            }, 800); // Garante tempo para a animação do gráfico terminar de se redimensionar
         }
     </script>
 </body>
