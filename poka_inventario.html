@@ -190,7 +190,7 @@
 
     <!-- GRIDS DE GRÁFICOS (2 LINHAS) -->
     <div class="dashboard-grid">
-        <!-- LINHA 1 -->
+        <!-- LINHA 1 (VELAS VERTICAIS) -->
         <div class="chart-card glass-panel col-span-1">
             <div class="chart-title">TOTAL x SITUAÇÃO</div>
             <div id="chart-situacao" class="chart-wrapper"></div>
@@ -200,7 +200,7 @@
             <div id="chart-area" class="chart-wrapper"></div>
         </div>
 
-        <!-- LINHA 2 -->
+        <!-- LINHA 2 (BARRAS HORIZONTAIS DE LADO) -->
         <div class="chart-card glass-panel col-span-1">
             <div class="chart-title">TOP BIPADOR - TOTAL</div>
             <div id="chart-op-total" class="chart-wrapper"></div>
@@ -527,13 +527,13 @@
                 .slice(0, limit);
         }
 
-        function createVelaChart(selector, dataArr, colorConfig) {
+        function createHorizontalBarChart(selector, dataArr, colorConfig) {
             let textColor = document.body.getAttribute('data-theme') === 'light' ? '#333' : '#e2e8f0';
             let gridColor = document.body.getAttribute('data-theme') === 'light' ? '#E5E7EB' : '#334155';
             
-            // Divide o nome do operador em até 2 linhas para o eixo X (evita corte)
+            // Abrevia o nome para não cortar: Ex: "Jeander Oniel"
             let formattedData = dataArr.map(x => ({ 
-                x: x.op.split(' ').slice(0,2), // array = quebra de linha nativa no ApexCharts
+                x: x.op.split(' ').slice(0,2).join(' '), 
                 y: x.v 
             }));
 
@@ -543,33 +543,34 @@
                 colors: [colorConfig],
                 plotOptions: { 
                     bar: { 
-                        horizontal: false, 
-                        columnWidth: '55%', 
+                        horizontal: true, 
+                        barHeight: '70%', 
                         borderRadius: 3,
                         dataLabels: { position: 'top' } 
                     } 
                 },
                 dataLabels: { 
                     enabled: true, 
-                    offsetY: -20, 
+                    textAnchor: 'start',
+                    offsetX: 10, 
                     style: { fontSize: '12px', fontWeight: 900, colors: [textColor] },
                     dropShadow: {enabled:false}
                 },
                 xaxis: { 
                     labels: { 
-                        style: { colors: textColor, fontSize: '10px', fontWeight: 700 }
+                        style: { colors: textColor, fontSize: '10px', fontWeight: 700 },
+                        formatter: function(val) { return Math.round(val); }
                     },
-                    axisBorder: { show: false },
-                    axisTicks: { show: false }
+                    max: function(val) { return val * 1.30; } // Trava respiro maior para não cortar o número no canto direito
                 },
                 yaxis: { 
                     labels: { 
-                        style: { colors: textColor, fontSize: '11px', fontWeight: 600 },
-                        formatter: function(val) { return Math.round(val); }
-                    },
-                    max: function(val) { return val * 1.25; } 
+                        show: true,
+                        style: { colors: textColor, fontSize: '11px', fontWeight: 800 },
+                        maxWidth: 160 // Garante espaço para ler os nomes da lateral sem cortar
+                    }
                 },
-                grid: { padding: { top: 15, bottom: 0 }, borderColor: gridColor, strokeDashArray: 3 }
+                grid: { padding: { top: 0, bottom: 0, right: 35, left: 10 }, borderColor: gridColor, strokeDashArray: 3 }
             });
         }
 
@@ -579,14 +580,14 @@
             
             Object.keys(chartInstances).forEach(k => { if(chartInstances[k]) chartInstances[k].destroy(); });
 
-            // 1. TOTAL x SITUAÇÃO (Colunas Verticais)
+            // 1. TOTAL x SITUAÇÃO (Colunas Verticais - Velas)
             chartInstances.situacao = new ApexCharts(document.querySelector("#chart-situacao"), {
                 series: [{ name: 'Quantidade', data: [
                     {x: 'Verificados', y: mapSituacao['Verificados']}, 
                     {x: 'Deslocados', y: mapSituacao['Deslocados']}
                 ] }],
                 chart: { type: 'bar', height: '100%', background: 'transparent', toolbar: {show:false} },
-                colors: ['#059669', '#E74C3C'],
+                colors: ['#059669', '#E74C3C'], 
                 plotOptions: { 
                     bar: { horizontal: false, columnWidth: '40%', distributed: true, borderRadius: 4, dataLabels: { position: 'top' } } 
                 },
@@ -608,16 +609,16 @@
             });
             chartInstances.situacao.render();
 
-            // 2. SITUAÇÃO POR ÁREA (Stacked Bar Horizontal)
+            // 2. SITUAÇÃO POR ÁREA (Colunas Verticais Empilhadas - Velas)
             let areas = Object.keys(mapArea).sort((a,b) => (mapArea[b].verificados + mapArea[b].deslocados) - (mapArea[a].verificados + mapArea[a].deslocados));
-            let dsVer = areas.map(a => ({x: a, y: mapArea[a].verificados}));
-            let dsDes = areas.map(a => ({x: a, y: mapArea[a].deslocados}));
+            let dsVer = areas.map(a => mapArea[a].verificados);
+            let dsDes = areas.map(a => mapArea[a].deslocados);
 
             chartInstances.area = new ApexCharts(document.querySelector("#chart-area"), {
                 series: [{name: 'Verificados', data: dsVer}, {name: 'Deslocados', data: dsDes}],
                 chart: { type: 'bar', height: '100%', stacked: true, background: 'transparent', toolbar: {show:false} },
                 colors: ['#059669', '#E74C3C'],
-                plotOptions: { bar: { horizontal: true, barHeight: '65%' } },
+                plotOptions: { bar: { horizontal: false, columnWidth: '45%', borderRadius: 2 } }, // VELAS VERTICAIS AGORA
                 dataLabels: { 
                     enabled: true, 
                     style: { fontSize: '12px', fontWeight: 900, colors: ['#fff'] }, 
@@ -625,32 +626,35 @@
                     formatter: function(val) { return val > 0 ? val : ''; } 
                 },
                 xaxis: { 
-                    min: 0, 
+                    categories: areas,
+                    labels: { style: { colors: textColor, fontSize: '11px', fontWeight: 800 } }
+                },
+                yaxis: { 
                     labels: { 
-                        style: { colors: textColor, fontSize: '11px', fontWeight: 600 },
-                        formatter: function(val) { return Math.round(val); } 
+                        show: true, 
+                        style: { colors: textColor, fontWeight: 800, fontSize:'12px' },
+                        formatter: function(val) { return Math.round(val); }
                     },
                     max: function(val) { return val * 1.15; }
                 },
-                yaxis: { type: 'category', labels: { show: true, style: { colors: textColor, fontWeight: 800, fontSize:'12px' } } },
                 legend: { position: 'top', fontSize: '12px', labels: { colors: textColor }, markers: { radius: 0 } },
-                grid: { padding: { top: 0, right: 25, bottom: 0, left: 10 }, borderColor: gridColor, strokeDashArray: 3 }
+                grid: { padding: { top: 10, right: 10, bottom: 10, left: 10 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.area.render();
 
-            // 3. TOP BIPADORES (Velas Verticais)
-            const LIMIT_OPS = 7; // Limita a 7 operadores para ficar elegante nas velas
+            // 3. TOP BIPADORES (Barras Horizontais "de lado")
+            const LIMIT_OPS = 8; // Top 8 
             let arrOpsTotal = getTopOps(mapOpsTotal, LIMIT_OPS);
             let arrOpsVer = getTopOps(mapOpsVer, LIMIT_OPS);
             let arrOpsDes = getTopOps(mapOpsDes, LIMIT_OPS);
 
-            chartInstances.opTotal = createVelaChart("#chart-op-total", arrOpsTotal, 'var(--bar-yellow)');
+            chartInstances.opTotal = createHorizontalBarChart("#chart-op-total", arrOpsTotal, 'var(--bar-yellow)');
             chartInstances.opTotal.render();
 
-            chartInstances.opVer = createVelaChart("#chart-op-verificados", arrOpsVer, '#059669');
+            chartInstances.opVer = createHorizontalBarChart("#chart-op-verificados", arrOpsVer, '#059669');
             chartInstances.opVer.render();
 
-            chartInstances.opDes = createVelaChart("#chart-op-deslocados", arrOpsDes, '#E74C3C');
+            chartInstances.opDes = createHorizontalBarChart("#chart-op-deslocados", arrOpsDes, '#E74C3C');
             chartInstances.opDes.render();
         }
 
