@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poka Yoke - Sorting SSC1</title>
+    
+    <script>
+        if (window === window.top) {
+            const paginaAtual = window.location.pathname.split('/').pop() || 'poka_yoke.html';
+            window.location.replace('index.html?page=' + paginaAtual);
+        }
+    </script>
+
+    <link rel="icon" href="https://cdn.iconscout.com/icon/free/png-256/free-mercado-livre-icon-svg-download-png-14549372.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        :root {
+            --bg-header: #FFF159;
+            --bg-card: #FFFFFF;
+            --border-card: #E5E7EB;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --brand-yellow: #FFF159;
+            --text-on-yellow: #2D3277;
+            --alert-red: #E74C3C;
+            --alert-red-light: #FADBD8;
+            --bg-body: #F3F4F6;
+        }
+
+        html, body { width: 100%; height: 100vh; background: var(--bg-body) !important; margin: 0; padding: 0; overflow: hidden; }
+        body { padding: 15px; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px; font-family: 'Inter', sans-serif; font-size: 0.95rem; }
+
+        .glass-panel { background-color: var(--bg-card); border: 1px solid var(--border-card); border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+
+        /* CABEÇALHO */
+        .header { padding: 10px 25px; flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 20px; background-color: var(--bg-header) !important; border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .header-title-wrapper { flex: 1; text-align: center; color: #2D3277 !important; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; font-size: 1.4rem; margin-left: 20px;}
+        .ml-logo { height: 35px; width: auto; object-fit: contain; }
+
+        .header-controls { display: flex; align-items: center; gap: 12px; }
+        .btn-icon { background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(0, 0, 0, 0.1); color: #2D3277; width: 40px; height: 40px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; }
+        .btn-icon:hover { background: #fff; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
+
+        /* FILTROS E KPI ROW */
+        .top-row { display: flex; justify-content: space-between; gap: 20px; flex: 0 0 auto; }
+        
+        .kpi-wrapper { display: flex; background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 8px; padding: 15px 30px; gap: 40px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+        .kpi-item { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .kpi-title { font-size: 0.9rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 5px; }
+        .kpi-value { font-size: 2.5rem; font-weight: 900; color: #2D3277; line-height: 1; }
+        .kpi-subtitle { font-size: 0.9rem; color: var(--alert-red); font-weight: 800; margin-top: 5px; }
+
+        .filter-wrapper { display: flex; background: transparent; gap: 10px; align-items: center; }
+        .filter-select { padding: 10px 15px; border-radius: 6px; border: 1px solid var(--border-card); background: var(--bg-card); color: var(--text-main); font-weight: 600; font-size: 0.9rem; outline: none; cursor: pointer; min-width: 150px; box-shadow: 0 2px 4px rgba(0,0,0,0.03);}
+        
+        /* LAYOUT PRINCIPAL DAS TABELAS */
+        .main-grid { display: grid; grid-template-columns: 380px 1fr; gap: 15px; flex: 1; min-height: 0; }
+        
+        /* COLUNA ESQUERDA */
+        .left-col { display: flex; flex-direction: column; gap: 15px; min-height: 0; overflow-y: auto; padding-right: 5px;}
+        .table-card { background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+        
+        .card-header { background: var(--brand-yellow); padding: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 900; color: var(--text-on-yellow); font-size: 1rem; text-transform: uppercase; border-bottom: 1px solid var(--border-card); }
+        
+        .styled-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: center; }
+        .styled-table thead { background: var(--brand-yellow); color: var(--text-on-yellow); font-weight: 900; position: sticky; top: 0; z-index: 1; }
+        .styled-table th { padding: 8px; border-bottom: 1px solid #D1D5DB; }
+        .styled-table td { padding: 8px; border-bottom: 1px solid var(--border-card); color: var(--text-main); }
+        .styled-table tbody tr:hover { background-color: rgba(0,0,0,0.02); }
+
+        .styled-table td.nome-col { text-align: left; font-weight: 800; padding-left: 15px; }
+        .styled-table td.bold-col { font-weight: 900; }
+        
+        /* Tabela Resumo Erros (Inferior Esquerda) */
+        .err-summary-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; text-align: left; }
+        .err-summary-table td { padding: 10px 15px; border-bottom: 1px solid var(--border-card); font-weight: 900; }
+        .err-summary-table td:first-child { background: var(--brand-yellow); color: var(--text-on-yellow); width: 65%; border-right: 1px solid var(--border-card); }
+        .err-summary-table td:last-child { background: #fff; color: var(--text-main); text-align: center; }
+
+        /* COLUNA DIREITA (Relação Total) */
+        .right-col { display: flex; flex-direction: column; min-height: 0; border-radius: 8px; overflow: hidden; background: var(--bg-card); border: 1px solid var(--border-card); box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+        .scroll-wrapper { flex: 1; overflow-y: auto; overflow-x: auto; }
+
+        /* CORES DE ALERTA */
+        .bg-red-heavy { background-color: #E74C3C !important; color: white !important; }
+        .bg-red-light { background-color: #FADBD8 !important; color: #E74C3C !important; }
+        .bg-gray-row { background-color: #F3F4F6; }
+
+        /* EXPORTAÇÃO */
+        body.exporting { width: 1920px !important; height: 1080px !important; position: absolute; top: 0; left: 0; background: #F3F4F6 !important; }
+        body.exporting .header-controls, body.exporting .filter-select:last-child { display: none !important; }
+
+        /* MODAL POP-UP CUSTOMIZADO */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 9999; }
+        .modal-overlay.active { display: flex; }
+        .modal-box { background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 12px; padding: 25px; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); text-align: center; }
+        .modal-box h3 { margin: 0 0 15px 0; color: var(--text-main); font-weight: 900; font-size: 1.3rem; text-transform: uppercase;}
+        .modal-box p { margin: 0 0 20px 0; color: var(--text-muted); font-size: 0.95rem; line-height: 1.4;}
+        .modal-box input { width: 100%; padding: 12px; border: 1px solid var(--border-card); background: transparent; color: var(--text-main); border-radius: 8px; font-size: 1rem; text-align: center; font-weight: bold; margin-bottom: 20px; outline: none; box-sizing: border-box;}
+        .modal-box input:focus { border-color: #3483FA; }
+        .modal-buttons { display: flex; justify-content: center; gap: 15px; }
+        .modal-buttons button { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; transition: 0.2s; font-size: 0.9rem;}
+        .btn-cancel { background: var(--border-card); color: var(--text-main); }
+        .btn-cancel:hover { opacity: 0.8; }
+        .btn-confirm { background: #3483FA; color: #fff; }
+        .btn-confirm:hover { background: #2968c8; }
+        
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 4px; }
+    </style>
+</head>
+<body data-theme="light">
+
+    <!-- CABEÇALHO -->
+    <div class="header glass-panel">
+        <div style="display:flex; align-items:center; gap: 10px;">
+            <img src="https://upload.wikimedia.org/wikipedia/pt/0/04/Logotipo_MercadoLivre.png" alt="Mercado Livre" class="ml-logo">
+        </div>
+        <div class="header-title-wrapper">SORTING - POKA YOKE SSC1</div>
+        <div class="header-controls">
+            <button class="btn-icon" onclick="baixarImagem()" title="Exportar Imagem">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            </button>
+            <label class="btn-icon" id="btnUpload" style="display:none;" title="Subir CSVs (Dados e Usuários)">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                <input type="file" id="csvFileInput" accept=".csv" multiple style="display: none;" onchange="processarUploadSmart(this)" />
+            </label>
+        </div>
+    </div>
+
+    <!-- LINHA DE KPIs E FILTROS -->
+    <div class="top-row">
+        <div class="kpi-wrapper">
+            <div class="kpi-item">
+                <span class="kpi-title">Bipes</span>
+                <span class="kpi-value" id="kpi-bipes">0</span>
+            </div>
+            <div class="kpi-item">
+                <span class="kpi-title">Erros</span>
+                <span class="kpi-value" id="kpi-erros">0</span>
+                <span class="kpi-subtitle" id="kpi-erros-pct">0.0%</span>
+            </div>
+            <div class="kpi-item">
+                <span class="kpi-title" style="color:var(--text-on-yellow)">Assertividade</span>
+                <span class="kpi-value" id="kpi-assert">0,00%</span>
+            </div>
+        </div>
+
+        <div class="filter-wrapper">
+            <select id="filter-semana" class="filter-select" onchange="applyFilter()"><option value="">Semana (Todas)</option></select>
+            <select id="filter-ciclo" class="filter-select" onchange="applyFilter()">
+                <option value="">CICLO (Todos)</option>
+                <option value="AM">AM</option>
+                <option value="PM">PM</option>
+                <option value="SD">SD</option>
+            </select>
+            <select id="filter-rep" class="filter-select" onchange="applyFilter()"><option value="">Rep's (Todos)</option></select>
+        </div>
+    </div>
+
+    <!-- MAIN GRID (TABELAS) -->
+    <div class="main-grid">
+        <!-- COLUNA ESQUERDA (TOP E RESUMO) -->
+        <div class="left-col">
+            <div class="table-card" style="flex: 1;">
+                <div class="card-header">⚠️ TOP OFENSORES</div>
+                <div style="flex:1; overflow-y:auto;">
+                    <table class="styled-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Bipes</th>
+                                <th>Erros ▾</th>
+                                <th>Taxa de Erros</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-top">
+                            <tr><td colspan="4" style="padding:20px; text-align:center;">Carregando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="table-card" style="flex: 0 0 auto;">
+                <div class="card-header">❗ ERROS</div>
+                <table class="err-summary-table">
+                    <tbody>
+                        <tr><td>Gaiola Errada</td><td id="tot-gaiola">0</td></tr>
+                        <tr><td>Falha Poka Yoke ▾</td><td id="tot-falha">0</td></tr>
+                        <tr><td>Força Saída</td><td id="tot-forca">0</td></tr>
+                        <tr><td>Problema QR</td><td id="tot-probqr">0</td></tr>
+                        <tr><td>QR Sem Poka Yoke</td><td id="tot-qrsempoka">0</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- COLUNA DIREITA (RELAÇÃO TOTAL) -->
+        <div class="right-col">
+            <div class="card-header" style="justify-content: flex-start; padding-left: 20px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                RELAÇÃO TOTAL
+            </div>
+            <div class="scroll-wrapper">
+                <table class="styled-table" style="white-space: nowrap;">
+                    <thead>
+                        <tr>
+                            <th style="text-align: left; padding-left: 15px;">NOME</th>
+                            <th>Bipes ▾</th>
+                            <th>Erros</th>
+                            <th>Gaiola_Errada</th>
+                            <th>Forca_Saida</th>
+                            <th>Falha_Poka...</th>
+                            <th>Problema_QR</th>
+                            <th>QR_Sem_P...</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-total">
+                        <tr><td colspan="8" style="padding:20px; text-align:center;">Carregando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL POP-UP CUSTOMIZADO -->
+    <div id="customModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="modalTitle">Título</h3>
+            <p id="modalMessage">Mensagem</p>
+            <div id="modalInputArea" style="display:none;">
+                <input type="text" id="modalInput" placeholder="Ex: 34">
+            </div>
+            <div class="modal-buttons">
+                <button id="modalBtnCancel" class="btn-cancel">Cancelar</button>
+                <button id="modalBtnConfirm" class="btn-confirm">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const FIREBASE_URL = "https://reportes-bdb0a-default-rtdb.firebaseio.com/";
+        const NODE_USERS = "poka_sorting_users";
+        const NODE_DATA = "poka_sorting_data";
+        
+        let mapUsers = {}; // { id: "Nome Curto" }
+        let globalData = []; // Flat array of all records
+        let filteredData = [];
+
+        // Permissões
+        const canEdit = window.parent && typeof window.parent.verificarPermissaoUpload === 'function' 
+            ? window.parent.verificarPermissaoUpload('poka_yoke.html') : true; 
+        if(canEdit) document.getElementById('btnUpload').style.display = 'flex';
+
+        function showModal(options) {
+            return new Promise((resolve) => {
+                const overlay = document.getElementById('customModal');
+                const title = document.getElementById('modalTitle');
+                const msg = document.getElementById('modalMessage');
+                const inputArea = document.getElementById('modalInputArea');
+                const input = document.getElementById('modalInput');
+                const btnCancel = document.getElementById('modalBtnCancel');
+                const btnConfirm = document.getElementById('modalBtnConfirm');
+
+                title.innerText = options.title || 'Aviso';
+                msg.innerHTML = options.message || '';
+                
+                if(options.type === 'prompt') {
+                    inputArea.style.display = 'block';
+                    input.value = options.defaultValue || '';
+                    btnCancel.style.display = 'block';
+                } else {
+                    inputArea.style.display = 'none';
+                    btnCancel.style.display = options.showCancel ? 'block' : 'none';
+                }
+
+                btnConfirm.innerText = options.confirmText || 'OK';
+                overlay.classList.add('active');
+
+                const cleanup = () => { overlay.classList.remove('active'); btnConfirm.onclick = null; btnCancel.onclick = null; };
+                btnConfirm.onclick = () => { cleanup(); resolve(options.type === 'prompt' ? input.value : true); };
+                btnCancel.onclick = () => { cleanup(); resolve(null); };
+            });
+        }
+
+        const parseCSV = (file) => new Promise(resolve => { Papa.parse(file, { header: true, skipEmptyLines: true, complete: resolve }); });
+
+        function getNum(val) { return isNaN(parseFloat(val)) ? 0 : parseFloat(val); }
+        
+        // --- INICIALIZAÇÃO ---
+        window.onload = async function() {
+            await loadUsers();
+            await loadData();
+        };
+
+        async function loadUsers() {
+            try {
+                const r = await fetch(`${FIREBASE_URL}${NODE_USERS}.json`);
+                const db = await r.json();
+                if(db) mapUsers = db;
+            } catch(e) { console.log('Erro Users', e); }
+        }
+
+        async function loadData() {
+            try {
+                const r = await fetch(`${FIREBASE_URL}${NODE_DATA}.json`);
+                const db = await r.json();
+                globalData = [];
+                if(db) {
+                    Object.keys(db).forEach(semana => {
+                        let records = db[semana];
+                        if(Array.isArray(records)) {
+                            records.forEach(row => { row.semana = semana.replace('semana_',''); globalData.push(row); });
+                        } else if (typeof records === 'object') {
+                            Object.values(records).forEach(row => { row.semana = semana.replace('semana_',''); globalData.push(row); });
+                        }
+                    });
+                }
+                populateFilters();
+                applyFilter();
+            } catch(e) { console.log('Erro Data', e); }
+        }
+
+        // --- SISTEMA DE UPLOAD MÚLTIPLO E INTELIGENTE ---
+        async function processarUploadSmart(inputElement) {
+            if (!canEdit) return;
+            const files = Array.from(inputElement.files);
+            if (files.length === 0) return;
+
+            showModal({ title: 'Aguarde', message: 'Lendo planilhas...', showCancel: false, confirmText: 'Processando...' });
+
+            let fileUsers = files.find(f => f.name.toLowerCase().includes('user'));
+            let fileData = files.filter(f => !f.name.toLowerCase().includes('user'));
+
+            let promises = [];
+
+            // 1. Processa BD de Usuários
+            if (fileUsers) {
+                const res = await parseCSV(fileUsers);
+                let newUsers = { ...mapUsers };
+                res.data.forEach(row => {
+                    let id = row['ID'] || row['id'];
+                    let nome = row['NOME'] || row['nome'] || row['NOME COMPLETO'];
+                    if (id && nome) newUsers[id.trim()] = nome.trim();
+                });
+                promises.push(fetch(`${FIREBASE_URL}${NODE_USERS}.json`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(newUsers) }));
+                mapUsers = newUsers;
+            }
+
+            // 2. Processa Dados de Turno
+            if (fileData.length > 0) {
+                let inputSemana = await showModal({
+                    title: 'Sincronizar Poka Yoke',
+                    message: `Identificamos ${fileData.length} planilhas de turnos.<br>De qual <b>SEMANA DO ANO</b> são estes dados? (Ex: 34)`,
+                    type: 'prompt'
+                });
+
+                if (inputSemana && inputSemana.trim() !== '') {
+                    let semanaFormatada = inputSemana.trim();
+                    let nodeSemana = `semana_${semanaFormatada}`;
+                    
+                    // Baixa os dados existentes da semana para não sobrescrever caso esteja mandando turnos picados
+                    let existingSemana = [];
+                    try {
+                        const rex = await fetch(`${FIREBASE_URL}${NODE_DATA}/${nodeSemana}.json`);
+                        const d = await rex.json();
+                        if(Array.isArray(d)) existingSemana = d;
+                        else if (typeof d === 'object') existingSemana = Object.values(d);
+                    } catch(e) {}
+
+                    let newData = [...existingSemana];
+
+                    for(let f of fileData) {
+                        const res = await parseCSV(f);
+                        let nameLower = f.name.toLowerCase();
+                        let ciclo = 'Outros';
+                        if(nameLower.includes('am')) ciclo = 'AM';
+                        if(nameLower.includes('pm')) ciclo = 'PM';
+                        if(nameLower.includes('sd')) ciclo = 'SD';
+
+                        // Remove dados antigos do mesmo ciclo nesta semana (Atualização do turno)
+                        newData = newData.filter(r => r.ciclo !== ciclo);
+
+                        res.data.forEach(row => {
+                            let user = row['User'] || row['user'];
+                            if(user) {
+                                let rec = {
+                                    ciclo: ciclo,
+                                    user: user.trim(),
+                                    bipes: getNum(row['Total Bipes'] || row['total bipes']),
+                                    corretos: getNum(row['Bips Corretos'] || row['bips corretos']),
+                                    erros: getNum(row['Tot. erros'] || row['tot. erros']),
+                                    gaiola: getNum(row['Gaiola_Errada']),
+                                    forca: getNum(row['Forçou_Saída'] || row['Forca_Saida']),
+                                    falha_poka: getNum(row['Falha_PokaYoke']),
+                                    prob_qr: getNum(row['Problema_QR']),
+                                    qr_sem: getNum(row['QR_Sem_PokaYoke'])
+                                };
+                                newData.push(rec);
+                            }
+                        });
+                    }
+                    promises.push(fetch(`${FIREBASE_URL}${NODE_DATA}/${nodeSemana}.json`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(newData) }));
+                }
+            }
+
+            if (promises.length > 0) {
+                await Promise.all(promises);
+                await showModal({ title: 'Sucesso', message: `Bancos sincronizados com sucesso!` });
+                loadData();
+            }
+            inputElement.value = '';
+        }
+
+        // --- FILTROS ---
+        function populateFilters() {
+            let semanas = new Set();
+            let reps = new Set();
+            
+            globalData.forEach(r => {
+                if(r.semana) semanas.add(r.semana);
+                if(r.user) reps.add(mapUsers[r.user] || r.user);
+            });
+
+            const fill = (id, setVal, def) => {
+                let sel = document.getElementById(id);
+                sel.innerHTML = `<option value="">${def}</option>`;
+                Array.from(setVal).sort((a,b)=>a-b).forEach(v => { sel.innerHTML += `<option value="${v}">${v}</option>`; });
+            };
+
+            fill('filter-semana', semanas, 'Semana (Todas)');
+            fill('filter-rep', reps, "Rep's (Todos)");
+            
+            // Auto seleciona a semana mais recente
+            if(semanas.size > 0) {
+                let maxSem = Math.max(...Array.from(semanas).map(Number));
+                document.getElementById('filter-semana').value = maxSem;
+            }
+        }
+
+        function applyFilter() {
+            let s = document.getElementById('filter-semana').value;
+            let c = document.getElementById('filter-ciclo').value;
+            let r = document.getElementById('filter-rep').value;
+
+            filteredData = globalData.filter(row => {
+                let match = true;
+                if(s && row.semana != s) match = false;
+                if(c && row.ciclo != c) match = false;
+                if(r && (mapUsers[row.user] || row.user) != r) match = false;
+                return match;
+            });
+            render();
+        }
+
+        // --- RENDERIZAÇÃO GERAL ---
+        function render() {
+            // Agrupar dados por usuário (mesmo que haja múltiplos turnos para o mesmo user na semana)
+            let userMap = {};
+            let tBipes = 0, tErros = 0, tCorretos = 0;
+            let tGaiola = 0, tForca = 0, tFalha = 0, tProb = 0, tQrSem = 0;
+
+            filteredData.forEach(r => {
+                let u = mapUsers[r.user] || r.user;
+                if(!userMap[u]) userMap[u] = { nome: u, bipes: 0, erros: 0, gaiola: 0, forca: 0, falha: 0, prob: 0, qrsem: 0 };
+                
+                userMap[u].bipes += r.bipes;
+                userMap[u].erros += r.erros;
+                userMap[u].gaiola += r.gaiola;
+                userMap[u].forca += r.forca;
+                userMap[u].falha += r.falha_poka;
+                userMap[u].prob += r.prob_qr;
+                userMap[u].qrsem += r.qr_sem;
+
+                tBipes += r.bipes;
+                tErros += r.erros;
+                tCorretos += r.corretos;
+                
+                tGaiola += r.gaiola;
+                tForca += r.forca;
+                tFalha += r.falha_poka;
+                tProb += r.prob_qr;
+                tQrSem += r.qr_sem;
+            });
+
+            // Constrói Arrays para Tabelas
+            let arrData = Object.values(userMap);
+            // Ordena Padrão: Top Bipadores (Relação Total)
+            arrData.sort((a,b) => b.bipes - a.bipes);
+
+            // Ordena Ofensores: Por Erro
+            let arrOfensores = [...arrData].sort((a,b) => b.erros - a.erros).slice(0, 15); // Pega top 15 ofensores
+
+            // Atualiza KPIs
+            document.getElementById('kpi-bipes').innerText = tBipes.toLocaleString('pt-BR');
+            document.getElementById('kpi-erros').innerText = tErros.toLocaleString('pt-BR');
+            let errPct = tBipes > 0 ? (tErros / tBipes * 100).toFixed(2) : "0.00";
+            document.getElementById('kpi-erros-pct').innerText = errPct + "%";
+            let assert = tBipes > 0 ? ((tBipes - tErros) / tBipes * 100).toFixed(2) : "0.00";
+            document.getElementById('kpi-assert').innerText = assert + "%";
+
+            // Atualiza Resumo de Erros
+            document.getElementById('tot-gaiola').innerText = tGaiola;
+            document.getElementById('tot-falha').innerText = tFalha;
+            document.getElementById('tot-forca').innerText = tForca;
+            document.getElementById('tot-probqr').innerText = tProb;
+            document.getElementById('tot-qrsempoka').innerText = tQrSem;
+
+            // Renderiza TOP OFENSORES
+            let htmlTop = '';
+            arrOfensores.forEach((x, i) => {
+                let tx = x.bipes > 0 ? (x.erros / x.bipes * 100).toFixed(2) : "0.00";
+                // Lógica de Cor do Alerta no Ofensor
+                let bgErr = '';
+                if(x.erros > 0) {
+                    if(i === 0) bgErr = 'bg-red-heavy'; // Top 1 pior
+                    else if (i < 3) bgErr = 'bg-red-light'; // Top 3
+                    else bgErr = 'bg-gray-row';
+                }
+                
+                htmlTop += `<tr>
+                    <td class="nome-col">${x.nome}</td>
+                    <td>${x.bipes}</td>
+                    <td class="${bgErr} bold-col">${x.erros}</td>
+                    <td>${tx}%</td>
+                </tr>`;
+            });
+            document.getElementById('tbody-top').innerHTML = htmlTop || `<tr><td colspan="4" style="padding:15px;">Sem dados</td></tr>`;
+
+            // Renderiza RELAÇÃO TOTAL
+            let htmlTot = '';
+            arrData.forEach(x => {
+                htmlTot += `<tr>
+                    <td class="nome-col">${x.nome}</td>
+                    <td class="bold-col">${x.bipes}</td>
+                    <td style="color:${x.erros>0 ? 'var(--alert-red)':'inherit'}; font-weight:800;">${x.erros}</td>
+                    <td>${x.gaiola}</td>
+                    <td>${x.forca}</td>
+                    <td>${x.falha}</td>
+                    <td>${x.prob}</td>
+                    <td>${x.qrsem}</td>
+                </tr>`;
+            });
+            document.getElementById('tbody-total').innerHTML = htmlTot || `<tr><td colspan="8" style="padding:20px;">Sem dados para os filtros selecionados</td></tr>`;
+        }
+
+        // --- EXPORTAÇÃO (IMAGEM TRAVADA PERFEITA) ---
+        function baixarImagem() {
+            document.body.classList.add('exporting');
+            setTimeout(() => {
+                html2canvas(document.body, { 
+                    scale: 2, 
+                    backgroundColor: '#F3F4F6',
+                    useCORS: true,
+                    windowWidth: 1920, 
+                    windowHeight: 1080 
+                }).then(canvas => {
+                    document.body.classList.remove('exporting');
+                    const link = document.createElement('a');
+                    link.download = `PokaYoke_Sorting_${formatarDataHoje().replace(/\//g,'-')}.png`;
+                    link.href = canvas.toDataURL('image/png'); link.click();
+                });
+            }, 200); 
+        }
+    </script>
+</body>
+</html>
