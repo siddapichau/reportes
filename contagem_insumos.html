@@ -115,6 +115,7 @@
         <div class="header-center">CONTAGEM DE INSUMOS</div>
         <div class="header-right">
             <span class="status-badge" id="data-status">Conectando...</span>
+            <button class="btn btn-dark" onclick="baixarCSV()" title="Exportar dados para CSV">Exportar CSV</button>
             <button class="btn btn-dark" onclick="baixarDashboardComoImagem()" title="Exportar Tela em Imagem UHD 4K">Exportar 4K</button>
             <button class="btn btn-dark" onclick="carregarDoFirebase()">Sync</button>
             <button class="btn btn-green" id="btn-novo-item" onclick="abrirModalAdicionar()">+ Novo Item</button>
@@ -363,6 +364,48 @@
         function limparFiltros() { $('#filter-categoria').value = 'Todos'; $('#search-input').value = ''; renderLista(); }
         $('#filter-categoria').addEventListener('change', renderLista); $('#search-input').addEventListener('input', renderLista);
         $('#modal-foto').addEventListener('input', function() { $('#modal-preview').src = this.value || placeholderImg; });
+
+        function baixarCSV() {
+            if (!ALL_ITEMS || ALL_ITEMS.length === 0) {
+                alert("Não há dados para exportar.");
+                return;
+            }
+
+            // Define os cabeçalhos do CSV
+            const headers = [
+                "ID Material", "Nome do Material", "Categoria", "Unidade", "Tamanho",
+                "Estoque Seguranca", "Estoque Atual", "Ultima Contagem", "Pedidos",
+                "Saldo Registrado", "Total Entradas", "Total Saidas"
+            ];
+
+            // Converte os itens para o formato CSV
+            const rows = ALL_ITEMS.map(item => [
+                item.id_material || '',
+                item.nome_material || '',
+                item.categoria_material || '',
+                item.unidade || '',
+                item.tamanho || '',
+                item.estoque_segurança || 0,
+                item.Estoque_atual || 0,
+                item["Ultima contagem"] || '',
+                item.Pedidos || '',
+                item["Saldo _registrado"] || '',
+                item["Total entradas"] || '',
+                item["Total saídas"] || ''
+            ].map(val => `"${String(val).replace(/"/g, '""')}"`).join(','));
+
+            const csvContent = "\uFEFF" + headers.join(',') + '\n' + rows.join('\n'); // \uFEFF para suporte a caracteres especiais no Excel
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `Contagem_Insumos_${new Date().toISOString().slice(0,10)}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
 
         function baixarDashboardComoImagem() {
             if (!ALL_ITEMS || ALL_ITEMS.length === 0) return;
