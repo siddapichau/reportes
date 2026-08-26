@@ -50,19 +50,20 @@
         /* FILTROS E KPI ROW */
         .top-row { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex: 0 0 auto; }
         
-        .kpi-wrapper { display: flex; background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 8px; padding: 15px 30px; gap: 40px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
-        .kpi-item { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .kpi-title { font-size: 0.9rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 5px; }
-        .kpi-value { font-size: 2.5rem; font-weight: 900; color: #2D3277; line-height: 1; }
-        .kpi-subtitle { font-size: 0.9rem; color: var(--alert-red); font-weight: 800; margin-top: 5px; }
+        /* ALINHAMENTO CORRIGIDO (flex-start trava no topo) */
+        .kpi-wrapper { display: flex; background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 8px; padding: 15px 30px; gap: 40px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); align-items: flex-start; }
+        .kpi-item { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; }
+        .kpi-title { font-size: 0.9rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 5px; }
+        .kpi-value { font-size: 2.6rem; font-weight: 900; color: #2D3277; line-height: 1; }
+        .kpi-subtitle { font-size: 0.85rem; color: var(--alert-red); font-weight: 800; margin-top: 6px; }
 
-        /* KPI CICLOS (TURNO) */
-        .kpi-cycles-wrapper { display: flex; gap: 20px; background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 8px; padding: 15px 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); align-items: center; }
-        .kpi-cycle-box { display: flex; flex-direction: column; align-items: center; border-right: 1px solid var(--border-card); padding-right: 20px; min-width: 80px;}
+        /* KPI CICLOS (TURNO) - ALINHAMENTO CORRIGIDO */
+        .kpi-cycles-wrapper { display: flex; gap: 20px; background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 8px; padding: 15px 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); align-items: flex-start; }
+        .kpi-cycle-box { display: flex; flex-direction: column; align-items: center; border-right: 1px solid var(--border-card); padding-right: 20px; min-width: 100px;}
         .kpi-cycle-box:last-child { border-right: none; padding-right: 0; }
-        .cy-title { font-size: 0.85rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 2px;}
-        .cy-val { font-size: 1.6rem; font-weight: 900; color: #3483FA; line-height: 1.1;}
-        .cy-err { font-size: 0.75rem; color: var(--alert-red); font-weight: 800; margin-top: 3px;}
+        .cy-title { font-size: 0.85rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px;}
+        .cy-val { font-size: 1.6rem; font-weight: 900; color: #3483FA; line-height: 1;}
+        .cy-err { font-size: 0.8rem; color: var(--alert-red); font-weight: 800; margin-top: 6px;}
 
         .filter-wrapper { display: flex; background: transparent; gap: 10px; align-items: center; }
         .filter-select { padding: 10px 15px; border-radius: 6px; border: 1px solid var(--border-card); background: var(--bg-card); color: var(--text-main); font-weight: 600; font-size: 0.9rem; outline: none; cursor: pointer; min-width: 150px; box-shadow: 0 2px 4px rgba(0,0,0,0.03);}
@@ -169,7 +170,7 @@
                 <div class="kpi-item">
                     <span class="kpi-title">Erros</span>
                     <span class="kpi-value" id="kpi-erros">0</span>
-                    <span class="kpi-subtitle" id="kpi-erros-pct">0.0%</span>
+                    <span class="kpi-subtitle" id="kpi-erros-pct">0.00%</span>
                 </div>
                 <div class="kpi-item">
                     <span class="kpi-title" style="color:var(--text-on-yellow)">Assertividade</span>
@@ -182,17 +183,17 @@
                 <div class="kpi-cycle-box">
                     <span class="cy-title">Ciclo AM</span>
                     <span class="cy-val" id="cy-am-bipes">0</span>
-                    <span class="cy-err" id="cy-am-err">0% Erros</span>
+                    <span class="cy-err"><b id="cy-am-tot-err">0</b> Erros (<span id="cy-am-err">0.00%</span>)</span>
                 </div>
                 <div class="kpi-cycle-box">
                     <span class="cy-title">Ciclo PM</span>
                     <span class="cy-val" id="cy-pm-bipes">0</span>
-                    <span class="cy-err" id="cy-pm-err">0% Erros</span>
+                    <span class="cy-err"><b id="cy-pm-tot-err">0</b> Erros (<span id="cy-pm-err">0.00%</span>)</span>
                 </div>
                 <div class="kpi-cycle-box">
                     <span class="cy-title">Ciclo SD</span>
                     <span class="cy-val" id="cy-sd-bipes">0</span>
-                    <span class="cy-err" id="cy-sd-err">0% Erros</span>
+                    <span class="cy-err"><b id="cy-sd-tot-err">0</b> Erros (<span id="cy-sd-err">0.00%</span>)</span>
                 </div>
             </div>
         </div>
@@ -546,13 +547,16 @@
 
             // Atualiza os blocos de Turno
             document.getElementById('cy-am-bipes').innerText = bipesAM.toLocaleString('pt-BR');
-            document.getElementById('cy-am-err').innerText = (bipesAM > 0 ? (errAM / bipesAM * 100).toFixed(2) : "0.00") + "% Erros";
+            document.getElementById('cy-am-tot-err').innerText = errAM.toLocaleString('pt-BR');
+            document.getElementById('cy-am-err').innerText = (bipesAM > 0 ? (errAM / bipesAM * 100).toFixed(2) : "0.00") + "%";
             
             document.getElementById('cy-pm-bipes').innerText = bipesPM.toLocaleString('pt-BR');
-            document.getElementById('cy-pm-err').innerText = (bipesPM > 0 ? (errPM / bipesPM * 100).toFixed(2) : "0.00") + "% Erros";
+            document.getElementById('cy-pm-tot-err').innerText = errPM.toLocaleString('pt-BR');
+            document.getElementById('cy-pm-err').innerText = (bipesPM > 0 ? (errPM / bipesPM * 100).toFixed(2) : "0.00") + "%";
             
             document.getElementById('cy-sd-bipes').innerText = bipesSD.toLocaleString('pt-BR');
-            document.getElementById('cy-sd-err').innerText = (bipesSD > 0 ? (errSD / bipesSD * 100).toFixed(2) : "0.00") + "% Erros";
+            document.getElementById('cy-sd-tot-err').innerText = errSD.toLocaleString('pt-BR');
+            document.getElementById('cy-sd-err').innerText = (bipesSD > 0 ? (errSD / bipesSD * 100).toFixed(2) : "0.00") + "%";
 
             // Atualiza KPIs Principais
             document.getElementById('kpi-bipes').innerText = tBipes.toLocaleString('pt-BR');
