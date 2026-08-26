@@ -48,13 +48,21 @@
         .btn-icon:hover { background: #fff; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
 
         /* FILTROS E KPI ROW */
-        .top-row { display: flex; justify-content: space-between; gap: 20px; flex: 0 0 auto; }
+        .top-row { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex: 0 0 auto; }
         
         .kpi-wrapper { display: flex; background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 8px; padding: 15px 30px; gap: 40px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
         .kpi-item { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
         .kpi-title { font-size: 0.9rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 5px; }
         .kpi-value { font-size: 2.5rem; font-weight: 900; color: #2D3277; line-height: 1; }
         .kpi-subtitle { font-size: 0.9rem; color: var(--alert-red); font-weight: 800; margin-top: 5px; }
+
+        /* KPI CICLOS (TURNO) */
+        .kpi-cycles-wrapper { display: flex; gap: 20px; background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 8px; padding: 15px 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); align-items: center; }
+        .kpi-cycle-box { display: flex; flex-direction: column; align-items: center; border-right: 1px solid var(--border-card); padding-right: 20px; min-width: 80px;}
+        .kpi-cycle-box:last-child { border-right: none; padding-right: 0; }
+        .cy-title { font-size: 0.85rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 2px;}
+        .cy-val { font-size: 1.6rem; font-weight: 900; color: #3483FA; line-height: 1.1;}
+        .cy-err { font-size: 0.75rem; color: var(--alert-red); font-weight: 800; margin-top: 3px;}
 
         .filter-wrapper { display: flex; background: transparent; gap: 10px; align-items: center; }
         .filter-select { padding: 10px 15px; border-radius: 6px; border: 1px solid var(--border-card); background: var(--bg-card); color: var(--text-main); font-weight: 600; font-size: 0.9rem; outline: none; cursor: pointer; min-width: 150px; box-shadow: 0 2px 4px rgba(0,0,0,0.03);}
@@ -92,8 +100,22 @@
         .bg-red-light { background-color: #FADBD8 !important; color: #E74C3C !important; }
         .bg-gray-row { background-color: #F3F4F6; }
 
-        /* EXPORTAÇÃO */
-        body.exporting { width: 1920px !important; height: 1080px !important; position: absolute; top: 0; left: 0; background: #F3F4F6 !important; }
+        /* EXPORTAÇÃO (Trava perfeita sem cortes) */
+        body.exporting { 
+            width: 1920px !important; 
+            height: 1080px !important; 
+            position: absolute !important; 
+            top: 0 !important; 
+            left: 0 !important; 
+            background: #F3F4F6 !important; 
+            display: block !important; 
+            overflow: hidden !important;
+        }
+        body.exporting .main-grid { 
+            height: 800px !important; 
+            display: grid !important; 
+            flex: none !important; 
+        }
         body.exporting .header-controls, body.exporting .filter-select:last-child { display: none !important; }
 
         /* MODAL POP-UP CUSTOMIZADO */
@@ -137,19 +159,41 @@
 
     <!-- LINHA DE KPIs E FILTROS -->
     <div class="top-row">
-        <div class="kpi-wrapper">
-            <div class="kpi-item">
-                <span class="kpi-title">Bipes</span>
-                <span class="kpi-value" id="kpi-bipes">0</span>
+        <div style="display: flex; gap: 15px;">
+            <!-- KPI GERAL -->
+            <div class="kpi-wrapper">
+                <div class="kpi-item">
+                    <span class="kpi-title">Bipes</span>
+                    <span class="kpi-value" id="kpi-bipes">0</span>
+                </div>
+                <div class="kpi-item">
+                    <span class="kpi-title">Erros</span>
+                    <span class="kpi-value" id="kpi-erros">0</span>
+                    <span class="kpi-subtitle" id="kpi-erros-pct">0.0%</span>
+                </div>
+                <div class="kpi-item">
+                    <span class="kpi-title" style="color:var(--text-on-yellow)">Assertividade</span>
+                    <span class="kpi-value" id="kpi-assert">0,00%</span>
+                </div>
             </div>
-            <div class="kpi-item">
-                <span class="kpi-title">Erros</span>
-                <span class="kpi-value" id="kpi-erros">0</span>
-                <span class="kpi-subtitle" id="kpi-erros-pct">0.0%</span>
-            </div>
-            <div class="kpi-item">
-                <span class="kpi-title" style="color:var(--text-on-yellow)">Assertividade</span>
-                <span class="kpi-value" id="kpi-assert">0,00%</span>
+
+            <!-- KPI POR CICLO (SÓ APARECE SEM FILTRO DE TURNO) -->
+            <div class="kpi-cycles-wrapper" id="kpi-cycles-wrapper">
+                <div class="kpi-cycle-box">
+                    <span class="cy-title">Ciclo AM</span>
+                    <span class="cy-val" id="cy-am-bipes">0</span>
+                    <span class="cy-err" id="cy-am-err">0% Erros</span>
+                </div>
+                <div class="kpi-cycle-box">
+                    <span class="cy-title">Ciclo PM</span>
+                    <span class="cy-val" id="cy-pm-bipes">0</span>
+                    <span class="cy-err" id="cy-pm-err">0% Erros</span>
+                </div>
+                <div class="kpi-cycle-box">
+                    <span class="cy-title">Ciclo SD</span>
+                    <span class="cy-val" id="cy-sd-bipes">0</span>
+                    <span class="cy-err" id="cy-sd-err">0% Erros</span>
+                </div>
             </div>
         </div>
 
@@ -250,8 +294,8 @@
         const NODE_USERS = "poka_sorting_users";
         const NODE_DATA = "poka_sorting_data";
         
-        let mapUsers = {}; // { id: "Nome Curto" }
-        let globalData = []; // Flat array of all records
+        let mapUsers = {}; 
+        let globalData = []; 
         let filteredData = [];
 
         // Permissões
@@ -328,7 +372,7 @@
             } catch(e) { console.log('Erro Data', e); }
         }
 
-        // --- SISTEMA DE UPLOAD MÚLTIPLO E INTELIGENTE ---
+        // --- SISTEMA DE UPLOAD ---
         async function processarUploadSmart(inputElement) {
             if (!canEdit) return;
             const files = Array.from(inputElement.files);
@@ -366,7 +410,6 @@
                     let semanaFormatada = inputSemana.trim();
                     let nodeSemana = `semana_${semanaFormatada}`;
                     
-                    // Baixa os dados existentes da semana para não sobrescrever caso esteja mandando turnos picados
                     let existingSemana = [];
                     try {
                         const rex = await fetch(`${FIREBASE_URL}${NODE_DATA}/${nodeSemana}.json`);
@@ -385,7 +428,6 @@
                         if(nameLower.includes('pm')) ciclo = 'PM';
                         if(nameLower.includes('sd')) ciclo = 'SD';
 
-                        // Remove dados antigos do mesmo ciclo nesta semana (Atualização do turno)
                         newData = newData.filter(r => r.ciclo !== ciclo);
 
                         res.data.forEach(row => {
@@ -438,7 +480,6 @@
             fill('filter-semana', semanas, 'Semana (Todas)');
             fill('filter-rep', reps, "Rep's (Todos)");
             
-            // Auto seleciona a semana mais recente
             if(semanas.size > 0) {
                 let maxSem = Math.max(...Array.from(semanas).map(Number));
                 document.getElementById('filter-semana').value = maxSem;
@@ -449,6 +490,10 @@
             let s = document.getElementById('filter-semana').value;
             let c = document.getElementById('filter-ciclo').value;
             let r = document.getElementById('filter-rep').value;
+
+            // Controle de Visibilidade do KPI de Ciclos (Turnos)
+            // Só mostra se NÃO houver ciclo selecionado no filtro
+            document.getElementById('kpi-cycles-wrapper').style.display = c ? 'none' : 'flex';
 
             filteredData = globalData.filter(row => {
                 let match = true;
@@ -462,10 +507,14 @@
 
         // --- RENDERIZAÇÃO GERAL ---
         function render() {
-            // Agrupar dados por usuário (mesmo que haja múltiplos turnos para o mesmo user na semana)
             let userMap = {};
             let tBipes = 0, tErros = 0, tCorretos = 0;
             let tGaiola = 0, tForca = 0, tFalha = 0, tProb = 0, tQrSem = 0;
+
+            // Dados para o quadro de Resumo dos Ciclos (AM, PM, SD)
+            let bipesAM = 0, errAM = 0;
+            let bipesPM = 0, errPM = 0;
+            let bipesSD = 0, errSD = 0;
 
             filteredData.forEach(r => {
                 let u = mapUsers[r.user] || r.user;
@@ -488,17 +537,24 @@
                 tFalha += r.falha_poka;
                 tProb += r.prob_qr;
                 tQrSem += r.qr_sem;
+
+                // Contabilidade por Ciclo
+                if(r.ciclo === 'AM') { bipesAM += r.bipes; errAM += r.erros; }
+                if(r.ciclo === 'PM') { bipesPM += r.bipes; errPM += r.erros; }
+                if(r.ciclo === 'SD') { bipesSD += r.bipes; errSD += r.erros; }
             });
 
-            // Constrói Arrays para Tabelas
-            let arrData = Object.values(userMap);
-            // Ordena Padrão: Top Bipadores (Relação Total)
-            arrData.sort((a,b) => b.bipes - a.bipes);
+            // Atualiza os blocos de Turno
+            document.getElementById('cy-am-bipes').innerText = bipesAM.toLocaleString('pt-BR');
+            document.getElementById('cy-am-err').innerText = (bipesAM > 0 ? (errAM / bipesAM * 100).toFixed(2) : "0.00") + "% Erros";
+            
+            document.getElementById('cy-pm-bipes').innerText = bipesPM.toLocaleString('pt-BR');
+            document.getElementById('cy-pm-err').innerText = (bipesPM > 0 ? (errPM / bipesPM * 100).toFixed(2) : "0.00") + "% Erros";
+            
+            document.getElementById('cy-sd-bipes').innerText = bipesSD.toLocaleString('pt-BR');
+            document.getElementById('cy-sd-err').innerText = (bipesSD > 0 ? (errSD / bipesSD * 100).toFixed(2) : "0.00") + "% Erros";
 
-            // Ordena Ofensores: Por Erro
-            let arrOfensores = [...arrData].sort((a,b) => b.erros - a.erros).slice(0, 15); // Pega top 15 ofensores
-
-            // Atualiza KPIs
+            // Atualiza KPIs Principais
             document.getElementById('kpi-bipes').innerText = tBipes.toLocaleString('pt-BR');
             document.getElementById('kpi-erros').innerText = tErros.toLocaleString('pt-BR');
             let errPct = tBipes > 0 ? (tErros / tBipes * 100).toFixed(2) : "0.00";
@@ -513,18 +569,22 @@
             document.getElementById('tot-probqr').innerText = tProb;
             document.getElementById('tot-qrsempoka').innerText = tQrSem;
 
+            // Arrays
+            let arrData = Object.values(userMap);
+            arrData.sort((a,b) => b.bipes - a.bipes); // Relação Total (Top Bipes)
+
+            let arrOfensores = [...arrData].sort((a,b) => b.erros - a.erros).slice(0, 15); // Top 15 Ofensores
+
             // Renderiza TOP OFENSORES
             let htmlTop = '';
             arrOfensores.forEach((x, i) => {
                 let tx = x.bipes > 0 ? (x.erros / x.bipes * 100).toFixed(2) : "0.00";
-                // Lógica de Cor do Alerta no Ofensor
                 let bgErr = '';
                 if(x.erros > 0) {
-                    if(i === 0) bgErr = 'bg-red-heavy'; // Top 1 pior
-                    else if (i < 3) bgErr = 'bg-red-light'; // Top 3
+                    if(i === 0) bgErr = 'bg-red-heavy'; 
+                    else if (i < 3) bgErr = 'bg-red-light'; 
                     else bgErr = 'bg-gray-row';
                 }
-                
                 htmlTop += `<tr>
                     <td class="nome-col">${x.nome}</td>
                     <td>${x.bipes}</td>
@@ -551,9 +611,12 @@
             document.getElementById('tbody-total').innerHTML = htmlTot || `<tr><td colspan="8" style="padding:20px;">Sem dados para os filtros selecionados</td></tr>`;
         }
 
-        // --- EXPORTAÇÃO (IMAGEM TRAVADA PERFEITA) ---
+        // --- EXPORTAÇÃO CORRIGIDA (SEM CORTES) ---
         function baixarImagem() {
+            // Adiciona classe que fixa resolução para foto
             document.body.classList.add('exporting');
+            
+            // Timeout maior (500ms) para dar tempo de o CSS "exporting" refazer o layout na tela
             setTimeout(() => {
                 html2canvas(document.body, { 
                     scale: 2, 
@@ -564,10 +627,15 @@
                 }).then(canvas => {
                     document.body.classList.remove('exporting');
                     const link = document.createElement('a');
-                    link.download = `PokaYoke_Sorting_${formatarDataHoje().replace(/\//g,'-')}.png`;
-                    link.href = canvas.toDataURL('image/png'); link.click();
+                    link.download = `PokaYoke_Sorting.png`;
+                    link.href = canvas.toDataURL('image/png'); 
+                    link.click();
+                }).catch(err => {
+                    console.error("Erro ao exportar: ", err);
+                    document.body.classList.remove('exporting');
+                    alert("Ocorreu um erro ao exportar a imagem. Tente novamente.");
                 });
-            }, 200); 
+            }, 500); 
         }
     </script>
 </body>
