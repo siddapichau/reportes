@@ -71,9 +71,9 @@
         
         .kpi-box { padding: 8px 20px; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; min-width: 140px; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
         .kpi-box.black { background-color: #000000; border: 2px solid #333; }
-        .kpi-box.red { background-color: #E74C3C; }
         .kpi-box.orange { background-color: #F59E0B; }
         .kpi-box.purple { background-color: #8B5CF6; }
+        .kpi-box.red { background-color: #E74C3C; }
         
         .kpi-title { font-size: 0.75rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; color: #fff;}
         .kpi-value { font-size: 2.2rem; font-weight: 900; line-height: 1;}
@@ -98,14 +98,12 @@
         .styled-table thead { background: rgba(0,0,0,0.03); color: var(--text-main); font-weight: 900; position: sticky; top: 0; z-index: 1; }
         .styled-table th { padding: 10px 8px; border-bottom: 2px solid var(--border-card); text-transform: uppercase; font-size: 0.75rem; }
         .styled-table td { padding: 8px; border-bottom: 1px solid var(--border-card); color: var(--text-main); }
-        .styled-table tbody tr:hover { background-color: rgba(0,0,0,0.05); }
+        .styled-table tbody tr:hover { background-color: rgba(52, 131, 250, 0.05); }
         .styled-table td.nome-col { text-align: left; font-weight: 800; padding-left: 15px; }
         .styled-table td.bold-col { font-weight: 900; }
         .scroll-wrapper { flex: 1; overflow-y: auto; overflow-x: hidden; }
 
-        /* ========================================================
-           TRAVAS E AJUSTES PARA EXPORTAÇÃO (HTML2CANVAS)
-           ======================================================== */
+        /* TRAVAS E AJUSTES PARA EXPORTAÇÃO (HTML2CANVAS) */
         body.exporting { 
             width: 1920px !important; 
             height: 1080px !important; 
@@ -125,12 +123,11 @@
             margin-bottom: 30px !important;
         }
         body.exporting .dashboard-grid {
-            height: 750px !important; 
+            height: 780px !important; /* Mais espaço para os gráficos respirarem na foto */
             display: grid !important;
             flex: none !important;
             margin-top: 0 !important;
         }
-        /* ======================================================== */
 
         /* MODAL POP-UP CUSTOMIZADO */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 9999; }
@@ -579,7 +576,6 @@
                     let d = padDate(rawDate.split(' ')[0]);
                     
                     if (d === chosenDate) {
-                        // Limpa nome do Ciclo (ex: "AM1 " -> "AM1")
                         let rawCiclo = getVal(row, ['ciclo', 'turno']).trim();
                         let rawOp = getVal(row, ['rep auditoria', 'operador', 'rep']).trim();
                         let rawEstado = getVal(row, ['estado', 'status_estado']).trim();
@@ -717,8 +713,10 @@
                     dropShadow: { enabled: false }
                 },
                 xaxis: { 
+                    type: 'category',
                     labels: { 
                         show: true, 
+                        offsetY: 5, 
                         style: { colors: textColor, fontSize: '14px', fontWeight: 900 } 
                     } 
                 },
@@ -729,7 +727,8 @@
                     },
                     max: function(val) { return val * 1.25; } 
                 },
-                grid: { padding: { top: 30, bottom: 20 }, borderColor: gridColor, strokeDashArray: 3 }
+                // Margem inferior aumentada drasticamente para evitar cortes dos nomes na exportação
+                grid: { padding: { top: 30, bottom: 40 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.turno.render();
 
@@ -753,8 +752,10 @@
                     dropShadow: {enabled:false}
                 },
                 xaxis: { 
+                    type: 'category',
                     labels: { 
                         show: true, 
+                        offsetY: 5,
                         style: { colors: textColor, fontSize: '14px', fontWeight: 900 } 
                     } 
                 },
@@ -767,7 +768,8 @@
                     max: function(val) { return val * 1.25; }
                 },
                 legend: { show: false }, 
-                grid: { padding: { top: 30, bottom: 20 }, borderColor: gridColor, strokeDashArray: 3 }
+                // Margem inferior aumentada drasticamente para evitar cortes dos nomes na exportação
+                grid: { padding: { top: 30, bottom: 40 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.estado.render();
         }
