@@ -173,7 +173,7 @@
         <button class="btn-limpar" onclick="resetFilter()">Hoje</button>
     </div>
 
-    <!-- KPIs -->
+    <!-- KPIs (Gerais) -->
     <div class="kpi-container">
         <div class="kpi-row">
             <div class="kpi-box black">
@@ -182,12 +182,12 @@
                 <div class="kpi-sub">Auditorias Registradas</div>
             </div>
             <div class="kpi-box orange">
-                <div class="kpi-title">FALTANTES</div>
+                <div class="kpi-title">FALTANTES GERAIS</div>
                 <div class="kpi-value" id="kpi-faltantes">0</div>
                 <div class="kpi-sub">Itens Ausentes</div>
             </div>
             <div class="kpi-box purple">
-                <div class="kpi-title">A MAIS</div>
+                <div class="kpi-title">A MAIS GERAIS</div>
                 <div class="kpi-value" id="kpi-amais">0</div>
                 <div class="kpi-sub">Itens Sobrando</div>
             </div>
@@ -199,17 +199,17 @@
         </div>
     </div>
 
-    <!-- GRIDS DE GRÁFICOS E TABELA -->
+    <!-- GRIDS DE GRÁFICOS E TABELA (FOCADOS NOS ERROS CONFIRMADOS) -->
     <div class="dashboard-grid">
-        <!-- 1. Tabela de Top Ofensores -->
+        <!-- 1. Tabela de Top Ofensores (Apenas Erros Confirmados) -->
         <div class="chart-card">
-            <div class="chart-title">⚠️ TOP OFENSORES (Por Operador)</div>
+            <div class="chart-title">⚠️ TOP OFENSORES (ERROS CONFIRMADOS)</div>
             <div class="scroll-wrapper">
                 <table class="styled-table">
                     <thead>
                         <tr>
                             <th style="text-align: left; padding-left: 15px;">Operador (Rep)</th>
-                            <th>Total ▾</th>
+                            <th>Erros Conf. ▾</th>
                             <th>Faltantes</th>
                             <th>A Mais</th>
                         </tr>
@@ -221,15 +221,15 @@
             </div>
         </div>
 
-        <!-- 2. Gráfico por Turno -->
+        <!-- 2. Gráfico por Turno (Apenas Erros Confirmados) -->
         <div class="chart-card">
-            <div class="chart-title">ERROS POR TURNO (CICLO)</div>
+            <div class="chart-title">ERROS CONFIRMADOS POR TURNO (CICLO)</div>
             <div id="chart-turno" class="chart-wrapper"></div>
         </div>
 
-        <!-- 3. Gráfico por Estado -->
+        <!-- 3. Gráfico por Estado (Apenas Erros Confirmados) -->
         <div class="chart-card">
-            <div class="chart-title">ESTADO DO PACOTE</div>
+            <div class="chart-title">ESTADO DOS ERROS CONFIRMADOS</div>
             <div id="chart-estado" class="chart-wrapper"></div>
         </div>
     </div>
@@ -376,7 +376,6 @@
                 }
             });
 
-            // Coleta ciclos e reps unicos de toda a base
             Object.keys(globalDb).forEach(key => {
                 let arr = globalDb[key];
                 if(arr) {
@@ -535,9 +534,10 @@
             let totalAmais = 0;
             let totalErrosConf = 0;
             
-            let mapCiclos = {};
-            let mapEstados = {};
-            let mapOps = {}; // { "Nome": { total: 0, faltante: 0, a_mais: 0 } }
+            // Mapas para os Erros Confirmados apenas
+            let mapCiclosConf = {};
+            let mapEstadosConf = {};
+            let mapOpsConf = {}; // { "Nome": { total: 0, faltante: 0, a_mais: 0 } }
 
             flatData.forEach(r => {
                 let est = r.estado ? r.estado.trim() : 'Indefinido';
@@ -546,25 +546,28 @@
                 let ci = r.ciclo ? r.ciclo.trim() : 'Desconhecido';
                 let errAd = r.erro_aduana ? r.erro_aduana.trim().toLowerCase() : '';
 
-                // KPIs
+                // KPIs Gerais
                 if (estLower.includes('faltante')) { totalFaltantes++; est = 'Faltante'; }
-                else if (estLower.includes('a mais')) { totalAmais++; est = 'A mais'; }
+                else if (estLower.includes('a mais') || estLower.includes('sobra')) { totalAmais++; est = 'A mais'; }
                 
-                if (errAd === 'erro') totalErrosConf++;
+                // Mapeamento focado APENAS em ERROS CONFIRMADOS
+                if (errAd === 'erro') {
+                    totalErrosConf++;
 
-                // Map Ciclos
-                if (!mapCiclos[ci]) mapCiclos[ci] = 0;
-                mapCiclos[ci]++;
+                    // Map Ciclos
+                    if (!mapCiclosConf[ci]) mapCiclosConf[ci] = 0;
+                    mapCiclosConf[ci]++;
 
-                // Map Estados
-                if (!mapEstados[est]) mapEstados[est] = 0;
-                mapEstados[est]++;
+                    // Map Estados
+                    if (!mapEstadosConf[est]) mapEstadosConf[est] = 0;
+                    mapEstadosConf[est]++;
 
-                // Map Ops (Ofensores)
-                if (!mapOps[op]) mapOps[op] = { total: 0, faltante: 0, amais: 0 };
-                mapOps[op].total++;
-                if (est === 'Faltante') mapOps[op].faltante++;
-                if (est === 'A mais') mapOps[op].amais++;
+                    // Map Ops
+                    if (!mapOpsConf[op]) mapOpsConf[op] = { total: 0, faltante: 0, amais: 0 };
+                    mapOpsConf[op].total++;
+                    if (est === 'Faltante') mapOpsConf[op].faltante++;
+                    if (est === 'A mais') mapOpsConf[op].amais++;
+                }
             });
 
             document.getElementById('kpi-total').innerText = totalOcorrencias.toLocaleString('pt-BR');
@@ -572,35 +575,35 @@
             document.getElementById('kpi-amais').innerText = totalAmais.toLocaleString('pt-BR');
             document.getElementById('kpi-erros').innerText = totalErrosConf.toLocaleString('pt-BR');
             
-            // Preencher Tabela de Top Ofensores
-            let arrOps = Object.keys(mapOps).map(k => ({ op: k, ...mapOps[k] })).sort((a,b) => b.total - a.total);
+            // Preencher Tabela de Top Ofensores (Somente Erros Confirmados)
+            let arrOps = Object.keys(mapOpsConf).map(k => ({ op: k, ...mapOpsConf[k] })).sort((a,b) => b.total - a.total);
             let tbHtml = '';
             arrOps.forEach(x => {
-                // Simplifica o nome (ex: "Joyce Amanda" em vez do nome inteiro)
+                // Simplifica o nome para não quebrar a tabela
                 let nomeCurto = x.op.split(' ').slice(0,2).join(' ');
                 tbHtml += `<tr>
-                    <td class="nome-col" title="${x.op}">${escapeHtml(nomeCurto)}</td>
+                    <td class="nome-col" title="${escapeHtml(x.op)}">${escapeHtml(nomeCurto)}</td>
                     <td class="bold-col" style="color:var(--alert-red);">${x.total}</td>
                     <td style="color:#F59E0B; font-weight:800;">${x.faltante}</td>
                     <td style="color:#8B5CF6; font-weight:800;">${x.amais}</td>
                 </tr>`;
             });
-            document.getElementById('tbody-ofensores').innerHTML = tbHtml || `<tr><td colspan="4" style="padding: 20px;">Nenhum dado selecionado.</td></tr>`;
+            document.getElementById('tbody-ofensores').innerHTML = tbHtml || `<tr><td colspan="4" style="padding: 20px;">Nenhum erro confirmado encontrado.</td></tr>`;
 
-            renderCharts(mapCiclos, mapEstados);
+            renderCharts(mapCiclosConf, mapEstadosConf);
         }
 
-        function renderCharts(mapCiclos, mapEstados) {
+        function renderCharts(mapCiclosConf, mapEstadosConf) {
             let textColor = document.body.getAttribute('data-theme') === 'light' ? '#333' : '#e2e8f0';
             let gridColor = document.body.getAttribute('data-theme') === 'light' ? '#E5E7EB' : '#334155';
             
             Object.keys(chartInstances).forEach(k => { if(chartInstances[k]) chartInstances[k].destroy(); });
 
-            // 1. ERROS POR TURNO (Velas Verticais)
-            let arrCi = Object.keys(mapCiclos).map(k => ({x: k, y: mapCiclos[k]})).sort((a,b) => b.y - a.y);
+            // 1. ERROS CONFIRMADOS POR TURNO (Velas Verticais)
+            let arrCi = Object.keys(mapCiclosConf).map(k => ({x: k, y: mapCiclosConf[k]})).sort((a,b) => b.y - a.y);
             
             chartInstances.turno = new ApexCharts(document.querySelector("#chart-turno"), {
-                series: [{ name: 'Ocorrências', data: arrCi }],
+                series: [{ name: 'Erros', data: arrCi }],
                 chart: { type: 'bar', height: '100%', background: 'transparent', toolbar: {show:false} },
                 colors: ['var(--bar-yellow)'], 
                 plotOptions: { 
@@ -631,12 +634,12 @@
             });
             chartInstances.turno.render();
 
-            // 2. ESTADO DO PACOTE (Velas Verticais: Faltante x A Mais)
-            let valFaltante = mapEstados['Faltante'] || 0;
-            let valAmais = mapEstados['A mais'] || 0;
+            // 2. ESTADO DOS ERROS CONFIRMADOS (Velas Verticais: Faltante x A Mais)
+            let valFaltante = mapEstadosConf['Faltante'] || 0;
+            let valAmais = mapEstadosConf['A mais'] || 0;
 
             chartInstances.estado = new ApexCharts(document.querySelector("#chart-estado"), {
-                series: [{ name: 'Pacotes', data: [
+                series: [{ name: 'Erros', data: [
                     {x: 'Faltante', y: valFaltante, fillColor: '#F59E0B'},
                     {x: 'A Mais', y: valAmais, fillColor: '#8B5CF6'}
                 ] }],
@@ -667,7 +670,7 @@
                     },
                     max: function(val) { return val * 1.25; }
                 },
-                legend: { show: false },
+                legend: { show: false }, 
                 grid: { padding: { top: 25, bottom: 0 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.estado.render();
