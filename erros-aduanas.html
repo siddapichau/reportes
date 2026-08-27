@@ -310,6 +310,10 @@
         }
 
         // --- UTILITÁRIOS GERAIS ---
+        function escapeHtml(v) { 
+            return String(v ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;'); 
+        }
+
         function padDate(dStr) {
             let p = (dStr||'').split('/');
             if(p.length !== 3) return dStr;
@@ -593,7 +597,6 @@
             Object.keys(chartInstances).forEach(k => { if(chartInstances[k]) chartInstances[k].destroy(); });
 
             // 1. ERROS POR TURNO (Velas Verticais)
-            // Ordena os turnos pelo maior volume de erros
             let arrCi = Object.keys(mapCiclos).map(k => ({x: k, y: mapCiclos[k]})).sort((a,b) => b.y - a.y);
             
             chartInstances.turno = new ApexCharts(document.querySelector("#chart-turno"), {
@@ -629,7 +632,6 @@
             chartInstances.turno.render();
 
             // 2. ESTADO DO PACOTE (Velas Verticais: Faltante x A Mais)
-            // Fixa as cores para identificação rápida (Faltante = Laranja, A Mais = Roxo)
             let valFaltante = mapEstados['Faltante'] || 0;
             let valAmais = mapEstados['A mais'] || 0;
 
@@ -643,7 +645,7 @@
                     bar: { 
                         horizontal: false, 
                         columnWidth: '45%', 
-                        distributed: true, // Usa o fillColor definido no data
+                        distributed: true, 
                         borderRadius: 4, 
                         dataLabels: { position: 'top' } 
                     } 
@@ -665,7 +667,7 @@
                     },
                     max: function(val) { return val * 1.25; }
                 },
-                legend: { show: false }, // Esconde legenda redundante
+                legend: { show: false },
                 grid: { padding: { top: 25, bottom: 0 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.estado.render();
