@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aduanas - Dashboard de Erros</title>
+    
+    <!-- SISTEMA ANTI-ACESSO DIRETO -->
+    <script>
+        if (window === window.top) {
+            const paginaAtual = window.location.pathname.split('/').pop() || 'erros-aduanas.html';
+            window.location.replace('index.html?page=' + paginaAtual);
+        }
+    </script>
+
+    <link rel="icon" href="https://cdn.iconscout.com/icon/free/png-256/free-mercado-livre-icon-svg-download-png-14549372.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        :root {
+            --bg-header: #FFF159;
+            --bg-card: #FFFFFF;
+            --border-card: #E5E7EB;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.05);
+            --brand-yellow: #FFF159;
+            --bar-yellow: #FFB000;
+            --text-on-yellow: #2D3277;
+        }
+        [data-theme="dark"] {
+            --bg-header: #FFF159;
+            --bg-card: #1E293B;
+            --border-card: rgba(255, 255, 255, 0.1);
+            --text-main: #E2E8F0;
+            --text-muted: #94A3B8;
+            --shadow-card: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --brand-yellow: #FFF159;
+            --bar-yellow: #FFB000;
+            --text-on-yellow: #2D3277;
+        }
+
+        html, body { width: 100%; height: 100vh; background: transparent !important; margin: 0; padding: 0; overflow: hidden; }
+        body { padding: 12px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; font-family: 'Inter', sans-serif; font-size: 0.95rem; }
+
+        .glass-panel { background-color: var(--bg-card); border: 1px solid var(--border-card); border-radius: 8px; box-shadow: var(--shadow-card); transition: 0.3s; }
+
+        /* CABEÇALHO PRINCIPAL */
+        .header { padding: 8px 25px; flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 20px; background-color: var(--bg-header) !important; border: none; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header-title-wrapper { flex: 1; text-align: center; color: #2D3277 !important; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; font-size: 1.3rem; margin-left: 20px;}
+        .ml-logo { height: 32px; width: auto; object-fit: contain; }
+
+        .header-controls { display: flex; align-items: center; gap: 12px; }
+        .btn-icon { background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(0, 0, 0, 0.1); color: #2D3277; width: 36px; height: 36px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; }
+        .btn-icon:hover { background: #fff; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
+
+        /* FILTROS */
+        .filter-bar { display: flex; gap: 10px; padding: 8px 20px; align-items: center; flex: 0 0 auto; justify-content: flex-end;}
+        .filter-label { font-size: 0.75rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-right: 5px;}
+        .filter-select { padding: 5px 10px; border-radius: 6px; border: 1px solid var(--border-card); background: transparent; color: var(--text-main); font-weight: 600; font-size: 0.85rem; outline: none; cursor: pointer; }
+        .btn-limpar { padding: 5px 14px; background: #3483FA; color: #fff; border: none; border-radius: 6px; font-weight: 800; cursor: pointer; transition: 0.3s; font-size: 0.8rem; text-transform: uppercase; }
+
+        /* KPI BAR */
+        .kpi-container { text-align: center; flex: 0 0 auto; display: flex; justify-content: center;}
+        .kpi-row { display: flex; gap: 15px; background-color: var(--brand-yellow); padding: 10px 15px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: max-content;}
+        
+        .kpi-box { padding: 8px 20px; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; min-width: 140px; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+        .kpi-box.black { background-color: #000000; border: 2px solid #333; }
+        .kpi-box.red { background-color: #E74C3C; }
+        .kpi-box.orange { background-color: #F59E0B; }
+        .kpi-box.purple { background-color: #8B5CF6; }
+        
+        .kpi-title { font-size: 0.75rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; color: #fff;}
+        .kpi-value { font-size: 2.2rem; font-weight: 900; line-height: 1;}
+        .kpi-sub { font-size: 0.8rem; margin-top: 4px; font-weight: 600; opacity: 0.9; }
+
+        /* LAYOUT GERAL (GRÁFICOS E TABELA) */
+        .dashboard-grid { 
+            display: grid; 
+            grid-template-columns: 1.2fr 0.8fr 0.8fr; 
+            gap: 12px; 
+            flex: 1; 
+            min-height: 0; 
+            margin-top: 5px;
+        }
+        
+        .chart-card { display: flex; flex-direction: column; border-radius: 8px; overflow: hidden; min-height: 250px; background: var(--bg-card); border: 1px solid var(--border-card); box-shadow: var(--shadow-card); } 
+        .chart-title { background: var(--brand-yellow); color: var(--text-on-yellow); padding: 8px 12px; font-size: 0.9rem; font-weight: 900; text-transform: uppercase; text-align: center; letter-spacing: 0.5px; margin: 0; border-bottom: 1px solid var(--border-card); flex: 0 0 auto;}
+        .chart-wrapper { flex: 1; min-height: 0; width: 100%; position: relative; padding: 10px 5px; box-sizing: border-box; }
+
+        /* TABELA TOP OFENSORES */
+        .styled-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: center; }
+        .styled-table thead { background: rgba(0,0,0,0.03); color: var(--text-main); font-weight: 900; position: sticky; top: 0; z-index: 1; }
+        .styled-table th { padding: 10px 8px; border-bottom: 2px solid var(--border-card); text-transform: uppercase; font-size: 0.75rem; }
+        .styled-table td { padding: 8px; border-bottom: 1px solid var(--border-card); color: var(--text-main); }
+        .styled-table tbody tr:hover { background-color: rgba(0,0,0,0.02); }
+        .styled-table td.nome-col { text-align: left; font-weight: 800; padding-left: 15px; }
+        .styled-table td.bold-col { font-weight: 900; }
+        .scroll-wrapper { flex: 1; overflow-y: auto; overflow-x: hidden; }
+
+        /* TRAVAS E AJUSTES PARA EXPORTAÇÃO (HTML2CANVAS) */
+        body.exporting { 
+            width: 1920px !important; 
+            height: 1080px !important; 
+            min-height: 1080px !important;
+            max-height: 1080px !important;
+            position: absolute !important; 
+            top: 0 !important; 
+            left: 0 !important; 
+            background: #ffffff !important; 
+            display: block !important; 
+        }
+        body.exporting .dashboard-grid {
+            height: 800px !important; 
+            display: grid !important;
+            flex: none !important;
+            margin-top: 15px !important;
+        }
+        body.exporting .header-controls, body.exporting .filter-bar { display: none !important; }
+
+        /* MODAL POP-UP CUSTOMIZADO */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 9999; }
+        .modal-overlay.active { display: flex; }
+        .modal-box { background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 12px; padding: 25px; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); text-align: center; }
+        .modal-box h3 { margin: 0 0 15px 0; color: var(--text-main); font-weight: 900; font-size: 1.3rem; text-transform: uppercase;}
+        .modal-box p { margin: 0 0 20px 0; color: var(--text-muted); font-size: 0.95rem; line-height: 1.4;}
+        .modal-box input { width: 100%; padding: 12px; border: 1px solid var(--border-card); background: transparent; color: var(--text-main); border-radius: 8px; font-size: 1rem; text-align: center; font-weight: bold; margin-bottom: 20px; outline: none; box-sizing: border-box;}
+        .modal-box input:focus { border-color: #3483FA; }
+        .modal-buttons { display: flex; justify-content: center; gap: 15px; }
+        .modal-buttons button { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; transition: 0.2s; font-size: 0.9rem;}
+        .btn-cancel { background: var(--border-card); color: var(--text-main); }
+        .btn-cancel:hover { opacity: 0.8; }
+        .btn-confirm { background: #3483FA; color: #fff; }
+        .btn-confirm:hover { background: #2968c8; }
+    </style>
+</head>
+<body data-theme="light">
+
+    <!-- CABEÇALHO -->
+    <div class="header glass-panel">
+        <div style="display:flex; align-items:center; gap: 10px;">
+            <img src="https://upload.wikimedia.org/wikipedia/pt/0/04/Logotipo_MercadoLivre.png" alt="Mercado Livre" class="ml-logo">
+        </div>
+        
+        <div class="header-title-wrapper" id="main-title">
+            ADUANAS - CONTROLE DE ERROS
+        </div>
+
+        <div class="header-controls">
+            <button class="btn-icon" onclick="baixarImagem()" title="Exportar Imagem">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            </button>
+            <label class="btn-icon" id="btnUpload" style="display:none;" title="Subir CSV Aduanas">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                <input type="file" id="csvFileInput" accept=".csv" multiple style="display: none;" onchange="processarUploadSmart(this)" />
+            </label>
+        </div>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="filter-bar glass-panel">
+        <span class="filter-label">Filtros:</span>
+        <select id="filter-month" class="filter-select" onchange="applyFilter('month')"><option value="">Mês (Todos)</option></select>
+        <select id="filter-week" class="filter-select" onchange="applyFilter('week')"><option value="">Semana (Todas)</option></select>
+        <select id="filter-day" class="filter-select" onchange="applyFilter('day')"><option value="">Dia (Todos)</option></select>
+        <select id="filter-ciclo" class="filter-select" onchange="applyFilter('ciclo')"><option value="">Turno/Ciclo (Todos)</option></select>
+        <select id="filter-rep" class="filter-select" onchange="applyFilter('rep')"><option value="">Operador (Todos)</option></select>
+        <button class="btn-limpar" onclick="resetFilter()">Hoje</button>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-container">
+        <div class="kpi-row">
+            <div class="kpi-box black">
+                <div class="kpi-title">TOTAL OCORRÊNCIAS</div>
+                <div class="kpi-value" id="kpi-total">0</div>
+                <div class="kpi-sub">Auditorias Registradas</div>
+            </div>
+            <div class="kpi-box orange">
+                <div class="kpi-title">FALTANTES</div>
+                <div class="kpi-value" id="kpi-faltantes">0</div>
+                <div class="kpi-sub">Itens Ausentes</div>
+            </div>
+            <div class="kpi-box purple">
+                <div class="kpi-title">A MAIS</div>
+                <div class="kpi-value" id="kpi-amais">0</div>
+                <div class="kpi-sub">Itens Sobrando</div>
+            </div>
+            <div class="kpi-box red">
+                <div class="kpi-title">ERROS CONFIRMADOS</div>
+                <div class="kpi-value" id="kpi-erros">0</div>
+                <div class="kpi-sub">Status: Erro Aduana</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GRIDS DE GRÁFICOS E TABELA -->
+    <div class="dashboard-grid">
+        <!-- 1. Tabela de Top Ofensores -->
+        <div class="chart-card">
+            <div class="chart-title">⚠️ TOP OFENSORES (Por Operador)</div>
+            <div class="scroll-wrapper">
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th style="text-align: left; padding-left: 15px;">Operador (Rep)</th>
+                            <th>Total ▾</th>
+                            <th>Faltantes</th>
+                            <th>A Mais</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-ofensores">
+                        <tr><td colspan="4" style="padding: 20px;">Nenhum dado selecionado.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 2. Gráfico por Turno -->
+        <div class="chart-card">
+            <div class="chart-title">ERROS POR TURNO (CICLO)</div>
+            <div id="chart-turno" class="chart-wrapper"></div>
+        </div>
+
+        <!-- 3. Gráfico por Estado -->
+        <div class="chart-card">
+            <div class="chart-title">ESTADO DO PACOTE</div>
+            <div id="chart-estado" class="chart-wrapper"></div>
+        </div>
+    </div>
+
+    <!-- MODAL POP-UP CUSTOMIZADO -->
+    <div id="customModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="modalTitle">Título</h3>
+            <p id="modalMessage">Mensagem</p>
+            <div id="modalInputArea" style="display:none;">
+                <input type="text" id="modalInput" placeholder="DD/MM/YYYY">
+            </div>
+            <div class="modal-buttons">
+                <button id="modalBtnCancel" class="btn-cancel">Cancelar</button>
+                <button id="modalBtnConfirm" class="btn-confirm">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const FIREBASE_URL = "https://reportes-bdb0a-default-rtdb.firebaseio.com/";
+        const NODE_DB = "erros_aduanas";
+        
+        let globalDb = {};
+        let flatData = [];
+        let chartInstances = {};
+
+        // Permissões Admin
+        const canEdit = window.parent && typeof window.parent.verificarPermissaoUpload === 'function' 
+            ? window.parent.verificarPermissaoUpload('erros-aduanas.html') : true; 
+        if(canEdit) document.getElementById('btnUpload').style.display = 'flex';
+
+        function syncTheme() { 
+            const theme = localStorage.getItem('themePreference') || 'light'; 
+            document.body.setAttribute('data-theme', theme); 
+            if(flatData.length > 0) render();
+        }
+        syncTheme();
+        window.addEventListener('message', (e) => { 
+            if (e.data.type === 'THEME_CHANGED') { syncTheme(); } 
+        });
+
+        // --- SISTEMA DE MODAL ---
+        function showModal(options) {
+            return new Promise((resolve) => {
+                const overlay = document.getElementById('customModal');
+                const title = document.getElementById('modalTitle');
+                const msg = document.getElementById('modalMessage');
+                const inputArea = document.getElementById('modalInputArea');
+                const input = document.getElementById('modalInput');
+                const btnCancel = document.getElementById('modalBtnCancel');
+                const btnConfirm = document.getElementById('modalBtnConfirm');
+
+                title.innerText = options.title || 'Aviso';
+                msg.innerHTML = options.message || '';
+                
+                if(options.type === 'prompt') {
+                    inputArea.style.display = 'block';
+                    input.value = options.defaultValue || '';
+                    btnCancel.style.display = 'block';
+                } else {
+                    inputArea.style.display = 'none';
+                    btnCancel.style.display = options.showCancel ? 'block' : 'none';
+                }
+
+                btnConfirm.innerText = options.confirmText || 'OK';
+                overlay.classList.add('active');
+
+                const cleanup = () => {
+                    overlay.classList.remove('active');
+                    btnConfirm.onclick = null;
+                    btnCancel.onclick = null;
+                };
+
+                btnConfirm.onclick = () => { cleanup(); resolve(options.type === 'prompt' ? input.value : true); };
+                btnCancel.onclick = () => { cleanup(); resolve(null); };
+            });
+        }
+
+        // --- UTILITÁRIOS GERAIS ---
+        function padDate(dStr) {
+            let p = (dStr||'').split('/');
+            if(p.length !== 3) return dStr;
+            return `${p[0].padStart(2,'0')}/${p[1].padStart(2,'0')}/${p[2]}`;
+        }
+
+        function formatarDataHoje() {
+            const h = new Date();
+            return `${String(h.getDate()).padStart(2,'0')}/${String(h.getMonth()+1).padStart(2,'0')}/${h.getFullYear()}`;
+        }
+
+        function getISOWeek(d) {
+            let date = new Date(d.getTime());
+            date.setHours(0, 0, 0, 0);
+            date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+            let week1 = new Date(date.getFullYear(), 0, 4);
+            return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+        }
+
+        function cleanKey(k) { return String(k||'').toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+        function getVal(row, keys) {
+            const rk = Object.keys(row || {});
+            for (const pk of keys) { const f = rk.find(k => cleanKey(k) === cleanKey(pk)); if (f && String(row[f]).trim() && String(row[f]).trim().toLowerCase() !== 'nan') return String(row[f]).trim(); }
+            return '';
+        }
+
+        const parseCSV = (file) => new Promise(resolve => {
+            Papa.parse(file, { header: true, skipEmptyLines: true, complete: resolve });
+        });
+
+        // --- CARREGAMENTO INICIAL ---
+        window.onload = function() { loadDataFromFirebase(); };
+
+        function loadDataFromFirebase() {
+            fetch(`${FIREBASE_URL}${NODE_DB}.json`).then(r => r.json()).then(db => {
+                globalDb = db || {};
+                populateFilters();
+                resetFilter();
+            }).catch(e => console.log("Offline / BD Vazio", e));
+        }
+
+        function populateFilters() {
+            let dates = Array.from(Object.keys(globalDb)).map(k => k.replace(/-/g, '/'));
+            
+            dates.sort((a, b) => {
+                let pa = a.split('/'); let pb = b.split('/');
+                return new Date(pb[2], pb[1]-1, pb[0]) - new Date(pa[2], pa[1]-1, pa[0]);
+            });
+
+            let months = new Set(), weeks = new Set(), days = new Set();
+            let ciclos = new Set(), reps = new Set();
+            
+            dates.forEach(d => {
+                let p = d.split('/');
+                if(p.length === 3) {
+                    days.add(d);
+                    let dateObj = new Date(p[2], p[1]-1, p[0]);
+                    months.add(String(dateObj.getMonth()+1).padStart(2,'0') + '/' + dateObj.getFullYear());
+                    weeks.add('Semana ' + String(getISOWeek(dateObj)).padStart(2,'0') + ' (' + dateObj.getFullYear() + ')');
+                }
+            });
+
+            // Coleta ciclos e reps unicos de toda a base
+            Object.keys(globalDb).forEach(key => {
+                let arr = globalDb[key];
+                if(arr) {
+                    arr.forEach(r => {
+                        if(r.ciclo) ciclos.add(r.ciclo);
+                        if(r.operador) reps.add(r.operador);
+                    });
+                }
+            });
+
+            const fillSelect = (id, setVal, defaultText) => {
+                let sel = document.getElementById(id);
+                sel.innerHTML = `<option value="">${defaultText}</option>`;
+                Array.from(setVal).sort().forEach(v => { sel.innerHTML += `<option value="${v}">${v}</option>`; });
+            };
+
+            fillSelect('filter-month', months, 'Mês (Todos)');
+            fillSelect('filter-week', weeks, 'Semana (Todas)');
+            fillSelect('filter-day', days, 'Dia (Todos)');
+            fillSelect('filter-ciclo', ciclos, 'Turno/Ciclo (Todos)');
+            fillSelect('filter-rep', reps, 'Operador (Todos)');
+        }
+
+        function applyFilter(source) {
+            let mSel = document.getElementById('filter-month');
+            let wSel = document.getElementById('filter-week');
+            let dSel = document.getElementById('filter-day');
+            let cSel = document.getElementById('filter-ciclo');
+            let rSel = document.getElementById('filter-rep');
+
+            if(source === 'month') { wSel.value = ''; dSel.value = ''; }
+            if(source === 'week') { mSel.value = ''; dSel.value = ''; }
+            if(source === 'day') { mSel.value = ''; wSel.value = ''; }
+
+            let m = mSel.value, w = wSel.value, d = dSel.value;
+            let cFilt = cSel.value, rFilt = rSel.value;
+            
+            flatData = [];
+
+            Object.keys(globalDb).forEach(key => {
+                let dateStr = key.replace(/-/g, '/');
+                let p = dateStr.split('/');
+                if(p.length !== 3) return;
+
+                let dateObj = new Date(p[2], p[1]-1, p[0]);
+                let mStr = String(dateObj.getMonth()+1).padStart(2,'0') + '/' + dateObj.getFullYear();
+                let wStr = 'Semana ' + String(getISOWeek(dateObj)).padStart(2,'0') + ' (' + dateObj.getFullYear() + ')';
+
+                let matchDate = true;
+                if(m && mStr !== m) matchDate = false;
+                if(w && wStr !== w) matchDate = false;
+                if(d && dateStr !== d) matchDate = false;
+
+                if(matchDate && globalDb[key]) {
+                    let arr = globalDb[key];
+                    for(let i=0; i<arr.length; i++) {
+                        let row = arr[i];
+                        let matchExtra = true;
+                        if(cFilt && row.ciclo !== cFilt) matchExtra = false;
+                        if(rFilt && row.operador !== rFilt) matchExtra = false;
+                        
+                        if (matchExtra) flatData.push(row);
+                    }
+                }
+            });
+
+            render();
+        }
+
+        function resetFilter() {
+            let dataHoje = formatarDataHoje();
+            document.getElementById('filter-month').value = '';
+            document.getElementById('filter-week').value = '';
+            document.getElementById('filter-ciclo').value = '';
+            document.getElementById('filter-rep').value = '';
+            
+            let dSel = document.getElementById('filter-day');
+            let target = Array.from(dSel.options).find(o => o.value === dataHoje);
+            
+            if(target) dSel.value = dataHoje;
+            else if (dSel.options.length > 1) dSel.value = dSel.options[1].value;
+            
+            applyFilter('day');
+        }
+
+        // --- SISTEMA DE UPLOAD DE CSV ---
+        async function processarUploadSmart(inputElement) {
+            if (!canEdit) return;
+            const files = Array.from(inputElement.files);
+            if (files.length === 0) return;
+
+            let chosenDate = await showModal({
+                title: 'Sincronizar Dados Aduanas',
+                message: `De qual data deseja extrair os dados desta planilha?<br><small>(O sistema vai buscar por "Data" ou "Data auditoria")</small>`,
+                type: 'prompt',
+                defaultValue: formatarDataHoje()
+            });
+
+            if (!chosenDate) { inputElement.value = ''; return; }
+            let chosenDateKey = padDate(chosenDate).replace(/\//g, '-');
+            let promises = [];
+            let totalAdicionados = 0;
+
+            showModal({ title: 'Aguarde', message: 'Lendo e processando planilha de Aduanas...', showCancel: false, confirmText: 'Processando...' });
+
+            for(let file of files) {
+                const res = await parseCSV(file);
+                let rowsForDate = [];
+
+                for(let i=0; i < res.data.length; i++) {
+                    let row = res.data[i];
+                    
+                    let rawDate = getVal(row, ['data auditoria', 'data', 'date']);
+                    if (!rawDate) continue; 
+                    let d = padDate(rawDate.split(' ')[0]);
+                    
+                    if (d === chosenDate) {
+                        // Limpa nome do Ciclo (ex: "AM1 " -> "AM1")
+                        let rawCiclo = getVal(row, ['ciclo', 'turno']).trim();
+                        let rawOp = getVal(row, ['rep auditoria', 'operador', 'rep']).trim();
+                        let rawEstado = getVal(row, ['estado', 'status_estado']).trim();
+                        let rawErroAd = getVal(row, ['erro de aduana ?', 'erro de aduana', 'erro']).trim();
+
+                        rowsForDate.push({
+                            id: getVal(row, ['id', 'shipment id', 'pacote']),
+                            data: d,
+                            ciclo: rawCiclo || 'Desconhecido',
+                            operador: rawOp || 'Sem Nome',
+                            estado: rawEstado || 'Indefinido',
+                            erro_aduana: rawErroAd || ''
+                        });
+                    }
+                }
+                
+                if (rowsForDate.length > 0) {
+                    totalAdicionados += rowsForDate.length;
+                    promises.push(fetch(`${FIREBASE_URL}${NODE_DB}/${chosenDateKey}.json`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(rowsForDate) }));
+                }
+            }
+
+            if (promises.length > 0) {
+                await Promise.all(promises);
+                await showModal({ title: 'Sincronização Concluída!', message: `Dados de Aduanas do dia ${chosenDate} salvos.<br><b>${totalAdicionados}</b> ocorrências registradas.` });
+                loadDataFromFirebase();
+            } else {
+                await showModal({ title: 'Aviso', message: `Nenhuma ocorrência compatível com a data ${chosenDate} foi encontrada na planilha.` });
+            }
+            
+            inputElement.value = '';
+        }
+
+        // --- RENDERIZAÇÃO E PROCESSAMENTO GERAL ---
+        function render() {
+            let totalOcorrencias = flatData.length;
+            let totalFaltantes = 0;
+            let totalAmais = 0;
+            let totalErrosConf = 0;
+            
+            let mapCiclos = {};
+            let mapEstados = {};
+            let mapOps = {}; // { "Nome": { total: 0, faltante: 0, a_mais: 0 } }
+
+            flatData.forEach(r => {
+                let est = r.estado ? r.estado.trim() : 'Indefinido';
+                let estLower = est.toLowerCase();
+                let op = r.operador ? r.operador.trim() : 'Sem Nome';
+                let ci = r.ciclo ? r.ciclo.trim() : 'Desconhecido';
+                let errAd = r.erro_aduana ? r.erro_aduana.trim().toLowerCase() : '';
+
+                // KPIs
+                if (estLower.includes('faltante')) { totalFaltantes++; est = 'Faltante'; }
+                else if (estLower.includes('a mais')) { totalAmais++; est = 'A mais'; }
+                
+                if (errAd === 'erro') totalErrosConf++;
+
+                // Map Ciclos
+                if (!mapCiclos[ci]) mapCiclos[ci] = 0;
+                mapCiclos[ci]++;
+
+                // Map Estados
+                if (!mapEstados[est]) mapEstados[est] = 0;
+                mapEstados[est]++;
+
+                // Map Ops (Ofensores)
+                if (!mapOps[op]) mapOps[op] = { total: 0, faltante: 0, amais: 0 };
+                mapOps[op].total++;
+                if (est === 'Faltante') mapOps[op].faltante++;
+                if (est === 'A mais') mapOps[op].amais++;
+            });
+
+            document.getElementById('kpi-total').innerText = totalOcorrencias.toLocaleString('pt-BR');
+            document.getElementById('kpi-faltantes').innerText = totalFaltantes.toLocaleString('pt-BR');
+            document.getElementById('kpi-amais').innerText = totalAmais.toLocaleString('pt-BR');
+            document.getElementById('kpi-erros').innerText = totalErrosConf.toLocaleString('pt-BR');
+            
+            // Preencher Tabela de Top Ofensores
+            let arrOps = Object.keys(mapOps).map(k => ({ op: k, ...mapOps[k] })).sort((a,b) => b.total - a.total);
+            let tbHtml = '';
+            arrOps.forEach(x => {
+                // Simplifica o nome (ex: "Joyce Amanda" em vez do nome inteiro)
+                let nomeCurto = x.op.split(' ').slice(0,2).join(' ');
+                tbHtml += `<tr>
+                    <td class="nome-col" title="${x.op}">${escapeHtml(nomeCurto)}</td>
+                    <td class="bold-col" style="color:var(--alert-red);">${x.total}</td>
+                    <td style="color:#F59E0B; font-weight:800;">${x.faltante}</td>
+                    <td style="color:#8B5CF6; font-weight:800;">${x.amais}</td>
+                </tr>`;
+            });
+            document.getElementById('tbody-ofensores').innerHTML = tbHtml || `<tr><td colspan="4" style="padding: 20px;">Nenhum dado selecionado.</td></tr>`;
+
+            renderCharts(mapCiclos, mapEstados);
+        }
+
+        function renderCharts(mapCiclos, mapEstados) {
+            let textColor = document.body.getAttribute('data-theme') === 'light' ? '#333' : '#e2e8f0';
+            let gridColor = document.body.getAttribute('data-theme') === 'light' ? '#E5E7EB' : '#334155';
+            
+            Object.keys(chartInstances).forEach(k => { if(chartInstances[k]) chartInstances[k].destroy(); });
+
+            // 1. ERROS POR TURNO (Velas Verticais)
+            // Ordena os turnos pelo maior volume de erros
+            let arrCi = Object.keys(mapCiclos).map(k => ({x: k, y: mapCiclos[k]})).sort((a,b) => b.y - a.y);
+            
+            chartInstances.turno = new ApexCharts(document.querySelector("#chart-turno"), {
+                series: [{ name: 'Ocorrências', data: arrCi }],
+                chart: { type: 'bar', height: '100%', background: 'transparent', toolbar: {show:false} },
+                colors: ['var(--bar-yellow)'], 
+                plotOptions: { 
+                    bar: { 
+                        horizontal: false, 
+                        columnWidth: '50%', 
+                        borderRadius: 4, 
+                        dataLabels: { position: 'top' } 
+                    } 
+                },
+                dataLabels: { 
+                    enabled: true, 
+                    offsetY: -25, 
+                    style: { fontSize: '13px', fontWeight: 900, colors: [textColor] },
+                    dropShadow: { enabled: false }
+                },
+                xaxis: { 
+                    labels: { style: { colors: textColor, fontSize: '12px', fontWeight: 800 } } 
+                },
+                yaxis: { 
+                    labels: { 
+                        style: { colors: textColor, fontSize: '11px' },
+                        formatter: function(val) { return Math.round(val); }
+                    },
+                    max: function(val) { return val * 1.25; } 
+                },
+                grid: { padding: { top: 25 }, borderColor: gridColor, strokeDashArray: 3 }
+            });
+            chartInstances.turno.render();
+
+            // 2. ESTADO DO PACOTE (Velas Verticais: Faltante x A Mais)
+            // Fixa as cores para identificação rápida (Faltante = Laranja, A Mais = Roxo)
+            let valFaltante = mapEstados['Faltante'] || 0;
+            let valAmais = mapEstados['A mais'] || 0;
+
+            chartInstances.estado = new ApexCharts(document.querySelector("#chart-estado"), {
+                series: [{ name: 'Pacotes', data: [
+                    {x: 'Faltante', y: valFaltante, fillColor: '#F59E0B'},
+                    {x: 'A Mais', y: valAmais, fillColor: '#8B5CF6'}
+                ] }],
+                chart: { type: 'bar', height: '100%', background: 'transparent', toolbar: {show:false} },
+                plotOptions: { 
+                    bar: { 
+                        horizontal: false, 
+                        columnWidth: '45%', 
+                        distributed: true, // Usa o fillColor definido no data
+                        borderRadius: 4, 
+                        dataLabels: { position: 'top' } 
+                    } 
+                },
+                dataLabels: { 
+                    enabled: true, 
+                    offsetY: -25, 
+                    style: { fontSize: '14px', fontWeight: 900, colors: [textColor] },
+                    dropShadow: {enabled:false}
+                },
+                xaxis: { 
+                    labels: { style: { colors: textColor, fontSize: '12px', fontWeight: 800 } } 
+                },
+                yaxis: { 
+                    labels: { 
+                        show: true,
+                        style: { colors: textColor, fontSize: '11px', fontWeight: 800 },
+                        formatter: function(val) { return Math.round(val); }
+                    },
+                    max: function(val) { return val * 1.25; }
+                },
+                legend: { show: false }, // Esconde legenda redundante
+                grid: { padding: { top: 25, bottom: 0 }, borderColor: gridColor, strokeDashArray: 3 }
+            });
+            chartInstances.estado.render();
+        }
+
+        // --- EXPORTAÇÃO ---
+        function baixarImagem() {
+            document.body.classList.add('exporting');
+            window.dispatchEvent(new Event('resize'));
+            
+            setTimeout(() => {
+                const bgCor = document.body.getAttribute('data-theme') === 'light' ? '#ffffff' : '#0f172a';
+                html2canvas(document.body, { 
+                    scale: 2, 
+                    backgroundColor: bgCor,
+                    useCORS: true,
+                    windowWidth: 1920, 
+                    windowHeight: 1080 
+                }).then(canvas => {
+                    document.body.classList.remove('exporting');
+                    window.dispatchEvent(new Event('resize')); 
+                    
+                    const link = document.createElement('a');
+                    link.download = `Erros_Aduanas_${formatarDataHoje().replace(/\//g,'-')}.png`;
+                    link.href = canvas.toDataURL('image/png'); link.click();
+                });
+            }, 800); 
+        }
+    </script>
+</body>
+</html>
