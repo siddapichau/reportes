@@ -47,25 +47,42 @@
         .legend span { padding:3px 8px; border-radius:20px; border:1px solid var(--border-card); }
 
         .cards-scroll { flex:1; overflow-y:auto; padding:4px; }
-        /* PADRÃO DE TAMANHO: todos os cards com a mesma altura, independente da quantidade de atividades */
-        :root { --tdm-card-h: 560px; }
-        .cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(335px,100%),1fr)); gap:14px; align-items:stretch; grid-auto-rows:var(--tdm-card-h); }
-        .tdm-card { padding:16px; display:flex; flex-direction:column; gap:10px; min-width:0; height:100%; overflow:hidden; }
+        /* ===== MODELO DE ALTURA DO CARD =====
+           Antes: altura FIXA de 560px para todo card -> o cabeçalho/horários/status consumiam quase tudo
+           e sobrava ~1 linha para as atividades (scroll interno minúsculo).
+           Agora: altura ADAPTATIVA com piso e teto, e um PISO GARANTIDO para a lista de atividades.
+             --tdm-card-min-h : altura mínima do card (cards da mesma linha empatam no maior)
+             --tdm-card-max-h : teto, acompanha a altura real da janela (vh) em vez de um número fixo
+             --tdm-checklist-min : mínimo de px que a lista de atividades SEMPRE ocupa (~7 atividades) */
+        :root { --tdm-card-min-h: 470px; --tdm-card-max-h: clamp(500px, 82vh, 820px); --tdm-checklist-min: 224px; }
+        .cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(350px,100%),1fr)); gap:14px; align-items:stretch; grid-auto-rows:minmax(var(--tdm-card-min-h),auto); }
+        .tdm-card { padding:14px; display:flex; flex-direction:column; gap:8px; min-width:0; min-height:var(--tdm-card-min-h); max-height:var(--tdm-card-max-h); overflow:hidden; }
         /* nada encolhe, só a lista de atividades ocupa/cede o espaço restante */
         .tdm-card > * { flex:0 0 auto; }
-        .tdm-card > .checklist { flex:1 1 auto; min-height:0; }
-        .tdm-card-head { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex:0 0 auto; }
-        .tdm-card-head .nome { font-size:1.1rem; font-weight:900; color:var(--text-title); line-height:1.2; }
+        .tdm-card > .checklist { flex:1 1 auto; min-height:var(--tdm-checklist-min); }
+        /* CARD EXPANDIDO (botão ⤢): libera o teto e mostra a lista inteira, sem scroll interno */
+        .tdm-card.is-max { max-height:none; }
+        .tdm-card.is-max > .checklist { overflow:visible; min-height:0; flex:0 0 auto; }
+        .tdm-card-head { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; flex:0 0 auto; }
+        .tdm-card-head .nome { font-size:1.05rem; font-weight:900; color:var(--text-title); line-height:1.15; }
         .badge-cargo { display:inline-block; background:var(--accent-blue); color:#fff; padding:3px 10px; border-radius:20px; font-size:.67rem; font-weight:900; text-transform:uppercase; letter-spacing:.3px; }
         .badge-backup { display:inline-block; background:var(--bg-body); color:var(--text-muted); border:1px solid var(--border-card); padding:3px 10px; border-radius:20px; font-size:.67rem; font-weight:700; }
         .badge-folga { display:inline-block; background:var(--accent-warn); color:#fff; padding:3px 10px; border-radius:20px; font-size:.67rem; font-weight:900; }
-        .backup-line { padding:8px 10px; border-left:3px solid var(--accent-blue); border-radius:6px; background:rgba(52,131,250,.08); color:var(--text-muted); font-size:.76rem; }
+        .backup-line { padding:5px 9px; border-left:3px solid var(--accent-blue); border-radius:6px; background:rgba(52,131,250,.08); color:var(--text-muted); font-size:.72rem; line-height:1.35; }
         .backup-line strong { color:var(--text-title); }
         .tdm-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-        .tdm-row.intervalo-row { background:rgba(108,92,231,.07); border-left:3px solid #6C5CE7; border-radius:6px; padding:6px 8px; }
+        /* FAIXA DE HORÁRIOS: 4 campos lado a lado (antes eram 2 linhas separadas: entrada/saída + intervalo) */
+        .tdm-strip { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; }
+        .strip-item { display:flex; flex-direction:column; gap:2px; min-width:0; background:var(--bg-body); border:1px solid var(--border-card); border-radius:7px; padding:4px 6px; }
+        .strip-item.intervalo { background:rgba(108,92,231,.07); border-color:rgba(108,92,231,.28); }
+        .strip-item > span { font-size:.58rem; font-weight:900; letter-spacing:.3px; text-transform:uppercase; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .strip-item .hora-input { width:100%; flex:0 0 auto; min-width:0; max-width:none; padding:3px 4px; font-size:.74rem; border:0; background:transparent; }
         .intervalo-sep { font-weight:800; color:var(--text-muted); font-size:.72rem; text-transform:uppercase; }
-        .status-group { display:flex; gap:5px; flex-wrap:wrap; }
-        .status-btn { padding:5px 10px; border-radius:20px; font-size:.7rem; font-weight:800; border:1px solid var(--border-card); background:var(--bg-body); color:var(--text-muted); cursor:pointer; transition:.15s; }
+        /* STATUS em 5 colunas iguais: sempre UMA linha, nunca quebra em 2 */
+        .status-row { flex-wrap:nowrap; gap:7px; }
+        .status-row > .tdm-label { flex:0 0 auto; }
+        .status-group { flex:1 1 auto; display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:4px; }
+        .status-btn { padding:6px 2px; border-radius:7px; font-size:.63rem; font-weight:800; border:1px solid var(--border-card); background:var(--bg-body); color:var(--text-muted); cursor:pointer; transition:.15s; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         .status-btn:hover { transform:translateY(-1px); } .status-btn.disabled { cursor:not-allowed; opacity:.7; }
         .active-presente { background:var(--accent-green); color:#fff; border-color:var(--accent-green); }
         .active-falta { background:var(--accent-red); color:#fff; border-color:var(--accent-red); }
@@ -73,8 +90,12 @@
         .active-ferias { background:#8E44AD; color:#fff; border-color:#8E44AD; }
         .active-folga { background:#6C5CE7; color:#fff; border-color:#6C5CE7; }
 
-        .checklist { display:flex; flex-direction:column; gap:5px; overflow-y:auto; padding:10px 4px 2px 0; border-top:1px solid var(--border-card); }
-        .activity-row { display:grid; grid-template-columns:auto 1fr; gap:7px; align-items:start; padding:4px 0; }
+        /* LISTA DE ATIVIDADES: é o conteúdo principal do card -> ocupa todo o espaço que sobrar,
+           nunca menos que --tdm-checklist-min, e com linhas mais densas para caber mais itens. */
+        .checklist { display:flex; flex-direction:column; gap:2px; overflow-y:auto; padding:8px 4px 2px 0; border-top:1px solid var(--border-card); }
+        .checklist-title { display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:.62rem; font-weight:900; letter-spacing:.4px; text-transform:uppercase; color:var(--text-muted); padding:0 0 3px; position:sticky; top:0; background:var(--bg-card); z-index:1; }
+        .checklist-title .ct-count { color:var(--accent-blue); }
+        .activity-row { display:grid; grid-template-columns:auto 1fr; gap:7px; align-items:start; padding:3px 0; }
         .activity-row input { margin-top:4px; width:16px; height:16px; cursor:pointer; accent-color:var(--accent-green); }
         .activity-row input:disabled { cursor:not-allowed; }
         .activity-row.is-support input { accent-color:var(--accent-blue); }
@@ -87,9 +108,12 @@
         .support-note { color:var(--accent-blue); font-size:.72rem; font-weight:800; margin-top:-5px; }
         .owner-note { color:var(--text-muted); font-size:.72rem; font-style:italic; margin-top:-5px; }
 
-        .conta-box { display:flex; align-items:center; gap:8px; flex-wrap:wrap; background:var(--bg-body); border:1px dashed var(--border-card); border-radius:8px; padding:8px 10px; }
-        .conta-box select { padding:6px 8px; max-width:220px; }
-        .card-actions { display:flex; gap:6px; justify-content:flex-end; border-top:1px solid var(--border-card); padding-top:10px; flex-wrap:wrap; }
+        /* RODAPÉ ÚNICO: resumo + conta vinculada + ações na mesma linha (antes eram 2 blocos separados) */
+        .conta-box { display:flex; align-items:center; gap:6px; flex-wrap:nowrap; min-width:0; background:var(--bg-body); border:1px solid var(--border-card); border-radius:7px; padding:4px 8px; }
+        .conta-box select { padding:4px 6px; max-width:150px; font-size:.7rem; }
+        .card-footer { display:flex; gap:6px; align-items:center; justify-content:flex-end; border-top:1px solid var(--border-card); padding-top:8px; flex-wrap:wrap; margin-top:auto; }
+        .card-actions { display:flex; gap:6px; justify-content:flex-end; flex-wrap:wrap; }
+        .card-actions .mini-btn { padding:5px 9px; font-size:.68rem; }
         .mini-btn.danger { color:var(--accent-red); border-color:var(--accent-red); }
         .save-state { margin-right:auto; align-self:center; font-size:.7rem; color:var(--text-muted); font-weight:700; }
 
@@ -139,8 +163,9 @@
 
         /* RESPONSIVO — MONITORES MENORES */
         @media (max-width:1100px) {
-            .cards-grid { grid-template-columns:repeat(auto-fill,minmax(min(280px,100%),1fr)); }
-            .tdm-card { padding:14px; gap:10px; }
+            :root { --tdm-checklist-min: 200px; }
+            .cards-grid { grid-template-columns:repeat(auto-fill,minmax(min(300px,100%),1fr)); }
+            .tdm-card { padding:13px; gap:8px; }
         }
         @media (max-width:900px) {
             body { gap:8px; }
@@ -163,8 +188,9 @@
             .backup-line { font-size:.72rem; padding:6px 8px; }
             .date-bar input[type="date"] { flex:1 1 150px; }
             .date-bar .info-user { margin-left:0; width:100%; text-align:center; }
-            .conta-box select { max-width:100%; }
-            .status-btn { padding:6px 9px; font-size:.68rem; }
+            .conta-box select { max-width:130px; }
+            .tdm-strip { grid-template-columns:repeat(2,minmax(0,1fr)); }
+            .status-btn { padding:6px 2px; font-size:.6rem; }
             .mini-btn { padding:6px 9px; font-size:.68rem; }
             .modal-box { padding:16px; width:96%; }
             .field input, .field select, .field textarea { padding:9px 10px; }
@@ -227,35 +253,74 @@
         /* ====== PADRONIZAÇÃO DOS CARDS ====== */
         .tdm-card > .backup-line,
         .tdm-card > .tdm-row,
+        .tdm-card > .tdm-strip,
         .tdm-card > .progress-row,
         .tdm-card > .progress-meta,
-        .tdm-card > .conta-box,
-        .tdm-card > .card-actions,
+        .tdm-card > .card-footer,
         .tdm-card > .support-note,
         .tdm-card > .owner-note { flex: 0 0 auto; }
         .tdm-card .backup-line { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-        .card-actions { margin-top: auto; }
+        .progress-meta:empty { display:none; }
+        .progress-meta { font-size: .68rem; }
+        .progress-pct { min-width: 84px; white-space: nowrap; font-size: .8rem; }
+        .owner-note, .support-note { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-top:0; }
 
-        /* Botão de câmera do card */
-        .card-tools { display:flex; align-items:center; gap:6px; flex:0 0 auto; }
-        .snap-btn { width:34px; height:34px; display:inline-flex; align-items:center; justify-content:center; border-radius:9px; border:1px solid var(--border-card); background:var(--bg-body); color:var(--text-title); font-size:1rem; cursor:pointer; transition:.15s; line-height:1; padding:0; }
+        /* Botões do topo do card (câmera + expandir) */
+        .card-tools { display:flex; align-items:center; gap:5px; flex:0 0 auto; }
+        .snap-btn { width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center; border-radius:9px; border:1px solid var(--border-card); background:var(--bg-body); color:var(--text-title); font-size:.95rem; cursor:pointer; transition:.15s; line-height:1; padding:0; }
         .snap-btn:hover { border-color:var(--accent-blue); color:var(--accent-blue); transform:translateY(-1px); box-shadow:0 4px 10px rgba(0,0,0,.15); }
         .snap-btn:disabled { opacity:.55; cursor:progress; transform:none; }
+        .snap-btn.on { border-color:var(--accent-blue); color:var(--accent-blue); background:rgba(52,131,250,.1); }
 
-        /* Modo captura: card renderizado inteiro, sem cortes e sem controles */
-        .tdm-card.snapshot-mode { height:auto !important; max-height:none !important; overflow:visible !important; width:420px; padding:20px; box-shadow:none; }
-        .tdm-card.snapshot-mode .checklist { max-height:none !important; overflow:visible !important; flex:0 0 auto; }
-        .tdm-card.snapshot-mode .activity-details { display:block !important; }
-        .tdm-card.snapshot-mode .card-actions,
-        .tdm-card.snapshot-mode .drag-handle,
-        .tdm-card.snapshot-mode .admin-drag-hint,
-        .tdm-card.snapshot-mode .card-tools,
-        .tdm-card.snapshot-mode .support-note,
-        .tdm-card.snapshot-mode .owner-note { display:none !important; }
-        .tdm-card.snapshot-mode .status-btn:not([class*="active-"]) { display:none; }
-        .tdm-card.snapshot-mode .conta-box select { pointer-events:none; }
-        .snapshot-stage { position:fixed; left:-10000px; top:0; z-index:-1; background:var(--bg-body); padding:20px; }
-        .snap-brand { display:flex; align-items:center; justify-content:space-between; gap:10px; border-top:1px solid var(--border-card); margin-top:10px; padding-top:8px; font-size:.68rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:.3px; }
+        /* ====== 📷 RELATÓRIO DE EXPORTAÇÃO (layout próprio, compacto e de proporção fixa) ======
+           A exportação NÃO copia mais o card interativo (que abria todos os detalhes e virava uma
+           tira de milhares de pixels). Ela monta um relatório enxuto em 2 colunas, sempre claro,
+           com largura fixa de 720px — o html2canvas aplica a escala calculada por escalaSnapshot(). */
+        .snapshot-stage { position:fixed; left:-10000px; top:0; z-index:-1; background:#ffffff; }
+        .snap-report { width:720px; background:#ffffff; color:#0f172a; font-family:Inter,system-ui,sans-serif; padding:18px 20px 14px; box-sizing:border-box; }
+        .snap-report * { box-sizing:border-box; margin:0; padding:0; }
+        .sr-head { display:flex; align-items:center; justify-content:space-between; gap:14px; background:#FFF159; border-radius:12px; padding:12px 16px; }
+        .sr-brand { font-size:9.5px; font-weight:900; letter-spacing:1.4px; text-transform:uppercase; color:#5b6099; }
+        .sr-nome { font-size:21px; font-weight:900; line-height:1.12; color:#2D3277; margin-top:2px; }
+        .sr-cargo { display:inline-block; margin-top:6px; background:#2D3277; color:#fff; border-radius:20px; padding:3px 10px; font-size:9.5px; font-weight:900; text-transform:uppercase; letter-spacing:.4px; }
+        .sr-side { text-align:right; flex:0 0 auto; }
+        .sr-date { font-size:13px; font-weight:900; color:#2D3277; }
+        .sr-date small { display:block; font-size:8.5px; font-weight:900; letter-spacing:.8px; text-transform:uppercase; color:#5b6099; margin-bottom:2px; }
+        .sr-status { display:inline-block; margin-top:6px; border-radius:20px; padding:3px 10px; font-size:9.5px; font-weight:900; color:#fff; text-transform:uppercase; letter-spacing:.4px; background:#94a3b8; }
+        .sr-status.presente { background:#00A650; } .sr-status.falta { background:#FF5252; } .sr-status.atestado { background:#FFB000; }
+        .sr-status.ferias { background:#8E44AD; } .sr-status.folga { background:#6C5CE7; }
+        .sr-summary { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; margin-top:10px; }
+        .sr-cell { border:1px solid #e5e9f0; border-radius:9px; background:#f8fafc; padding:6px 9px; }
+        .sr-cell span { display:block; font-size:8.5px; font-weight:900; letter-spacing:.7px; text-transform:uppercase; color:#64748b; }
+        .sr-cell b { display:block; margin-top:2px; font-size:12.5px; font-weight:800; color:#0f172a; }
+        .sr-progress { display:flex; align-items:center; gap:9px; margin-top:11px; }
+        .sr-bar { flex:1 1 auto; height:10px; border-radius:20px; background:#eef2f7; border:1px solid #e5e9f0; overflow:hidden; }
+        .sr-fill { height:100%; border-radius:20px; background:#00A650; }
+        .sr-fill.warn { background:#FFB000; } .sr-fill.red { background:#FF5252; }
+        .sr-pct { flex:0 0 auto; font-size:15px; font-weight:900; color:#0f172a; }
+        .sr-frac { flex:0 0 auto; font-size:10px; font-weight:800; color:#475569; }
+        .sr-title { display:flex; align-items:center; justify-content:space-between; gap:10px; margin:13px 0 5px; padding-bottom:4px; border-bottom:2px solid #3483FA; font-size:10px; font-weight:900; letter-spacing:.9px; text-transform:uppercase; color:#0f172a; }
+        .sr-title small { font-size:9px; font-weight:800; letter-spacing:.2px; text-transform:none; color:#64748b; }
+        .sr-title.warn { border-bottom-color:#FFB000; }
+        /* lista em 2 colunas: é o que mantém a imagem curta mesmo com muitas atividades */
+        .sr-list { display:grid; grid-template-columns:1fr 1fr; gap:0 18px; }
+        .sr-item { display:flex; align-items:flex-start; gap:7px; padding:4px 0; border-bottom:1px solid #f1f5f9; }
+        .sr-ico { flex:0 0 auto; width:15px; height:15px; margin-top:1px; border-radius:4px; display:inline-flex; align-items:center; justify-content:center; font-size:9px; font-weight:900; font-style:normal; color:#fff; background:#FF5252; }
+        .sr-item.ok .sr-ico { background:#00A650; }
+        .sr-item.sig .sr-ico { background:#FFB000; }
+        .sr-nm { flex:1 1 auto; font-size:11px; font-weight:600; line-height:1.3; color:#0f172a; word-break:break-word; }
+        .sr-item.ok .sr-nm { color:#334155; }
+        .sr-tag { flex:0 0 auto; align-self:center; border-radius:10px; padding:1px 6px; font-size:8px; font-weight:900; font-style:normal; text-transform:uppercase; letter-spacing:.3px; color:#475569; background:#eef2f7; }
+        .sr-tag.apoio { color:#1d4ed8; background:rgba(52,131,250,.14); }
+        .sr-tag.admin { color:#087F5B; background:rgba(0,166,80,.14); }
+        .sr-tag.opt { color:#6C5CE7; background:rgba(108,92,231,.14); }
+        .sr-tag.sinal { color:#B45309; background:rgba(245,158,11,.16); }
+        .sr-notes { display:flex; flex-direction:column; gap:5px; }
+        .sr-note { border-left:3px solid #FFB000; background:#FFFBEB; border-radius:0 7px 7px 0; padding:6px 9px; font-size:10px; line-height:1.4; color:#7C3E0B; }
+        .sr-note b { display:block; font-size:10.5px; color:#0f172a; margin-bottom:1px; }
+        .sr-note.ok { border-left-color:#00A650; background:#F0FDF4; color:#065F46; }
+        .sr-empty { font-size:10.5px; font-style:italic; color:#94a3b8; padding:4px 0; }
+        .sr-foot { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:13px; padding-top:8px; border-top:1px solid #e5e9f0; font-size:9px; font-weight:800; letter-spacing:.4px; text-transform:uppercase; color:#94a3b8; }
 
         /* ====== FLUXO DIÁRIO LADO A LADO ====== */
         .modal-box.xwide { max-width:1180px; }
@@ -275,7 +340,8 @@
         .cargo-arrows { display:flex; gap:4px; }
         .cargo-arrows .mini-btn { padding:4px 8px; }
 
-        @media (max-width:640px) { :root { --tdm-card-h: 520px; } }
+        /* celular: piso menor, mas a lista de atividades continua com espaço garantido */
+        @media (max-width:640px) { :root { --tdm-card-min-h: 430px; --tdm-card-max-h: clamp(460px, 80vh, 700px); --tdm-checklist-min: 216px; } }
 
         /* sinalização de atividades e mensagens */
         .activity-row.has-signal { border-color: rgba(230,126,34,0.55); background: rgba(230,126,34,0.07); }
@@ -332,7 +398,7 @@
     </div>
     <div class="hint-bar glass-panel">
         <strong>Atividades individuais:</strong> clique no nome para abrir os detalhes. A caixa registra a execução; a sinalização registra um impedimento sem concluir a atividade.
-        <div class="legend"><span>☑️ Própria</span><span>🔁 Apoio do backup</span><span>⭐ Atividade backup (só +)</span><span>⚠️ Sinalizar atividade não realizada</span><span>⏸️ Intervalo (início/fim)</span><span>📷 Gerar imagem do card</span><span id="dragHint" style="display:none;">⠿ Arraste os cards (admin)</span><span>🔗 Conta vinculada</span></div>
+        <div class="legend"><span>☑️ Própria</span><span>🔁 Apoio do backup</span><span>⭐ Atividade backup (só +)</span><span>⚠️ Sinalizar atividade não realizada</span><span>⏸️ Intervalo (início/fim)</span><span>📷 Exportar relatório compacto</span><span>⤢ Expandir card (mostra todas as atividades)</span><span id="dragHint" style="display:none;">⠿ Arraste os cards (admin)</span><span>🔗 Conta vinculada</span></div>
     </div>
 
     <div class="cards-scroll"><div class="cards-grid" id="cardsGrid"></div></div>
@@ -812,92 +878,161 @@
             let contaHtml = '';
             if (isAdmin) {
                 const options = usuariosAprovados().map(u => `<option value="${escapeHtml(u.usuario)}" ${String(colab.conta || '').toLowerCase() === String(u.usuario).toLowerCase() ? 'selected' : ''}>${escapeHtml(u.usuario)}</option>`).join('');
-                contaHtml = `<div class="conta-box"><span class="tdm-label">🔗 Conta vinculada:</span><select onchange="vincularConta(${jsonAttr(colab.key)},this.value)"><option value="">— Nenhuma —</option>${options}</select></div>`;
-            } else {
-                contaHtml = `<div class="conta-box"><span class="tdm-label">🔗 Conta vinculada:</span><span style="font-weight:800;color:var(--accent-blue);">${colab.conta ? escapeHtml(colab.conta) : '—'}</span></div>`;
+                contaHtml = `<div class="conta-box" title="Conta vinculada (quem pode marcar as atividades)"><span class="tdm-label">🔗</span><select onchange="vincularConta(${jsonAttr(colab.key)},this.value)"><option value="">— Nenhuma —</option>${options}</select></div>`;
+            } else if (colab.conta) {
+                contaHtml = `<div class="conta-box" title="Conta vinculada"><span class="tdm-label">🔗</span><span style="font-weight:800;color:var(--accent-blue);font-size:.72rem;">${escapeHtml(colab.conta)}</span></div>`;
             }
             let permissionNote = '';
             if (support && !owner && !isAdmin) permissionNote = `<div class="support-note">🔁 Você é o backup: marque aqui somente o apoio realizado enquanto ${escapeHtml(colab.nome)} está de folga. Se não fizer, nada é lançado no seu histórico.</div>`;
             else if (owner && !isAdmin) permissionNote = '<div class="owner-note">☑️ Você pode alterar somente as atividades do seu TDM no dia atual e sinalizar as que não conseguiu concluir.</div>';
             else if (!isAdmin) permissionNote = '<div class="owner-note">Somente leitura. A caixa de seleção pertence à conta vinculada.</div>';
-            const actions = isAdmin ? `<span class="save-state">${m.done}/${m.total} concluídas${m.supportDone ? ` · ${m.supportDone} por apoio` : ''}${m.optTotal ? ` · ${m.optDone} opcionais` : ''}</span><button class="mini-btn" onclick="abrirModalColaborador(${jsonAttr(colab.key)})">✏️ Editar</button><button class="mini-btn danger" onclick="excluirColaborador(${jsonAttr(colab.key)})">🗑️ Excluir</button>` : `<span class="save-state">${m.done}/${m.total} concluídas</span>`;
+            /* linha única de progresso + chips de resumo (só aparecem quando existem) */
+            const chipsMeta = [];
+            if (m.supportDone) chipsMeta.push(`<span style="color:var(--accent-blue);font-weight:800;">🔁 ${m.supportDone} apoio</span>`);
+            if (m.classifiedDone) chipsMeta.push(`<span style="color:#087F5B;font-weight:800;">✅ ${m.classifiedDone} admin</span>`);
+            if (m.signalPending) chipsMeta.push(`<span style="color:#B45309;font-weight:800;">⚠️ ${m.signalPending} pendente(s)</span>`);
+            if (m.optTotal) chipsMeta.push(`<span style="color:#6C5CE7;font-weight:800;">⭐ ${m.optDone}/${m.optTotal} backup</span>`);
+            const metaHtml = chipsMeta.length ? `<div class="progress-meta">${chipsMeta.join(' · ')}</div>` : '';
+            const actions = isAdmin
+                ? `<button class="mini-btn" onclick="abrirModalColaborador(${jsonAttr(colab.key)})">✏️ Editar</button><button class="mini-btn danger" onclick="excluirColaborador(${jsonAttr(colab.key)})">🗑️ Excluir</button>`
+                : '';
             const dragAttrs = isAdmin
                 ? `draggable="true" ondragstart="onCardDragStart(event, ${jsonAttr(colab.key)})" ondragend="onCardDragEnd(event)" ondragover="onCardDragOver(event)" ondragleave="onCardDragLeave(event)" ondrop="onCardDrop(event, ${jsonAttr(colab.key)})"`
                 : '';
             const handle = isAdmin ? `<span class="drag-handle" title="Arraste para reordenar">⠿</span>` : '';
+            /* backup: uma única linha, e somente quando existe informação útil */
+            const backupBits = [];
+            if (backupName) backupBits.push(`🔁 <strong>${escapeHtml(backupName)}</strong> cobre este colaborador`);
+            if (backupOf.length) backupBits.push(`🛟 é backup de <strong>${escapeHtml(backupOf.map(c => c.nome).join(', '))}</strong>`);
+            const backupHtml = backupBits.length ? `<div class="backup-line">${backupBits.join(' · ')}</div>` : '';
+            const horaAttr = isAdmin ? '' : 'disabled';
             return `<div class="tdm-card glass-panel" data-key="${escapeHtml(colab.key)}" ${dragAttrs}>
-                <div class="tdm-card-head"><div style="display:flex;gap:8px;align-items:flex-start;min-width:0;flex:1;">${handle}<div style="min-width:0;"><div class="nome">${escapeHtml(colab.nome)}</div><div class="badges" style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;"><span class="badge-cargo">${escapeHtml(colab.cargo || 'Sem cargo')}</span>${backupName ? `<span class="badge-backup">Backup: ${escapeHtml(backupName)}</span>` : ''}${reg.folga === true ? '<span class="badge-folga">Folga registrada</span>' : ''}</div>${isAdmin ? '<div class="admin-drag-hint">Arraste o card para mudar a ordem</div>' : ''}</div></div><div class="card-tools"><button type="button" class="snap-btn" title="Gerar imagem em alta qualidade deste card" aria-label="Gerar imagem deste card" onclick="capturarCard(this, ${jsonAttr(colab.key)})">📷</button></div></div>
-                ${backupName ? `<div class="backup-line">🔁 <strong>${escapeHtml(backupName)}</strong> substitui este colaborador no dia a dia.</div>` : '<div class="backup-line" style="border-left-color:var(--border-card);">🔁 Nenhum backup definido.</div>'}
-                ${backupOf.length ? `<div class="backup-line">🛟 Este colaborador é backup de: <strong>${escapeHtml(backupOf.map(c => c.nome).join(', '))}</strong>.</div>` : ''}
-                <div class="tdm-row"><span class="tdm-label">Status:</span><div class="status-group">${statusHtml}</div></div>
-                <div class="tdm-row"><span class="tdm-label">Entrada:</span><input type="time" class="hora-input" value="${escapeHtml(reg.entrada || '')}" ${isAdmin ? '' : 'disabled'} onchange="setHora(${jsonAttr(colab.key)},'entrada',this.value)"><span class="tdm-label" style="margin-left:8px;">Saída:</span><input type="time" class="hora-input" value="${escapeHtml(reg.saida || '')}" ${isAdmin ? '' : 'disabled'} onchange="setHora(${jsonAttr(colab.key)},'saida',this.value)"></div>
-                <div class="tdm-row intervalo-row"><span class="tdm-label">⏸️ Intervalo:</span><input type="time" class="hora-input" value="${escapeHtml(reg.intervaloInicio || '')}" ${isAdmin ? '' : 'disabled'} title="Início do intervalo" onchange="setHora(${jsonAttr(colab.key)},'intervaloInicio',this.value)"><span class="intervalo-sep">às</span><input type="time" class="hora-input" value="${escapeHtml(reg.intervaloFim || '')}" ${isAdmin ? '' : 'disabled'} title="Fim do intervalo" onchange="setHora(${jsonAttr(colab.key)},'intervaloFim',this.value)"></div>
-                <div class="progress-row"><div class="progress-bar"><div class="progress-fill ${barCls}" style="width:${m.pct}%"></div></div><span class="progress-pct">${m.pct}%</span></div>
-                <div class="progress-meta"><strong>${m.done}/${m.total}</strong> atividades${m.supportDone ? ` · <span class="support-note">${m.supportDone} apoio</span>` : ''}${m.classifiedDone ? ` · <span style="color:#087F5B;font-weight:800;">✅ ${m.classifiedDone} pelo admin</span>` : ''}${m.signalPending ? ` · <span style="color:#B45309;font-weight:800;">⚠️ ${m.signalPending} não concluída(s)</span>` : ''}${m.optTotal ? ` · <span style="color:#6C5CE7;font-weight:800;">⭐ ${m.optDone}/${m.optTotal} backup</span>` : ''}</div>
-                <div class="checklist">${activityHtml}</div>${permissionNote}${contaHtml}<div class="card-actions">${actions}</div>
+                <div class="tdm-card-head"><div style="display:flex;gap:8px;align-items:flex-start;min-width:0;flex:1;">${handle}<div style="min-width:0;"><div class="nome">${escapeHtml(colab.nome)}</div><div class="badges" style="margin-top:5px;display:flex;gap:5px;flex-wrap:wrap;"><span class="badge-cargo">${escapeHtml(colab.cargo || 'Sem cargo')}</span>${reg.folga === true ? '<span class="badge-folga">Folga registrada</span>' : ''}</div>${isAdmin ? '<div class="admin-drag-hint">Arraste o card para mudar a ordem</div>' : ''}</div></div><div class="card-tools"><button type="button" class="snap-btn" title="Gerar imagem (relatório compacto)" aria-label="Gerar imagem deste card" onclick="capturarCard(this, ${jsonAttr(colab.key)})">📷</button><button type="button" class="snap-btn" title="Expandir card: mostra todas as atividades" aria-label="Expandir card" onclick="alternarCardMax(this, ${jsonAttr(colab.key)})">⤢</button></div></div>
+                <div class="tdm-strip">
+                    <div class="strip-item"><span>Entrada</span><input type="time" class="hora-input" value="${escapeHtml(reg.entrada || '')}" ${horaAttr} onchange="setHora(${jsonAttr(colab.key)},'entrada',this.value)"></div>
+                    <div class="strip-item"><span>Saída</span><input type="time" class="hora-input" value="${escapeHtml(reg.saida || '')}" ${horaAttr} onchange="setHora(${jsonAttr(colab.key)},'saida',this.value)"></div>
+                    <div class="strip-item intervalo"><span>⏸ Início</span><input type="time" class="hora-input" value="${escapeHtml(reg.intervaloInicio || '')}" ${horaAttr} title="Início do intervalo" onchange="setHora(${jsonAttr(colab.key)},'intervaloInicio',this.value)"></div>
+                    <div class="strip-item intervalo"><span>⏸ Fim</span><input type="time" class="hora-input" value="${escapeHtml(reg.intervaloFim || '')}" ${horaAttr} title="Fim do intervalo" onchange="setHora(${jsonAttr(colab.key)},'intervaloFim',this.value)"></div>
+                </div>
+                <div class="tdm-row status-row"><span class="tdm-label">Status</span><div class="status-group">${statusHtml}</div></div>
+                <div class="progress-row"><div class="progress-bar"><div class="progress-fill ${barCls}" style="width:${m.pct}%"></div></div><span class="progress-pct">${m.pct}% · <strong>${m.done}/${m.total}</strong></span></div>${metaHtml}
+                ${backupHtml}
+                <div class="checklist"><div class="checklist-title"><span>Atividades do dia</span><span class="ct-count">${m.done}/${m.total} concluídas</span></div>${activityHtml}</div>${permissionNote}
+                <div class="card-footer"><span class="save-state">☑ ${m.done}/${m.total} concluídas</span>${contaHtml}<div class="card-actions">${actions}</div></div>
             </div>`;
+        }
+
+        /* ⤢ expande/recolhe o card: tira o teto de altura e mostra a lista inteira,
+           para não precisar rolar uma janelinha de 1 linha dentro do card. */
+        function alternarCardMax(botao, key) {
+            const card = document.querySelector(`.tdm-card[data-key="${CSS.escape(key)}"]`);
+            if (!card) return;
+            const aberto = card.classList.toggle('is-max');
+            if (botao) {
+                botao.classList.toggle('on', aberto);
+                botao.textContent = aberto ? '⤡' : '⤢';
+                botao.title = aberto ? 'Recolher card' : 'Expandir card: mostra todas as atividades';
+            }
+            if (aberto && card.scrollIntoView) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         function toggleActivity(button) { const details = button.parentElement.querySelector('.activity-details'); const open = details.classList.toggle('open'); button.setAttribute('aria-expanded', String(open)); button.querySelector('.chevron').textContent = open ? '▾' : '▸'; }
 
-        /* ---------- 📷 CAPTURA DO CARD EM ALTA QUALIDADE ---------- */
-        function corDeFundoAtual() { return document.body.getAttribute('data-theme') === 'dark' ? '#0f172a' : '#ffffff'; }
+        /* ---------- 📷 RELATÓRIO COMPACTO PARA EXPORTAÇÃO ----------
+           A imagem NÃO é mais um clone do card interativo (que abria todos os detalhes e virava
+           uma tira de milhares de pixels). Agora montamos um relatório próprio de largura fixa
+           (720px), sempre em tema claro, com as atividades em 2 colunas e detalhes só quando existe
+           sinalização. Resultado: proporção estável, tudo legível, arquivo pequeno. */
+        function horaOuTraco(v) { return v ? String(v) : '—:—'; }
+
+        /** Escolhe a escala do html2canvas para a imagem final cair sempre na mesma faixa de altura
+            (~1600px), independente da quantidade de atividades:
+              relatório curto  -> escala maior (mais nítido, aproveita a resolução)
+              relatório longo  -> escala menor (não vira um cartaz de milhares de pixels)
+            Limites: 1.3 (mínimo legível, texto de 11px vira ~14px) a 2.2 (nítido sem pesar no arquivo).
+            Largura final = 720 x escala -> entre 936 e 1584 px. */
+        function escalaSnapshot(alturaCss) {
+            const altura = Number(alturaCss) > 0 ? Number(alturaCss) : 600;
+            const bruta = 1600 / altura;
+            return Math.max(1.3, Math.min(2.2, Math.round(bruta * 10) / 10));
+        }
+
+        function montarRelatorioSnapshot(colab, reg, m, dataKey) {
+            const registro = reg || {};
+            const status = registro.status ? String(registro.status) : (registro.folga === true ? 'folga' : '');
+            const backupName = nomeDoBackup(colab);
+            const intervalo = [registro.intervaloInicio, registro.intervaloFim].filter(Boolean).join(' – ') || '—';
+            const fillCls = m.pct >= 100 ? '' : m.pct >= 50 ? 'warn' : 'red';
+            const itens = m.activities.map(a => {
+                const own = activityIsChecked(a, m.checks);
+                const sup = activityIsChecked(a, m.supportChecks);
+                const sinal = getSinalizacao(registro, a);
+                const classified = !!(sinal && sinal.classificadaFeita === true);
+                const done = own || sup || classified;
+                const tags = [];
+                if (sup && !own) tags.push('<i class="sr-tag apoio">apoio</i>');
+                if (classified && !own && !sup) tags.push('<i class="sr-tag admin">admin</i>');
+                if (a.isBackup) tags.push('<i class="sr-tag opt">⭐</i>');
+                if (sinal && !done) tags.push('<i class="sr-tag sinal">⚠</i>');
+                const cls = sinal && !done ? 'sig' : done ? 'ok' : 'no';
+                const ico = sinal && !done ? '!' : done ? '✓' : '✕';
+                return `<div class="sr-item ${cls}"><i class="sr-ico">${ico}</i><span class="sr-nm">${escapeHtml(a.nome)}</span>${tags.join('')}</div>`;
+            }).join('');
+            const notas = m.activities.filter(a => getSinalizacao(registro, a)).map(a => {
+                const sinal = getSinalizacao(registro, a);
+                const done = activityIsChecked(a, m.checks) || activityIsChecked(a, m.supportChecks) || sinal.classificadaFeita === true;
+                return `<div class="sr-note ${done ? 'ok' : ''}"><b>${escapeHtml(a.nome)}</b>${escapeHtml(sinal.motivo || 'Sem motivo informado.')}<br>${done ? '✅ Concluída' : '❌ Pendente'} · ${sinal.vistoAdmin ? 'Visto pelo admin' : 'Aguardando análise'}</div>`;
+            }).join('');
+            const horaGeracao = new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+            const box = document.createElement('div');
+            box.className = 'snap-report';
+            box.innerHTML = `
+                <div class="sr-head">
+                    <div><div class="sr-brand">TDM — Inventário</div><div class="sr-nome">${escapeHtml(colab.nome)}</div><span class="sr-cargo">${escapeHtml(colab.cargo || 'Sem cargo')}</span></div>
+                    <div class="sr-side"><div class="sr-date"><small>Referência</small>${escapeHtml(formatDataBR(dataKey))}</div><span class="sr-status ${escapeHtml(status)}">${escapeHtml(statusLabel(status))}</span></div>
+                </div>
+                <div class="sr-summary">
+                    <div class="sr-cell"><span>Entrada</span><b>${escapeHtml(horaOuTraco(registro.entrada))}</b></div>
+                    <div class="sr-cell"><span>Saída</span><b>${escapeHtml(horaOuTraco(registro.saida))}</b></div>
+                    <div class="sr-cell"><span>Intervalo</span><b>${escapeHtml(intervalo)}</b></div>
+                    <div class="sr-cell"><span>Backup</span><b>${escapeHtml(backupName || '—')}</b></div>
+                </div>
+                <div class="sr-progress"><div class="sr-bar"><div class="sr-fill ${fillCls}" style="width:${m.pct}%"></div></div><span class="sr-pct">${m.pct}%</span><span class="sr-frac">${m.done} de ${m.total} atividades</span></div>
+                <div class="sr-title"><span>Atividades do dia</span><small>✓ concluída · ✕ pendente · ! sinalizada</small></div>
+                ${m.activities.length ? `<div class="sr-list">${itens}</div>` : '<div class="sr-empty">Sem atividades cadastradas para este colaborador.</div>'}
+                ${notas ? `<div class="sr-title warn"><span>Sinalizações</span><small>motivos informados</small></div><div class="sr-notes">${notas}</div>` : ''}
+                <div class="sr-foot"><span>Conta: ${escapeHtml(colab.conta || '—')}</span><span>${escapeHtml(formatDataBR(dataKey))}</span><span>Gerado em ${escapeHtml(horaGeracao)}</span></div>`;
+            return box;
+        }
+
         async function capturarCard(botao, key) {
-            const card = document.querySelector(`.tdm-card[data-key="${CSS.escape(key)}"]`);
             const colab = config.colaboradores[key];
-            if (!card || !colab) return;
+            if (!colab) return;
             if (typeof html2canvas !== 'function') return alert('Biblioteca de captura ainda carregando. Tente novamente em instantes.');
+            const reg = diarioHoje[key] || {};
+            const m = metricasAtividades(colab, reg);
+            const dataKey = document.getElementById('dataSelecionada').value || hojeISO();
 
             const txt = botao.textContent;
             botao.disabled = true; botao.textContent = '⏳';
 
             const stage = document.createElement('div');
             stage.className = 'snapshot-stage';
-            stage.setAttribute('data-theme', document.body.getAttribute('data-theme') || 'light');
-            stage.style.background = corDeFundoAtual();
-
-            const clone = card.cloneNode(true);
-            clone.classList.add('snapshot-mode');
-            clone.removeAttribute('draggable');
-            // remove elementos interativos que não fazem sentido na imagem
-            clone.querySelectorAll('.card-actions, .drag-handle, .admin-drag-hint, .card-tools, .support-note, .owner-note').forEach(el => el.remove());
-            clone.querySelectorAll('.status-btn').forEach(b => { if (!/active-/.test(b.className)) b.remove(); else b.disabled = true; });
-            // abre todos os detalhes das atividades
-            clone.querySelectorAll('.activity-details').forEach(d => d.classList.add('open'));
-            clone.querySelectorAll('.activity-name .chevron').forEach(c => c.textContent = '▾');
-            clone.querySelectorAll('input, select, textarea, button').forEach(el => { el.disabled = true; });
-            // substitui o select de conta vinculada por texto simples
-            clone.querySelectorAll('.conta-box select').forEach(sel => {
-                const span = document.createElement('span');
-                span.style.cssText = 'font-weight:800;color:var(--accent-blue);';
-                span.textContent = colab.conta || '—';
-                sel.replaceWith(span);
-            });
-            // substitui inputs de horário por texto
-            clone.querySelectorAll('input[type="time"]').forEach(inp => {
-                const span = document.createElement('span');
-                span.style.cssText = 'font-weight:900;color:var(--text-title);font-size:.85rem;';
-                span.textContent = inp.value || '—:—';
-                inp.replaceWith(span);
-            });
-
-            const dataKey = document.getElementById('dataSelecionada').value || hojeISO();
-            const rodape = document.createElement('div');
-            rodape.className = 'snap-brand';
-            rodape.innerHTML = `<span>TDM — Inventário</span><span>📅 ${escapeHtml(formatDataBR(dataKey))}</span>`;
-            clone.appendChild(rodape);
-
-            stage.appendChild(clone);
+            const relatorio = montarRelatorioSnapshot(colab, reg, m, dataKey);
+            stage.appendChild(relatorio);
             document.body.appendChild(stage);
 
             try {
                 await new Promise(r => setTimeout(r, 120));
-                const canvas = await html2canvas(clone, { scale: 3, useCORS: true, backgroundColor: corDeFundoAtual(), logging: false, windowWidth: clone.scrollWidth, windowHeight: clone.scrollHeight });
+                const largura = relatorio.scrollWidth || 720;
+                const altura = relatorio.scrollHeight || 600;
+                const escala = escalaSnapshot(altura);
+                const canvas = await html2canvas(relatorio, { scale: escala, useCORS: true, backgroundColor: '#ffffff', logging: false, width: largura, height: altura, windowWidth: largura + 40, windowHeight: altura + 40 });
                 const link = document.createElement('a');
                 link.download = `TDM_${slug(colab.nome)}_${dataKey}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
-                toast('📷 Imagem gerada em alta qualidade!');
+                toast('📷 Relatório gerado em alta qualidade!');
                 registrarLog('TDM', `Gerou imagem do card de ${colab.nome}`);
             } catch (e) {
                 alert('Não foi possível gerar a imagem deste card.');
