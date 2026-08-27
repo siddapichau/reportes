@@ -173,7 +173,7 @@
         <button class="btn-limpar" onclick="resetFilter()">Hoje</button>
     </div>
 
-    <!-- KPIs (Gerais) -->
+    <!-- KPIs -->
     <div class="kpi-container">
         <div class="kpi-row">
             <div class="kpi-box black">
@@ -493,7 +493,6 @@
                     let d = padDate(rawDate.split(' ')[0]);
                     
                     if (d === chosenDate) {
-                        // Limpa nome do Ciclo (ex: "AM1 " -> "AM1")
                         let rawCiclo = getVal(row, ['ciclo', 'turno']).trim();
                         let rawOp = getVal(row, ['rep auditoria', 'operador', 'rep']).trim();
                         let rawEstado = getVal(row, ['estado', 'status_estado']).trim();
@@ -534,10 +533,10 @@
             let totalAmais = 0;
             let totalErrosConf = 0;
             
-            // Mapas para os Erros Confirmados apenas
+            // Mapas focados nos ERROS CONFIRMADOS apenas
             let mapCiclosConf = {};
             let mapEstadosConf = {};
-            let mapOpsConf = {}; // { "Nome": { total: 0, faltante: 0, a_mais: 0 } }
+            let mapOpsConf = {};
 
             flatData.forEach(r => {
                 let est = r.estado ? r.estado.trim() : 'Indefinido';
@@ -550,7 +549,7 @@
                 if (estLower.includes('faltante')) { totalFaltantes++; est = 'Faltante'; }
                 else if (estLower.includes('a mais') || estLower.includes('sobra')) { totalAmais++; est = 'A mais'; }
                 
-                // Mapeamento focado APENAS em ERROS CONFIRMADOS
+                // Filtro Exclusivo: Só prossegue se for Erro Confirmado
                 if (errAd === 'erro') {
                     totalErrosConf++;
 
@@ -575,11 +574,10 @@
             document.getElementById('kpi-amais').innerText = totalAmais.toLocaleString('pt-BR');
             document.getElementById('kpi-erros').innerText = totalErrosConf.toLocaleString('pt-BR');
             
-            // Preencher Tabela de Top Ofensores (Somente Erros Confirmados)
+            // Tabela de Top Ofensores
             let arrOps = Object.keys(mapOpsConf).map(k => ({ op: k, ...mapOpsConf[k] })).sort((a,b) => b.total - a.total);
             let tbHtml = '';
             arrOps.forEach(x => {
-                // Simplifica o nome para não quebrar a tabela
                 let nomeCurto = x.op.split(' ').slice(0,2).join(' ');
                 tbHtml += `<tr>
                     <td class="nome-col" title="${escapeHtml(x.op)}">${escapeHtml(nomeCurto)}</td>
@@ -621,7 +619,8 @@
                     dropShadow: { enabled: false }
                 },
                 xaxis: { 
-                    labels: { style: { colors: textColor, fontSize: '12px', fontWeight: 800 } } 
+                    type: 'category',
+                    labels: { show: true, style: { colors: textColor, fontSize: '13px', fontWeight: 900 } } 
                 },
                 yaxis: { 
                     labels: { 
@@ -630,7 +629,7 @@
                     },
                     max: function(val) { return val * 1.25; } 
                 },
-                grid: { padding: { top: 25 }, borderColor: gridColor, strokeDashArray: 3 }
+                grid: { padding: { top: 25, bottom: 10 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.turno.render();
 
@@ -660,7 +659,8 @@
                     dropShadow: {enabled:false}
                 },
                 xaxis: { 
-                    labels: { style: { colors: textColor, fontSize: '12px', fontWeight: 800 } } 
+                    type: 'category',
+                    labels: { show: true, style: { colors: textColor, fontSize: '13px', fontWeight: 900 } } 
                 },
                 yaxis: { 
                     labels: { 
@@ -671,7 +671,7 @@
                     max: function(val) { return val * 1.25; }
                 },
                 legend: { show: false }, 
-                grid: { padding: { top: 25, bottom: 0 }, borderColor: gridColor, strokeDashArray: 3 }
+                grid: { padding: { top: 25, bottom: 10 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.estado.render();
         }
