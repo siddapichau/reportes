@@ -98,12 +98,14 @@
         .styled-table thead { background: rgba(0,0,0,0.03); color: var(--text-main); font-weight: 900; position: sticky; top: 0; z-index: 1; }
         .styled-table th { padding: 10px 8px; border-bottom: 2px solid var(--border-card); text-transform: uppercase; font-size: 0.75rem; }
         .styled-table td { padding: 8px; border-bottom: 1px solid var(--border-card); color: var(--text-main); }
-        .styled-table tbody tr:hover { background-color: rgba(52, 131, 250, 0.05); }
+        .styled-table tbody tr:hover { background-color: rgba(0,0,0,0.05); }
         .styled-table td.nome-col { text-align: left; font-weight: 800; padding-left: 15px; }
         .styled-table td.bold-col { font-weight: 900; }
         .scroll-wrapper { flex: 1; overflow-y: auto; overflow-x: hidden; }
 
-        /* TRAVAS E AJUSTES PARA EXPORTAÇÃO (HTML2CANVAS) */
+        /* ========================================================
+           TRAVAS E AJUSTES PARA EXPORTAÇÃO (HTML2CANVAS)
+           ======================================================== */
         body.exporting { 
             width: 1920px !important; 
             height: 1080px !important; 
@@ -112,16 +114,23 @@
             position: absolute !important; 
             top: 0 !important; 
             left: 0 !important; 
-            background: #ffffff !important; 
+            background: #F3F4F6 !important; 
             display: block !important; 
+            overflow: hidden !important;
+        }
+        body.exporting .filter-bar { display: none !important; }
+        body.exporting .header-controls { display: none !important; }
+        body.exporting .kpi-container {
+            margin-top: 40px !important; /* Espaço entre cabeçalho e KPI na foto */
+            margin-bottom: 30px !important;
         }
         body.exporting .dashboard-grid {
-            height: 800px !important; 
+            height: 750px !important; 
             display: grid !important;
             flex: none !important;
-            margin-top: 15px !important;
+            margin-top: 0 !important;
         }
-        body.exporting .header-controls, body.exporting .filter-bar { display: none !important; }
+        /* ======================================================== */
 
         /* MODAL POP-UP CUSTOMIZADO */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 9999; }
@@ -350,7 +359,6 @@
         // --- DRILLDOWN ---
         function openDrilldown(type, value) {
             let filtered = flatData.filter(r => {
-                // Sempre filtra apenas Erros Confirmados no modal
                 if(r.erro_aduana !== 'erro') return false;
 
                 if (type === 'OP' && r.operador === value) return true;
@@ -571,6 +579,7 @@
                     let d = padDate(rawDate.split(' ')[0]);
                     
                     if (d === chosenDate) {
+                        // Limpa nome do Ciclo (ex: "AM1 " -> "AM1")
                         let rawCiclo = getVal(row, ['ciclo', 'turno']).trim();
                         let rawOp = getVal(row, ['rep auditoria', 'operador', 'rep']).trim();
                         let rawEstado = getVal(row, ['estado', 'status_estado']).trim();
@@ -691,39 +700,36 @@
                 }
             };
 
-            // 1. ERROS CONFIRMADOS POR TURNO (Velas Verticais)
+            // 1. ERROS CONFIRMADOS POR TURNO (Velas Verticais em formato de Card Estreito)
             let arrCi = Object.keys(mapCiclosConf).map(k => ({x: k, y: mapCiclosConf[k]})).sort((a,b) => b.y - a.y);
+            let colWidthTurno = arrCi.length <= 2 ? '25%' : (arrCi.length <= 4 ? '40%' : '55%');
             
             chartInstances.turno = new ApexCharts(document.querySelector("#chart-turno"), {
                 series: [{ name: 'Erros', data: arrCi }],
                 chart: { id: 'TURNO', type: 'bar', height: '100%', background: 'transparent', toolbar: {show:false}, events: drillEvents },
                 colors: ['var(--bar-yellow)'], 
                 plotOptions: { 
-                    bar: { horizontal: false, columnWidth: '50%', borderRadius: 4, dataLabels: { position: 'top' }, cursor: 'pointer' } 
+                    bar: { horizontal: false, columnWidth: colWidthTurno, borderRadius: 4, dataLabels: { position: 'top' }, cursor: 'pointer' } 
                 },
                 dataLabels: { 
-                    enabled: true, offsetY: -25, 
-                    style: { fontSize: '13px', fontWeight: 900, colors: [textColor] },
+                    enabled: true, offsetY: -20, 
+                    style: { fontSize: '16px', fontWeight: 900, colors: [textColor] },
                     dropShadow: { enabled: false }
                 },
                 xaxis: { 
-                    type: 'category',
-                    categories: arrCi.map(a => a.x),
                     labels: { 
                         show: true, 
-                        trim: false,
-                        hideOverlappingLabels: false,
                         style: { colors: textColor, fontSize: '14px', fontWeight: 900 } 
                     } 
                 },
                 yaxis: { 
                     labels: { 
-                        style: { colors: textColor, fontSize: '11px' },
+                        style: { colors: textColor, fontSize: '12px' },
                         formatter: function(val) { return Math.round(val); }
                     },
                     max: function(val) { return val * 1.25; } 
                 },
-                grid: { padding: { top: 25, bottom: 15 }, borderColor: gridColor, strokeDashArray: 3 }
+                grid: { padding: { top: 30, bottom: 20 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.turno.render();
 
@@ -739,33 +745,29 @@
                 series: [{ name: 'Erros', data: arrEst }],
                 chart: { id: 'ESTADO', type: 'bar', height: '100%', background: 'transparent', toolbar: {show:false}, events: drillEvents },
                 plotOptions: { 
-                    bar: { horizontal: false, columnWidth: '45%', distributed: true, borderRadius: 4, dataLabels: { position: 'top' }, cursor: 'pointer' } 
+                    bar: { horizontal: false, columnWidth: '30%', distributed: true, borderRadius: 4, dataLabels: { position: 'top' }, cursor: 'pointer' } 
                 },
                 dataLabels: { 
-                    enabled: true, offsetY: -25, 
-                    style: { fontSize: '14px', fontWeight: 900, colors: [textColor] },
+                    enabled: true, offsetY: -20, 
+                    style: { fontSize: '16px', fontWeight: 900, colors: [textColor] },
                     dropShadow: {enabled:false}
                 },
                 xaxis: { 
-                    type: 'category',
-                    categories: ['Faltante', 'A Mais'],
                     labels: { 
                         show: true, 
-                        trim: false,
-                        hideOverlappingLabels: false,
                         style: { colors: textColor, fontSize: '14px', fontWeight: 900 } 
                     } 
                 },
                 yaxis: { 
                     labels: { 
                         show: true,
-                        style: { colors: textColor, fontSize: '11px', fontWeight: 800 },
+                        style: { colors: textColor, fontSize: '12px', fontWeight: 800 },
                         formatter: function(val) { return Math.round(val); }
                     },
                     max: function(val) { return val * 1.25; }
                 },
                 legend: { show: false }, 
-                grid: { padding: { top: 25, bottom: 15 }, borderColor: gridColor, strokeDashArray: 3 }
+                grid: { padding: { top: 30, bottom: 20 }, borderColor: gridColor, strokeDashArray: 3 }
             });
             chartInstances.estado.render();
         }
@@ -773,7 +775,6 @@
         // --- EXPORTAÇÃO ---
         function baixarImagem() {
             document.body.classList.add('exporting');
-            window.dispatchEvent(new Event('resize'));
             
             setTimeout(() => {
                 const bgCor = document.body.getAttribute('data-theme') === 'light' ? '#ffffff' : '#0f172a';
@@ -785,13 +786,14 @@
                     windowHeight: 1080 
                 }).then(canvas => {
                     document.body.classList.remove('exporting');
-                    window.dispatchEvent(new Event('resize')); 
                     
                     const link = document.createElement('a');
                     link.download = `Erros_Aduanas_${formatarDataHoje().replace(/\//g,'-')}.png`;
                     link.href = canvas.toDataURL('image/png'); link.click();
+                }).catch(err => {
+                    document.body.classList.remove('exporting');
                 });
-            }, 800); 
+            }, 500); 
         }
     </script>
 </body>
