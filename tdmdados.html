@@ -107,16 +107,62 @@
 
         /* ============ BLOCOS DE USUÁRIOS ============ */
         .cards-scroll { flex: 1; overflow-y: auto; padding: 4px; overscroll-behavior: contain; }
-        /* PADRÃO DE TAMANHO: todos os cards com a mesma altura, independente da quantidade de atividades */
-        :root { --tdm-card-h: 560px; }
-        .user-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); gap: 14px; align-items: stretch; grid-auto-rows: var(--tdm-card-h); }
-        .user-card { padding: 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; height: 100%; overflow: hidden; }
+        /* ===== MODELO DE ALTURA DO CARD (igual tdm.html) =====
+           Antes: altura FIXA de 560px -> cabeçalho/horários/status consumiam quase tudo
+           e sobrava ~1 linha para as atividades.
+           Agora: altura ADAPTATIVA com piso e teto, e um PISO GARANTIDO para a lista. */
+        :root { --tdm-card-min-h: 470px; --tdm-card-max-h: clamp(500px, 82vh, 820px); --tdm-checklist-min: 224px; }
+        .user-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); gap: 14px; align-items: stretch; grid-auto-rows: minmax(var(--tdm-card-min-h), auto); }
+        .user-card { padding: 14px; display: flex; flex-direction: column; gap: 8px; min-width: 0; min-height: var(--tdm-card-min-h); max-height: var(--tdm-card-max-h); overflow: hidden; }
         /* nada encolhe, só a lista de atividades ocupa/cede o espaço restante */
         .user-card > * { flex: 0 0 auto; }
-        .user-card > .checklist { flex: 1 1 auto; min-height: 0; }
+        .user-card > .checklist { flex: 1 1 auto; min-height: var(--tdm-checklist-min); }
+        /* CARD EXPANDIDO (botão ⤢): libera o teto e mostra a lista inteira, sem scroll interno */
+        .user-card.is-max { max-height: none; }
+        .user-card.is-max > .checklist { overflow: visible; min-height: 0; flex: 0 0 auto; }
         .user-card > .card-actions, .user-card > .owner-note { margin-top: auto; flex: 0 0 auto; }
         .user-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex: 0 0 auto; }
         .user-card .nome { font-size: 1.08rem; font-weight: 900; color: var(--text-title); line-height: 1.2; word-break: break-word; }
+        /* Botões do topo do card (expandir) */
+        .card-tools { display: flex; align-items: center; gap: 5px; flex: 0 0 auto; }
+        .snap-btn { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 9px; border: 1px solid var(--border-card); background: var(--bg-body); color: var(--text-title); font-size: 0.95rem; cursor: pointer; transition: 0.15s; line-height: 1; padding: 0; }
+        .snap-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+        .snap-btn.on { border-color: var(--accent-blue); color: var(--accent-blue); background: rgba(52,131,250,0.1); }
+        /* FAIXA DE HORÁRIOS: 4 campos lado a lado */
+        .tdm-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+        .strip-item { display: flex; flex-direction: column; gap: 2px; min-width: 0; background: var(--bg-body); border: 1px solid var(--border-card); border-radius: 7px; padding: 4px 6px; }
+        .strip-item.intervalo { background: rgba(108,92,231,0.07); border-color: rgba(108,92,231,0.28); }
+        .strip-item > span { font-size: 0.58rem; font-weight: 900; letter-spacing: 0.3px; text-transform: uppercase; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .strip-item .hora-input { width: 100%; flex: 0 0 auto; min-width: 0; max-width: none; padding: 3px 4px; font-size: 0.74rem; border: 0; background: transparent; }
+        .strip-item .hora-ro { font-weight: 900; color: var(--text-title); font-size: 0.82rem; line-height: 1.4; }
+        /* STATUS em 5 colunas iguais: sempre UMA linha */
+        .status-row { display: flex; align-items: center; flex-wrap: nowrap; gap: 7px; }
+        .status-row > .tdm-label { flex: 0 0 auto; }
+        .status-row > .status-group { flex: 1 1 auto; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+        .status-row > .pill { flex: 0 0 auto; }
+        /* progresso + meta em uma linha compacta */
+        .progress-row { display: flex; align-items: center; gap: 10px; flex-wrap: nowrap; }
+        .progress-pct { min-width: 84px; white-space: nowrap; font-size: 0.8rem; }
+        .progress-meta { font-size: 0.68rem; }
+        .progress-meta:empty { display: none; }
+        /* checklist: denser rows + sticky title like tdm.html */
+        .checklist-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 0.62rem; font-weight: 900; letter-spacing: 0.4px; text-transform: uppercase; color: var(--text-muted); padding: 0 0 3px; position: sticky; top: 0; background: var(--bg-card); z-index: 1; }
+        .checklist-title .ct-count { color: var(--accent-blue); }
+        /* painel admin de justificativas do dia (visível, fora do card espremido) */
+        .signal-panel { flex: 0 0 auto; max-height: 280px; overflow-y: auto; padding: 12px 16px; border-left: 4px solid #E67E22; }
+        .signal-panel-title { font-weight: 900; color: #B45309; text-transform: uppercase; font-size: 0.78rem; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+        .signal-panel-title .sp-count { color: var(--text-muted); font-size: 0.7rem; font-weight: 800; text-transform: none; letter-spacing: 0; }
+        .signal-panel-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr)); gap: 10px; }
+        .signal-panel-item { border: 1px solid rgba(230,126,34,0.35); border-radius: 9px; background: rgba(255,247,237,0.92); padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+        body[data-theme="dark"] .signal-panel-item { background: rgba(180,83,9,0.16); }
+        .signal-panel-item .sp-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+        .signal-panel-item .sp-nome { font-weight: 900; color: var(--text-title); font-size: 0.88rem; }
+        .signal-panel-item .sp-atividade { font-weight: 800; color: #B45309; font-size: 0.78rem; }
+        .signal-panel-item .sp-motivo { color: #7C3E0B; font-size: 0.78rem; line-height: 1.4; word-break: break-word; }
+        body[data-theme="dark"] .signal-panel-item .sp-motivo { color: #FCD9AE; }
+        .signal-panel-item .sp-status { color: var(--text-muted); font-size: 0.68rem; font-weight: 800; display: flex; gap: 6px; flex-wrap: wrap; }
+        .signal-panel-item .admin-signal-actions { margin-top: 4px; }
+        .signal-panel-empty { color: var(--text-muted); font-size: 0.8rem; font-style: italic; padding: 4px 0; }
         .badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
         .badge-cargo { display: inline-block; background: var(--accent-blue); color: #fff; padding: 3px 10px; border-radius: 20px; font-size: 0.66rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.3px; }
         .badge-backup { display: inline-block; background: var(--bg-body); color: var(--text-muted); border: 1px solid var(--border-card); padding: 3px 10px; border-radius: 20px; font-size: 0.66rem; font-weight: 700; }
@@ -124,7 +170,7 @@
         .user-row { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
         .tdm-label { font-weight: 800; color: var(--text-muted); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.25px; }
         .status-group { display: flex; gap: 5px; flex-wrap: wrap; }
-        .status-btn { padding: 5px 10px; border-radius: 20px; font-size: 0.68rem; font-weight: 800; border: 1px solid var(--border-card); background: var(--bg-body); color: var(--text-muted); cursor: pointer; transition: 0.15s; }
+        .status-btn { padding: 6px 2px; border-radius: 7px; font-size: 0.63rem; font-weight: 800; border: 1px solid var(--border-card); background: var(--bg-body); color: var(--text-muted); cursor: pointer; transition: 0.15s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .status-btn:hover { transform: translateY(-1px); }
         .status-btn.active-presente { background: var(--accent-green); color: #fff; border-color: var(--accent-green); }
         .status-btn.active-falta { background: var(--accent-red); color: #fff; border-color: var(--accent-red); }
@@ -166,8 +212,8 @@
         .backup-tag-line { color: var(--accent-blue); font-weight: 800; }
         .card-obs { padding: 8px 10px; border-left: 3px solid var(--accent-blue); border-radius: 6px; background: rgba(52,131,250,0.08); color: var(--text-muted); font-size: 0.74rem; line-height: 1.4; }
 
-        .checklist { display: flex; flex-direction: column; gap: 5px; overflow-y: auto; padding: 10px 4px 2px 0; border-top: 1px solid var(--border-card); }
-        .activity-row { display: grid; grid-template-columns: auto 1fr; gap: 7px; align-items: start; padding: 4px 0; min-width: 0; }
+        .checklist { display: flex; flex-direction: column; gap: 2px; overflow-y: auto; padding: 8px 4px 2px 0; border-top: 1px solid var(--border-card); }
+        .activity-row { display: grid; grid-template-columns: auto 1fr; gap: 7px; align-items: start; padding: 3px 0; min-width: 0; }
         .activity-row input { margin-top: 4px; width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent-green); }
         .activity-row input:disabled { cursor: not-allowed; }
         .activity-row.is-backup input { accent-color: var(--accent-blue); }
@@ -256,14 +302,17 @@
 
         /* ============ RESPONSIVO — MONITORES MENORES ============ */
         @media (max-width: 1100px) {
+            :root { --tdm-checklist-min: 200px; }
             .user-grid { grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); }
-            .user-card { padding: 14px; }
+            .user-card { padding: 13px; gap: 8px; }
         }
         @media (max-width: 900px) {
             body { gap: 8px; }
             .tb-actions { margin-left: 0; width: 100%; justify-content: flex-start; }
             .tb-user { margin-left: auto; }
             .warn-list { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+            .tdm-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .signal-panel { max-height: 240px; }
         }
         /* ============ RESPONSIVO — CELULAR ============ */
         @media (max-width: 640px) {
@@ -276,9 +325,12 @@
             .tb-search { flex: 1 1 100%; }
             .tb-select { max-width: 100%; flex: 1 1 45%; }
             .chips { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; flex: 1 1 100%; }
-            :root { --tdm-card-h: 520px; }
+            :root { --tdm-card-min-h: 430px; --tdm-card-max-h: clamp(460px, 80vh, 700px); --tdm-checklist-min: 216px; }
             .user-grid { grid-template-columns: 1fr; }
             .user-card { padding: 12px; }
+            .status-row { flex-wrap: wrap; }
+            .status-row > .status-group { flex: 1 1 100%; }
+            .signal-panel-list { grid-template-columns: 1fr; }
             .user-card .nome { font-size: 1rem; }
             .badge-cargo, .badge-backup, .badge-folga { font-size: 0.62rem; padding: 2px 8px; }
             .kpi-row { grid-template-columns: repeat(2, 1fr); }
@@ -405,6 +457,15 @@
     <div class="warn-panel glass-panel" id="warnPanel" style="display:none;">
         <div class="warn-title" id="warnTitle">⚠️ Não preencheram o dia — avalie se foi folga</div>
         <div class="warn-list" id="warnList"></div>
+    </div>
+
+    <!-- JUSTIFICATIVAS DO DIA (apenas admin): painel visível com botões de análise -->
+    <div class="signal-panel glass-panel" id="signalPanel" style="display:none;">
+        <div class="signal-panel-title">
+            <span id="signalPanelTitle">⚠️ Justificativas do dia — atividades não concluídas</span>
+            <span class="sp-count" id="signalPanelCount"></span>
+        </div>
+        <div class="signal-panel-list" id="signalPanelList"></div>
     </div>
 
     <!-- BLOCOS POR USUÁRIO -->
@@ -904,6 +965,7 @@
                 : `<div class="glass-panel" style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Nenhum colaborador encontrado para os filtros atuais.${isAdmin ? ' Use "➕ Adicionar Colaborador" para cadastrar.' : ''}</div>`;
 
             renderizarAvisos(colabs);
+            renderizarJustificativas(colabs);
             renderizarIntervalos();
         }
 
@@ -994,19 +1056,29 @@
             const backupName = nomeDoBackup(colab);
             const barCls = pct >= 100 ? 'p-green' : pct >= 50 ? 'p-warn' : 'p-red';
 
+            const statusBtns = [['presente','Presente'],['falta','Falta'],['atestado','Atestado'],['ferias','Férias'],['folga','Folga']].map(([v,l]) =>
+                `<button class="status-btn ${status === v ? 'active-' + v : ''}" onclick="setStatus(${jsonAttr(colab.key)},${jsonAttr(v)})">${l}</button>`
+            ).join('');
             const statusHtml = isAdmin
-                ? `<div class="status-group">${[['presente','Presente'],['falta','Falta'],['atestado','Atestado'],['ferias','Férias'],['folga','Folga']].map(([v,l]) => `<button class="status-btn ${status === v ? 'active-' + v : ''}" onclick="setStatus(${jsonAttr(colab.key)},${jsonAttr(v)})">${l}</button>`).join('')}</div>`
+                ? statusBtns
                 : `<span class="pill ${status || 'vazio'}">${status ? statusLabel(status) : 'Sem status'}</span>`;
 
             const folgaHtml = isAdmin
                 ? `<div class="user-row"><span class="tdm-label">🛌 Folga do dia:</span><button class="folga-btn ${folga ? 'sim' : ''}" onclick="setFolga(${jsonAttr(colab.key)}, true)">✅ Foi folga</button><button class="folga-btn ${(!folga && reg.folga === false) ? 'nao' : ''}" onclick="setFolga(${jsonAttr(colab.key)}, false)">❌ Não foi</button></div>`
                 : '';
 
-            const entradaHtml = isAdmin ? `<input type="time" class="hora-input" value="${escapeHtml(reg.entrada || '')}" onchange="setHora(${jsonAttr(colab.key)},'entrada',this.value)">` : `<span class="hora-ro">${escapeHtml(reg.entrada || '—:—')}</span>`;
-            const saidaHtml = isAdmin ? `<input type="time" class="hora-input" value="${escapeHtml(reg.saida || '')}" onchange="setHora(${jsonAttr(colab.key)},'saida',this.value)">` : `<span class="hora-ro">${escapeHtml(reg.saida || '—:—')}</span>`;
-            const intervaloHtml = isAdmin
-                ? `<input type="time" class="hora-input" value="${escapeHtml(reg.intervaloInicio || '')}" title="Início do intervalo" onchange="setHora(${jsonAttr(colab.key)},'intervaloInicio',this.value)"><span style="font-size:.72rem;font-weight:800;color:var(--text-muted);text-transform:uppercase;">às</span><input type="time" class="hora-input" value="${escapeHtml(reg.intervaloFim || '')}" title="Fim do intervalo" onchange="setHora(${jsonAttr(colab.key)},'intervaloFim',this.value)">`
-                : `<span class="hora-ro">${escapeHtml(reg.intervaloInicio || '—:—')}</span><span style="font-size:.72rem;font-weight:800;color:var(--text-muted);text-transform:uppercase;">às</span><span class="hora-ro">${escapeHtml(reg.intervaloFim || '—:—')}</span>`;
+            const entradaField = isAdmin
+                ? `<input type="time" class="hora-input" value="${escapeHtml(reg.entrada || '')}" onchange="setHora(${jsonAttr(colab.key)},'entrada',this.value)">`
+                : `<span class="hora-ro">${escapeHtml(reg.entrada || '—:—')}</span>`;
+            const saidaField = isAdmin
+                ? `<input type="time" class="hora-input" value="${escapeHtml(reg.saida || '')}" onchange="setHora(${jsonAttr(colab.key)},'saida',this.value)">`
+                : `<span class="hora-ro">${escapeHtml(reg.saida || '—:—')}</span>`;
+            const intIniField = isAdmin
+                ? `<input type="time" class="hora-input" value="${escapeHtml(reg.intervaloInicio || '')}" title="Início do intervalo" onchange="setHora(${jsonAttr(colab.key)},'intervaloInicio',this.value)">`
+                : `<span class="hora-ro">${escapeHtml(reg.intervaloInicio || '—:—')}</span>`;
+            const intFimField = isAdmin
+                ? `<input type="time" class="hora-input" value="${escapeHtml(reg.intervaloFim || '')}" title="Fim do intervalo" onchange="setHora(${jsonAttr(colab.key)},'intervaloFim',this.value)">`
+                : `<span class="hora-ro">${escapeHtml(reg.intervaloFim || '—:—')}</span>`;
 
             const obs = supportCount
                 ? `<div class="card-obs">🔁 <strong>Obs:</strong> ${supportCount} atividade(s) executada(s) como <strong>atividade de backup</strong>${reg.supportBy && Object.keys(reg.supportBy).length ? ` por <strong>${escapeHtml([...new Set(Object.values(reg.supportBy))].filter(Boolean).join(', '))}</strong>` : ''}.</div>`
@@ -1064,6 +1136,14 @@
                 ? `draggable="true" ondragstart="onCardDragStart(event, ${jsonAttr(colab.key)})" ondragend="onCardDragEnd(event)" ondragover="onCardDragOver(event)" ondragleave="onCardDragLeave(event)" ondrop="onCardDrop(event, ${jsonAttr(colab.key)})"`
                 : '';
             const handle = isAdmin ? `<span class="drag-handle" title="Arraste para reordenar">⠿</span>` : '';
+            /* chips de meta só quando existem (progresso em 1 linha) */
+            const chipsMeta = [];
+            if (supportCount) chipsMeta.push(`<span class="backup-tag-line">🔁 ${supportCount} de apoio</span>`);
+            if (m.classifiedDone) chipsMeta.push(`<span style="color:#087F5B;font-weight:800;">✅ ${m.classifiedDone} pelo admin</span>`);
+            if (m.signalPending) chipsMeta.push(`<span style="color:#B45309;font-weight:800;">⚠️ ${m.signalPending} não concluída(s)</span>`);
+            if (m.optTotal) chipsMeta.push(`<span style="color:#6C5CE7;font-weight:800;">⭐ ${m.optDone}/${m.optTotal} backup</span>`);
+            const metaHtml = chipsMeta.length ? `<div class="progress-meta">${chipsMeta.join(' · ')}</div>` : '';
+
             return `<div class="user-card glass-panel" data-key="${escapeHtml(colab.key)}" ${dragAttrs}>
                 <div class="user-card-head">
                     <div style="display:flex;gap:8px;align-items:flex-start;min-width:0;flex:1;">
@@ -1074,18 +1154,38 @@
                             ${isAdmin ? '<div class="admin-drag-hint">Arraste para mudar a ordem</div>' : ''}
                         </div>
                     </div>
-                    ${(isAdmin || owner) ? `<span class="pill ${estadoPill.cls}" title="${escapeHtml(estadoPill.title)}">${estadoPill.texto}</span>` : ''}
+                    <div class="card-tools">
+                        ${(isAdmin || owner) ? `<span class="pill ${estadoPill.cls}" title="${escapeHtml(estadoPill.title)}">${estadoPill.texto}</span>` : ''}
+                        <button type="button" class="snap-btn" title="Expandir card: mostra todas as atividades" aria-label="Expandir card" onclick="alternarCardMax(this, ${jsonAttr(colab.key)})">⤢</button>
+                    </div>
                 </div>
-                <div class="user-row"><span class="tdm-label">Status:</span>${statusHtml}</div>
+                <div class="tdm-strip">
+                    <div class="strip-item"><span>Entrada</span>${entradaField}</div>
+                    <div class="strip-item"><span>Saída</span>${saidaField}</div>
+                    <div class="strip-item intervalo"><span>⏸ Início</span>${intIniField}</div>
+                    <div class="strip-item intervalo"><span>⏸ Fim</span>${intFimField}</div>
+                </div>
+                <div class="user-row status-row"><span class="tdm-label">Status</span><div class="status-group">${statusHtml}</div></div>
                 ${folgaHtml}
-                <div class="user-row"><span class="tdm-label">🕐 Entrada:</span>${entradaHtml}<span class="tdm-label" style="margin-left:6px;">Saída:</span>${saidaHtml}</div>
-                <div class="user-row intervalo-row"><span class="tdm-label">⏸️ Intervalo:</span>${intervaloHtml}</div>
-                <div class="progress-row"><div class="progress-bar"><div class="progress-fill ${barCls}" style="width:${pct}%"></div></div><span class="progress-pct">${pct}%</span></div>
-                <div class="progress-meta"><strong>${doneIds.length}/${total}</strong> atividades concluídas${supportCount ? ` · <span class="backup-tag-line">🔁 ${supportCount} de apoio</span>` : ''}${m.classifiedDone ? ` · <span style="color:#087F5B;font-weight:800;">✅ ${m.classifiedDone} pelo admin</span>` : ''}${m.signalPending ? ` · <span style="color:#B45309;font-weight:800;">⚠️ ${m.signalPending} não concluída(s)</span>` : ''}${m.optTotal ? ` · <span style="color:#6C5CE7;font-weight:800;">⭐ ${m.optDone}/${m.optTotal} backup</span>` : ''}</div>
+                <div class="progress-row"><div class="progress-bar"><div class="progress-fill ${barCls}" style="width:${pct}%"></div></div><span class="progress-pct">${pct}% · <strong>${doneIds.length}/${total}</strong></span></div>
+                ${metaHtml}
                 ${obs}
-                <div class="checklist">${activityHtml}</div>
+                <div class="checklist"><div class="checklist-title"><span>Atividades do dia</span><span class="ct-count">${doneIds.length}/${total} concluídas</span></div>${activityHtml}</div>
                 ${acoes}
             </div>`;
+        }
+
+        /* ⤢ expande/recolhe o card: tira o teto de altura e mostra a lista inteira */
+        function alternarCardMax(botao, key) {
+            const card = document.querySelector(`.user-card[data-key="${CSS.escape(key)}"]`);
+            if (!card) return;
+            const aberto = card.classList.toggle('is-max');
+            if (botao) {
+                botao.classList.toggle('on', aberto);
+                botao.textContent = aberto ? '⤡' : '⤢';
+                botao.title = aberto ? 'Recolher card' : 'Expandir card: mostra todas as atividades';
+            }
+            if (aberto && card.scrollIntoView) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         function renderizarAvisos(colabs) {
@@ -1109,6 +1209,71 @@
                     <button class="folga-btn ${reg.folga === false ? 'nao' : ''}" onclick="setFolga(${jsonAttr(c.key)}, false)">❌ Não foi</button>
                 </div>`;
             }).join('');
+        }
+
+
+        /** Painel admin com TODAS as justificativas do dia (visível, fora do card espremido).
+            Reutiliza as mesmas ações: marcarSinalizacaoVista / classificarSinalizacaoFeita / abrirModalMensagemAdmin.
+            Os botões dentro do card também permanecem. */
+        function renderizarJustificativas(colabs) {
+            const panel = document.getElementById('signalPanel');
+            const list = document.getElementById('signalPanelList');
+            const countEl = document.getElementById('signalPanelCount');
+            if (!panel || !list) return;
+            if (!isAdmin) { panel.style.display = 'none'; return; }
+            const itens = [];
+            (colabs || listaColaboradores()).forEach(c => {
+                const reg = diarioDia[c.key] || {};
+                const acts = normalizeActivities(c.atividades);
+                acts.forEach(a => {
+                    const signal = getSinalizacao(reg, a);
+                    if (!signal) return;
+                    const ownDone = activityIsChecked(a, Array.isArray(reg.checks) ? reg.checks : []);
+                    const supDone = activityIsChecked(a, Array.isArray(reg.supportChecks) ? reg.supportChecks : []);
+                    const classified = signal.classificadaFeita === true;
+                    const conclusaoSignal = classified
+                        ? '✅ Classificada como concluída'
+                        : (ownDone || supDone ? '☑️ Já marcada como executada' : '❌ Permanece não concluída');
+                    const statusSignal = `${signal.vistoAdmin ? '👁️ Visto pelo admin' : '⏳ Não visto'} · ${conclusaoSignal}${signal.ultimaMensagemEm ? ' · 💬 Mensagem programada' : ''}`;
+                    const actions = `<div class="admin-signal-actions">`
+                        + `<button type="button" class="signal-btn seen" ${signal.vistoAdmin ? 'disabled' : ''} onclick="marcarSinalizacaoVista(${jsonAttr(c.key)},${jsonAttr(a.id)})">${signal.vistoAdmin ? '👁️ Já visto' : '👁️ Marcar como visto'}</button>`
+                        + `<button type="button" class="signal-btn done" onclick="classificarSinalizacaoFeita(${jsonAttr(c.key)},${jsonAttr(a.id)})">${classified ? '↩️ Desfazer conclusão' : '✅ Classificar como concluída'}</button>`
+                        + `<button type="button" class="signal-btn message" onclick="abrirModalMensagemAdmin(${jsonAttr(c.key)},${jsonAttr(a.id)})">💬 Adicionar mensagem</button>`
+                        + `</div>`;
+                    itens.push({
+                        nome: c.nome || '',
+                        cargo: c.cargo || '',
+                        atividade: a.nome || '',
+                        motivo: signal.motivo || 'Sem motivo informado.',
+                        status: statusSignal,
+                        actions,
+                        pending: !classified && !ownDone && !supDone,
+                        visto: !!signal.vistoAdmin
+                    });
+                });
+            });
+            if (!itens.length) { panel.style.display = 'none'; list.innerHTML = ''; if (countEl) countEl.textContent = ''; return; }
+            // pendentes primeiro, depois não vistas, depois resto por nome
+            itens.sort((a, b) => {
+                if (a.pending !== b.pending) return a.pending ? -1 : 1;
+                if (a.visto !== b.visto) return a.visto ? 1 : -1;
+                return String(a.nome).localeCompare(String(b.nome), 'pt-BR') || String(a.atividade).localeCompare(String(b.atividade), 'pt-BR');
+            });
+            const pend = itens.filter(i => i.pending).length;
+            panel.style.display = 'block';
+            if (countEl) countEl.textContent = `${itens.length} justificativa${itens.length === 1 ? '' : 's'}${pend ? ` · ${pend} pendente${pend === 1 ? '' : 's'}` : ''}`;
+            document.getElementById('signalPanelTitle').textContent = '⚠️ Justificativas do dia — atividades não concluídas';
+            list.innerHTML = itens.map(i => `<div class="signal-panel-item">
+                <div class="sp-head">
+                    <div>
+                        <div class="sp-nome">${escapeHtml(i.nome)}</div>
+                        <div class="sp-atividade">${escapeHtml(i.atividade)}${i.cargo ? ` · ${escapeHtml(i.cargo)}` : ''}</div>
+                    </div>
+                </div>
+                <div class="sp-motivo"><strong>Motivo:</strong> ${escapeHtml(i.motivo)}</div>
+                <div class="sp-status">${i.status}</div>
+                ${i.actions}
+            </div>`).join('');
         }
 
         function toggleActivity(button) { const details = button.parentElement.querySelector('.activity-details'); const open = details.classList.toggle('open'); button.setAttribute('aria-expanded', String(open)); button.querySelector('.chevron').textContent = open ? '▾' : '▸'; }
