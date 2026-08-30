@@ -26,9 +26,10 @@
         .form-group input[readonly] { background-color: #e9e9e9; color: #888; }
         .form-group textarea { resize: vertical; height: 100px; }
         
-        /* CAMPO OPERADOR DESTAQUE */
+        /* DESTAQUES E AVISOS */
         .operador-box { background-color: #eef0ff; padding: 15px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #c9d0ff; }
-        
+        .aviso-tempo { font-size: 0.8rem; color: #00a650; font-weight: bold; margin-bottom: 15px; text-align: right; }
+
         /* QTD E BOTÕES */
         .qty-control { display: flex; align-items: center; gap: 10px; }
         .qty-btn { background-color: #fff; border: 1px solid #ddd; color: #2d3277; width: 40px; height: 40px; border-radius: 6px; font-weight: bold; cursor: pointer; }
@@ -47,7 +48,6 @@
 
     <div class="container">
         
-        <!-- NOME DO OPERADOR (Fixo para ambas as abas) -->
         <div class="operador-box">
             <div class="form-group" style="margin: 0;">
                 <label style="color: #2d3277;">Seu Nome (Operador) *</label>
@@ -55,32 +55,23 @@
             </div>
         </div>
 
+        <div class="aviso-tempo">⏱ Data e Hora registradas automaticamente (Fuso SP)</div>
+
         <div class="tabs-header">
             <button class="tab-btn active" onclick="openTab('aba-hl')">HL</button>
             <button class="tab-btn" onclick="openTab('aba-avarias')">Registro de Avarias HL</button>
         </div>
 
-        <!-- ABA 1: HL -->
         <div id="aba-hl" class="tab-content active">
             <div class="form-row">
                 <div class="form-group">
                     <label>Origem</label>
-                    <select id="hl-origem">
-                        <option value="">Selecionar origem...</option>
-                        <option value="REVERSA MEGA">REVERSA MEGA</option>
-                        <option value="ARBA01">ARBA01</option>
-                        <option value="BRBA01">BRBA01</option>
-                    </select>
+                    <input type="text" id="hl-origem" placeholder="Digite a origem">
                 </div>
                 <div class="form-group">
                     <label>Destino</label>
                     <input type="text" id="hl-destino" value="SSC1" readonly>
                 </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group"><label>Data</label><input type="date" id="hl-data"></div>
-                <div class="form-group"><label>Hora</label><input type="time" id="hl-hora"></div>
             </div>
 
             <div class="form-row">
@@ -108,16 +99,10 @@
             </div>
         </div>
 
-        <!-- ABA 2: AVARIAS -->
         <div id="aba-avarias" class="tab-content">
             <div class="form-group">
                 <label>Origem</label>
-                <select id="av-origem">
-                    <option value="">Selecionar origem...</option>
-                    <option value="REVERSA MEGA">REVERSA MEGA</option>
-                    <option value="ARBA01">ARBA01</option>
-                    <option value="BRBA01">BRBA01</option>
-                </select>
+                <input type="text" id="av-origem" placeholder="Digite a origem">
             </div>
 
             <div class="form-group"><label>HU *</label><input type="text" id="av-hu" placeholder="Escanear ou digitar"></div>
@@ -133,6 +118,13 @@
             </div>
 
             <div class="form-group"><label>Motivo</label><textarea id="av-motivo"></textarea></div>
+            
+            <div class="form-group"><label>Resolução</label><input type="text" id="av-resolucao" placeholder="Descreva a ação tomada"></div>
+
+            <div class="form-group">
+                <label>Upload de Imagem (Avaria)</label>
+                <input type="file" id="av-imagem" accept="image/*">
+            </div>
 
             <div class="actions">
                 <button id="btn-av" class="btn btn-primary" onclick="enviarParaPlanilha('AVARIAS')">Salvar Avaria na Planilha</button>
@@ -141,7 +133,7 @@
     </div>
 
     <script>
-        // COLOQUE A URL QUE VOCÊ GEROU NO APPS SCRIPT AQUI DENTRO DAS ASPAS:
+        // === COLOQUE A URL DA SUA PLANILHA AQUI ===
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzjghZz0ieCiLA2cTezgnKCqawoD3wsdNVOn4xItAFD6bLTTFWXIOqdx5pUQGBU-fNX/exec";
 
         function openTab(tabId) {
@@ -157,7 +149,6 @@
             if (atual + valor >= 1) input.value = atual + valor;
         }
 
-        // Converte a imagem para Base64 para poder enviar pela internet
         function lerImagem(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -178,8 +169,6 @@
             if (tipo === 'HL') {
                 dados.origem = document.getElementById('hl-origem').value;
                 dados.destino = document.getElementById('hl-destino').value;
-                dados.data = document.getElementById('hl-data').value;
-                dados.hora = document.getElementById('hl-hora').value;
                 dados.transportadora = document.getElementById('hl-transportadora').value;
                 dados.motorista = document.getElementById('hl-motorista').value;
                 dados.trator = document.getElementById('hl-trator').value;
@@ -187,10 +176,9 @@
                 dados.rost_id = document.getElementById('hl-rost').value;
                 dados.travel_id = document.getElementById('hl-travel').value;
 
-                // Tratar a imagem
                 const imgInput = document.getElementById('hl-imagem');
                 if (imgInput.files.length > 0) {
-                    botao.innerText = "Processando imagem...";
+                    botao.innerText = "Processando imagem HL...";
                     dados.imagemBase64 = await lerImagem(imgInput.files[0]);
                     dados.imagemNome = imgInput.files[0].name;
                 }
@@ -200,25 +188,27 @@
                 dados.id_avaria = document.getElementById('av-id').value;
                 dados.quantidade = document.getElementById('av-qtd').value;
                 dados.motivo = document.getElementById('av-motivo').value;
+                dados.resolucao = document.getElementById('av-resolucao').value;
 
                 if(!dados.hu || !dados.id_avaria) { alert("Preencha o HU e o ID!"); return; }
+
+                const imgInputAv = document.getElementById('av-imagem');
+                if (imgInputAv.files.length > 0) {
+                    botao.innerText = "Processando imagem Avaria...";
+                    dados.imagemBase64 = await lerImagem(imgInputAv.files[0]);
+                    dados.imagemNome = imgInputAv.files[0].name;
+                }
             }
 
-            // Iniciar o envio
             botao.innerText = "Salvando na Planilha (Aguarde)...";
             botao.disabled = true;
 
             try {
-                const resposta = await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(dados)
-                });
-                
+                const resposta = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(dados) });
                 const resultado = await resposta.json();
                 
                 if(resultado.status === 'sucesso') {
                     alert('✅ Dados salvos com sucesso na planilha!');
-                    // Limpar os campos da aba específica
                     if(tipo === 'HL') {
                         document.querySelectorAll('#aba-hl input:not([readonly]), #aba-hl select').forEach(el => el.value = '');
                     } else {
