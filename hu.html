@@ -5,178 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Registros - HL & Avarias</title>
     <style>
-        /* RESET E PALETA DE CORES */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-        body {
-            background-color: #f5f5f5;
-            color: #333;
-        }
+        /* RESET E CORES */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
+        body { background-color: #f5f5f5; color: #333; }
+        header { background-color: #2d3277; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .container { max-width: 800px; margin: 40px auto; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 30px; }
         
-        /* CABEÇALHO */
-        header {
-            background-color: #2d3277; /* Azul marinho do Mercado Libre / Salvados */
-            color: white;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        header h1 {
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
+        /* ABAS */
+        .tabs-header { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
+        .tab-btn { flex: 1; padding: 12px; border: 1px solid #ddd; background-color: #fff; color: #555; cursor: pointer; border-radius: 6px; font-weight: 600; font-size: 1rem; }
+        .tab-btn.active { background-color: #2d3277; color: white; border-color: #2d3277; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
         
-        /* CONTAINER PRINCIPAL */
-        .container {
-            max-width: 800px;
-            margin: 40px auto;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            padding: 30px;
-        }
-
-        /* CONTROLE DE ABAS */
-        .tabs-header {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 10px;
-        }
-        .tab-btn {
-            flex: 1;
-            padding: 12px;
-            border: 1px solid #ddd;
-            background-color: #fff;
-            color: #555;
-            cursor: pointer;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: 0.3s;
-        }
-        .tab-btn.active {
-            background-color: #2d3277;
-            color: white;
-            border-color: #2d3277;
-        }
-
-        /* FORMULÁRIOS E INPUTS */
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        .form-row {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        .form-group {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #666;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-        }
-        .form-group input, .form-group select, .form-group textarea {
-            padding: 12px;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            background-color: #f3f3f3; /* Fundo cinza claro da imagem */
-            font-size: 0.95rem;
-            outline: none;
-            color: #333;
-        }
-        .form-group input[readonly] {
-            background-color: #e9e9e9;
-            color: #888;
-        }
-        .form-group textarea {
-            resize: vertical;
-            height: 100px;
-        }
-
-        /* CONTROLE DE QUANTIDADE (+/-) */
-        .qty-control {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .qty-btn {
-            background-color: #fff;
-            border: 1px solid #ddd;
-            color: #2d3277;
-            width: 40px;
-            height: 40px;
-            border-radius: 6px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .qty-input {
-            flex: 1;
-            text-align: center;
-        }
-
-        /* BOTÕES DE AÇÃO */
-        .actions {
-            margin-top: 30px;
-            display: flex;
-            justify-content: space-between;
-            gap: 15px;
-            border-top: 1px solid #eee;
-            padding-top: 20px;
-        }
-        .btn {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .btn-primary {
-            background-color: #2d3277;
-            color: white;
-            flex: 1;
-        }
-        .btn-success {
-            background-color: #00a650; /* Verde estilo Mercado Livre */
-            color: white;
-        }
-        .btn:hover {
-            opacity: 0.9;
-        }
+        /* FORMULÁRIO */
+        .form-row { display: flex; gap: 15px; margin-bottom: 15px; }
+        .form-group { flex: 1; display: flex; flex-direction: column; margin-bottom: 15px; }
+        .form-group label { font-size: 0.85rem; font-weight: 600; color: #666; margin-bottom: 5px; text-transform: uppercase; }
+        .form-group input, .form-group select, .form-group textarea { padding: 12px; border: 1px solid #e0e0e0; border-radius: 6px; background-color: #f3f3f3; outline: none; }
+        .form-group input[readonly] { background-color: #e9e9e9; color: #888; }
+        .form-group textarea { resize: vertical; height: 100px; }
+        
+        /* CAMPO OPERADOR DESTAQUE */
+        .operador-box { background-color: #eef0ff; padding: 15px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #c9d0ff; }
+        
+        /* QTD E BOTÕES */
+        .qty-control { display: flex; align-items: center; gap: 10px; }
+        .qty-btn { background-color: #fff; border: 1px solid #ddd; color: #2d3277; width: 40px; height: 40px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .qty-input { flex: 1; text-align: center; }
+        .actions { margin-top: 20px; display: flex; justify-content: space-between; border-top: 1px solid #eee; padding-top: 20px; }
+        .btn { padding: 12px 25px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        .btn-primary { background-color: #2d3277; color: white; flex: 1; }
+        .btn-primary:disabled { background-color: #999; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Registros Operacionais</h1>
-        <div>Usuário Logado</div>
+        <h1>Registros Operacionais - Salvados</h1>
     </header>
 
     <div class="container">
+        
+        <!-- NOME DO OPERADOR (Fixo para ambas as abas) -->
+        <div class="operador-box">
+            <div class="form-group" style="margin: 0;">
+                <label style="color: #2d3277;">Seu Nome (Operador) *</label>
+                <input type="text" id="nome-operador" placeholder="Digite seu nome completo" required>
+            </div>
+        </div>
+
         <div class="tabs-header">
             <button class="tab-btn active" onclick="openTab('aba-hl')">HL</button>
             <button class="tab-btn" onclick="openTab('aba-avarias')">Registro de Avarias HL</button>
         </div>
 
+        <!-- ABA 1: HL -->
         <div id="aba-hl" class="tab-content active">
             <div class="form-row">
                 <div class="form-group">
@@ -195,59 +79,36 @@
             </div>
 
             <div class="form-row">
-                <div class="form-group">
-                    <label>Data</label>
-                    <input type="date" id="hl-data">
-                </div>
-                <div class="form-group">
-                    <label>Hora</label>
-                    <input type="time" id="hl-hora">
-                </div>
+                <div class="form-group"><label>Data</label><input type="date" id="hl-data"></div>
+                <div class="form-group"><label>Hora</label><input type="time" id="hl-hora"></div>
             </div>
 
             <div class="form-row">
-                <div class="form-group">
-                    <label>Transportadora</label>
-                    <input type="text" id="hl-transportadora" placeholder="Nome da transportadora">
-                </div>
-                <div class="form-group">
-                    <label>Motorista</label>
-                    <input type="text" id="hl-motorista" placeholder="Nome do motorista">
-                </div>
+                <div class="form-group"><label>Transportadora</label><input type="text" id="hl-transportadora"></div>
+                <div class="form-group"><label>Motorista</label><input type="text" id="hl-motorista"></div>
             </div>
 
             <div class="form-row">
-                <div class="form-group">
-                    <label>Trator Placa</label>
-                    <input type="text" id="hl-trator" placeholder="Ex: ABC-1234">
-                </div>
-                <div class="form-group">
-                    <label>Carga Placa</label>
-                    <input type="text" id="hl-carga" placeholder="Ex: XYZ-9876">
-                </div>
+                <div class="form-group"><label>Trator Placa</label><input type="text" id="hl-trator"></div>
+                <div class="form-group"><label>Carga Placa</label><input type="text" id="hl-carga"></div>
             </div>
 
             <div class="form-row">
-                <div class="form-group">
-                    <label>Rost. ID</label>
-                    <input type="text" id="hl-rost" placeholder="ID Rost">
-                </div>
-                <div class="form-group">
-                    <label>Travel ID</label>
-                    <input type="text" id="hl-travel" placeholder="ID Travel">
-                </div>
+                <div class="form-group"><label>Rost. ID</label><input type="text" id="hl-rost"></div>
+                <div class="form-group"><label>Travel ID</label><input type="text" id="hl-travel"></div>
             </div>
 
             <div class="form-group">
-                <label>Upload de Imagens</label>
-                <input type="file" id="hl-imagem" accept="image/*" multiple>
+                <label>Upload de Imagem (Comprovante/Foto)</label>
+                <input type="file" id="hl-imagem" accept="image/*">
             </div>
             
             <div class="actions">
-                <button class="btn btn-primary" onclick="salvarRegistro('HL')">Salvar Registro HL</button>
+                <button id="btn-hl" class="btn btn-primary" onclick="enviarParaPlanilha('HL')">Salvar Registro HL na Planilha</button>
             </div>
         </div>
 
+        <!-- ABA 2: AVARIAS -->
         <div id="aba-avarias" class="tab-content">
             <div class="form-group">
                 <label>Origem</label>
@@ -255,21 +116,12 @@
                     <option value="">Selecionar origem...</option>
                     <option value="REVERSA MEGA">REVERSA MEGA</option>
                     <option value="ARBA01">ARBA01</option>
-                    <option value="ARBA02">ARBA02</option>
-                    <option value="ARBA04">ARBA04</option>
                     <option value="BRBA01">BRBA01</option>
                 </select>
             </div>
 
-            <div class="form-group">
-                <label>HU *</label>
-                <input type="text" id="av-hu" placeholder="Escanear ou digitar">
-            </div>
-
-            <div class="form-group">
-                <label>ID * <span style="font-size:0.7rem; font-weight:normal;">(Sem ID - SKU - Shipment ID - Triage ID)</span></label>
-                <input type="text" id="av-id" placeholder="Escanear ou digitar">
-            </div>
+            <div class="form-group"><label>HU *</label><input type="text" id="av-hu" placeholder="Escanear ou digitar"></div>
+            <div class="form-group"><label>ID * (Sem ID - SKU - Shipment ID)</label><input type="text" id="av-id" placeholder="Escanear ou digitar"></div>
 
             <div class="form-group">
                 <label>Quantidade</label>
@@ -280,121 +132,108 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>Motivo <span style="font-size:0.7rem; font-weight:normal;">(Opcional)</span></label>
-                <textarea id="av-motivo" placeholder="Descreva se necessário..."></textarea>
-            </div>
+            <div class="form-group"><label>Motivo</label><textarea id="av-motivo"></textarea></div>
 
             <div class="actions">
-                <button class="btn btn-primary" onclick="salvarRegistro('AVARIAS')">Salvar Avaria</button>
+                <button id="btn-av" class="btn btn-primary" onclick="enviarParaPlanilha('AVARIAS')">Salvar Avaria na Planilha</button>
             </div>
         </div>
-
-        <div class="actions" style="margin-top: 40px; justify-content: flex-end;">
-            <button class="btn btn-success" onclick="baixarPlanilhas()">📥 Baixar Planilhas (Excel/CSV)</button>
-        </div>
-
     </div>
 
     <script>
-        // Bancos de dados temporários na memória da página
-        let bancoHL = [];
-        let bancoAvarias = [];
+        // COLOQUE A URL QUE VOCÊ GEROU NO APPS SCRIPT AQUI DENTRO DAS ASPAS:
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzjghZz0ieCiLA2cTezgnKCqawoD3wsdNVOn4xItAFD6bLTTFWXIOqdx5pUQGBU-fNX/exec";
 
-        // Função para trocar de abas
         function openTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            
             document.getElementById(tabId).classList.add('active');
             event.currentTarget.classList.add('active');
         }
 
-        // Função para o botão de +/- na quantidade
         function mudarQtd(valor) {
             let input = document.getElementById('av-qtd');
             let atual = parseInt(input.value) || 0;
-            let novoValor = atual + valor;
-            if(novoValor >= 1) {
-                input.value = novoValor;
-            }
+            if (atual + valor >= 1) input.value = atual + valor;
         }
 
-        // Função para salvar os dados no "banco" temporário
-        function salvarRegistro(tipo) {
+        // Converte a imagem para Base64 para poder enviar pela internet
+        function lerImagem(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function enviarParaPlanilha(tipo) {
+            const operador = document.getElementById('nome-operador').value;
+            if(!operador) { alert("Por favor, preencha o campo 'Seu Nome' antes de salvar."); return; }
+
+            let dados = { tipo: tipo, operador: operador };
+            let botao = tipo === 'HL' ? document.getElementById('btn-hl') : document.getElementById('btn-av');
+            let textoOriginal = botao.innerText;
+
             if (tipo === 'HL') {
-                const registro = {
-                    origem: document.getElementById('hl-origem').value,
-                    destino: document.getElementById('hl-destino').value,
-                    data: document.getElementById('hl-data').value,
-                    hora: document.getElementById('hl-hora').value,
-                    transportadora: document.getElementById('hl-transportadora').value,
-                    motorista: document.getElementById('hl-motorista').value,
-                    trator_placa: document.getElementById('hl-trator').value,
-                    carga_placa: document.getElementById('hl-carga').value,
-                    rost_id: document.getElementById('hl-rost').value,
-                    travel_id: document.getElementById('hl-travel').value,
-                    // Imagens via input file não podem ser salvas em CSV diretamente, apenas o nome do arquivo
-                    imagem_nome: document.getElementById('hl-imagem').files.length > 0 ? document.getElementById('hl-imagem').files[0].name : "Nenhuma"
-                };
-                bancoHL.push(registro);
-                alert("Registro HL salvo com sucesso! (" + bancoHL.length + " registros na fila)");
-                
-                // Limpar campos
-                document.querySelectorAll('#aba-hl input:not([readonly]), #aba-hl select').forEach(el => el.value = '');
-            
-            } else if (tipo === 'AVARIAS') {
-                const registro = {
-                    origem: document.getElementById('av-origem').value,
-                    hu: document.getElementById('av-hu').value,
-                    id_avaria: document.getElementById('av-id').value,
-                    quantidade: document.getElementById('av-qtd').value,
-                    motivo: document.getElementById('av-motivo').value
-                };
-                
-                if(!registro.hu || !registro.id_avaria) {
-                    alert("Por favor, preencha o HU e o ID.");
-                    return;
+                dados.origem = document.getElementById('hl-origem').value;
+                dados.destino = document.getElementById('hl-destino').value;
+                dados.data = document.getElementById('hl-data').value;
+                dados.hora = document.getElementById('hl-hora').value;
+                dados.transportadora = document.getElementById('hl-transportadora').value;
+                dados.motorista = document.getElementById('hl-motorista').value;
+                dados.trator = document.getElementById('hl-trator').value;
+                dados.carga = document.getElementById('hl-carga').value;
+                dados.rost_id = document.getElementById('hl-rost').value;
+                dados.travel_id = document.getElementById('hl-travel').value;
+
+                // Tratar a imagem
+                const imgInput = document.getElementById('hl-imagem');
+                if (imgInput.files.length > 0) {
+                    botao.innerText = "Processando imagem...";
+                    dados.imagemBase64 = await lerImagem(imgInput.files[0]);
+                    dados.imagemNome = imgInput.files[0].name;
                 }
+            } else if (tipo === 'AVARIAS') {
+                dados.origem = document.getElementById('av-origem').value;
+                dados.hu = document.getElementById('av-hu').value;
+                dados.id_avaria = document.getElementById('av-id').value;
+                dados.quantidade = document.getElementById('av-qtd').value;
+                dados.motivo = document.getElementById('av-motivo').value;
 
-                bancoAvarias.push(registro);
-                alert("Registro de Avaria salvo com sucesso! (" + bancoAvarias.length + " registros na fila)");
+                if(!dados.hu || !dados.id_avaria) { alert("Preencha o HU e o ID!"); return; }
+            }
+
+            // Iniciar o envio
+            botao.innerText = "Salvando na Planilha (Aguarde)...";
+            botao.disabled = true;
+
+            try {
+                const resposta = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(dados)
+                });
                 
-                // Limpar campos
-                document.getElementById('av-hu').value = '';
-                document.getElementById('av-id').value = '';
-                document.getElementById('av-qtd').value = '1';
-                document.getElementById('av-motivo').value = '';
+                const resultado = await resposta.json();
+                
+                if(resultado.status === 'sucesso') {
+                    alert('✅ Dados salvos com sucesso na planilha!');
+                    // Limpar os campos da aba específica
+                    if(tipo === 'HL') {
+                        document.querySelectorAll('#aba-hl input:not([readonly]), #aba-hl select').forEach(el => el.value = '');
+                    } else {
+                        document.querySelectorAll('#aba-avarias input:not([readonly]), #aba-avarias select, #aba-avarias textarea').forEach(el => el.value = '');
+                        document.getElementById('av-qtd').value = 1;
+                    }
+                } else {
+                    alert('❌ Erro: ' + resultado.mensagem);
+                }
+            } catch (erro) {
+                alert('❌ Falha na conexão. A URL da planilha está correta?');
+            } finally {
+                botao.innerText = textoOriginal;
+                botao.disabled = false;
             }
-        }
-
-        // Função para transformar os dados em arquivo de Excel (CSV)
-        function baixarPlanilhas() {
-            if(bancoHL.length === 0 && bancoAvarias.length === 0) {
-                alert("Nenhum dado foi registrado ainda.");
-                return;
-            }
-
-            if(bancoHL.length > 0) {
-                gerarCSV(bancoHL, 'Registros_HL');
-            }
-            if(bancoAvarias.length > 0) {
-                gerarCSV(bancoAvarias, 'Registros_Avarias');
-            }
-        }
-
-        function gerarCSV(arrayDados, nomeArquivo) {
-            const cabecalho = Object.keys(arrayDados[0]).join(';') + '\n';
-            const linhas = arrayDados.map(obj => Object.values(obj).join(';')).join('\n');
-            const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + cabecalho + linhas;
-            
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", nomeArquivo + ".csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
         }
     </script>
 </body>
