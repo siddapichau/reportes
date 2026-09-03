@@ -38,13 +38,14 @@
             width: 100%;
             max-width: 800px;
             padding: 40px;
+            box-sizing: border-box; /* Garante que o padding não estoure a largura */
             box-shadow: 0 0 15px rgba(0,0,0,0.1);
         }
         
         /* ---------------------------------------------------
-           CORREÇÃO DE QUEBRA DE PÁGINA (NÃO CORTA MAIS ITENS) 
+           CORREÇÃO DE QUEBRA DE PÁGINA
            --------------------------------------------------- */
-        .timeline-item, .conclusion-box, .obs-box, .section-title, .info-table {
+        .timeline-item, .conclusion-box, .obs-box, .section-title {
             page-break-inside: avoid;
             break-inside: avoid;
         }
@@ -68,7 +69,7 @@
         }
         .doc-title {
             color: #2D3277;
-            font-size: 24px;
+            font-size: 22px; /* Levemente reduzido para caber melhor */
             font-weight: bold;
             margin: 0;
             text-transform: uppercase;
@@ -79,8 +80,8 @@
             padding: 8px 12px;
             font-size: 16px;
             font-weight: bold;
-            margin-top: 25px;
-            margin-bottom: 15px;
+            margin-top: 20px;
+            margin-bottom: 10px;
             border-radius: 3px;
         }
         .info-table {
@@ -99,12 +100,12 @@
         }
         .timeline-item {
             position: relative;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             padding-bottom: 10px;
             border-bottom: 1px dashed #eee;
         }
         .image-container {
-            margin: 10px 0 10px 0;
+            margin: 10px 0;
             text-align: center;
         }
         .upload-area {
@@ -117,14 +118,19 @@
         .upload-area input {
             margin-top: 10px;
         }
+        
+        /* LIMITADOR DE TAMANHO DE IMAGEM PARA O PDF NÃO DEFORMAR */
         img.report-img {
-            max-width: 100%;
-            height: auto;
+            max-width: 100%; /* Nunca ultrapassa a largura da folha */
+            max-height: 350px; /* Limita a altura para não causar buracos brancos gigantes */
+            width: auto;
+            object-fit: contain; /* Mantém a proporção real da imagem */
             display: none;
             border: 1px solid #ddd;
             border-radius: 4px;
             margin: 0 auto;
         }
+        
         .conclusion-box {
             background-color: #f0f4f8;
             border-left: 4px solid #2D3277;
@@ -169,6 +175,7 @@
             font-size: 12px;
             border-radius: 3px;
             cursor: pointer;
+            z-index: 10;
         }
         .btn-remove:hover {
             background-color: #cc0000;
@@ -190,7 +197,7 @@
         
         <div class="doc-header">
             <div class="logo-container">
-                <img src="https://upload.wikimedia.org/wikipedia/pt/0/04/Logotipo_MercadoLivre.png" alt="Logo Mercado Livre">
+                <img src="https://upload.wikimedia.org/wikipedia/pt/0/04/Logotipo_MercadoLivre.png" alt="Logo Mercado Livre" crossorigin="anonymous">
             </div>
             <div class="title-container">
                 <h1 class="doc-title" contenteditable="true">Relatório de Análise Investigativa de CFTV</h1>
@@ -234,8 +241,8 @@
             <!-- Imagem 1 -->
             <div class="timeline-item">
                 <button class="btn-remove no-print" onclick="removeTimelineItem(this)">Excluir</button>
-                <p><strong><span class="evidence-num">3.1.</span> <span contenteditable="true">Recebimento</span></strong></p>
-                <p style="font-size: 13px; color: #555;" contenteditable="true">Pacote sendo recebido.</p>
+                <p style="margin-bottom: 5px;"><strong><span class="evidence-num">3.1.</span> <span contenteditable="true">Recebimento</span></strong></p>
+                <p style="font-size: 13px; color: #555; margin-top: 0;" contenteditable="true">Pacote sendo recebido.</p>
                 <div class="image-container">
                     <div class="upload-area no-print" id="upload-area-1">
                         Selecione a imagem<br>
@@ -248,8 +255,8 @@
             <!-- Imagem 2 -->
             <div class="timeline-item">
                 <button class="btn-remove no-print" onclick="removeTimelineItem(this)">Excluir</button>
-                <p><strong><span class="evidence-num">3.2.</span> <span contenteditable="true">Movimentação Interna</span></strong></p>
-                <p style="font-size: 13px; color: #555;" contenteditable="true">Pacote sendo incluído em outra gaiola.</p>
+                <p style="margin-bottom: 5px;"><strong><span class="evidence-num">3.2.</span> <span contenteditable="true">Movimentação Interna</span></strong></p>
+                <p style="font-size: 13px; color: #555; margin-top: 0;" contenteditable="true">Pacote sendo incluído em outra gaiola.</p>
                 <div class="image-container">
                     <div class="upload-area no-print" id="upload-area-2">
                         Selecione a imagem<br>
@@ -262,8 +269,8 @@
             <!-- Imagem 3 -->
             <div class="timeline-item">
                 <button class="btn-remove no-print" onclick="removeTimelineItem(this)">Excluir</button>
-                <p><strong><span class="evidence-num">3.3.</span> <span contenteditable="true">Status de Aduana</span></strong></p>
-                <p style="font-size: 13px; color: #555;" contenteditable="true">Pacote sendo bipado em aduana como "a mais".</p>
+                <p style="margin-bottom: 5px;"><strong><span class="evidence-num">3.3.</span> <span contenteditable="true">Status de Aduana</span></strong></p>
+                <p style="font-size: 13px; color: #555; margin-top: 0;" contenteditable="true">Pacote sendo bipado em aduana como "a mais".</p>
                 <div class="image-container">
                     <div class="upload-area no-print" id="upload-area-3">
                         Selecione a imagem<br>
@@ -276,8 +283,8 @@
             <!-- Imagem 4 -->
             <div class="timeline-item">
                 <button class="btn-remove no-print" onclick="removeTimelineItem(this)">Excluir</button>
-                <p><strong><span class="evidence-num">3.4.</span> <span contenteditable="true">Correção de Rota</span></strong></p>
-                <p style="font-size: 13px; color: #555;" contenteditable="true">Pacote sendo movimentado para a vaga correta e Registros de Sistema.</p>
+                <p style="margin-bottom: 5px;"><strong><span class="evidence-num">3.4.</span> <span contenteditable="true">Correção de Rota</span></strong></p>
+                <p style="font-size: 13px; color: #555; margin-top: 0;" contenteditable="true">Pacote sendo movimentado para a vaga correta e Registros de Sistema.</p>
                 <div class="image-container">
                     <div class="upload-area no-print" id="upload-area-4">
                         Selecione a imagem<br>
@@ -313,10 +320,8 @@
     </div>
 
     <script>
-        // Variável de ID único para as imagens (para não duplicar ids ao criar/excluir)
         let uniqueImageId = 5;
 
-        // Atualiza a numeração de todas as evidências (3.1, 3.2, etc)
         function updateTimelineNumbers() {
             const items = document.querySelectorAll('.timeline-item');
             items.forEach((item, index) => {
@@ -327,7 +332,6 @@
             });
         }
 
-        // Função para adicionar uma nova seção
         function addTimelineItem() {
             const timelineContainer = document.getElementById('timeline-container');
             const newItem = document.createElement('div');
@@ -335,8 +339,8 @@
             
             newItem.innerHTML = `
                 <button class="btn-remove no-print" onclick="removeTimelineItem(this)">Excluir</button>
-                <p><strong><span class="evidence-num"></span> <span contenteditable="true">Nova Evidência</span></strong></p>
-                <p style="font-size: 13px; color: #555;" contenteditable="true">Descreva o evento aqui...</p>
+                <p style="margin-bottom: 5px;"><strong><span class="evidence-num"></span> <span contenteditable="true">Nova Evidência</span></strong></p>
+                <p style="font-size: 13px; color: #555; margin-top: 0;" contenteditable="true">Descreva o evento aqui...</p>
                 <div class="image-container">
                     <div class="upload-area no-print" id="upload-area-${uniqueImageId}">
                         Selecione a imagem<br>
@@ -348,18 +352,16 @@
             
             timelineContainer.appendChild(newItem);
             uniqueImageId++;
-            updateTimelineNumbers(); // Arruma os números após adicionar
+            updateTimelineNumbers();
         }
 
-        // Função para remover uma evidência
         function removeTimelineItem(button) {
             if(confirm("Tem certeza que deseja excluir esta evidência?")) {
                 button.closest('.timeline-item').remove();
-                updateTimelineNumbers(); // Recalcula a numeração para não pular números
+                updateTimelineNumbers();
             }
         }
 
-        // Carrega a imagem e esconde botão upload
         function previewImage(event, imgId, uploadAreaId) {
             var reader = new FileReader();
             reader.onload = function() {
@@ -373,35 +375,30 @@
             }
         }
 
-        // Função para gerar PDF sem cortes e escondendo botões
         function generatePDF() {
-            // Esconde todos os elementos que tem a classe 'no-print' (botões, uploads vazios, etc)
             var noPrintElements = document.querySelectorAll('.no-print');
             noPrintElements.forEach(function(el) {
-                el.dataset.originalDisplay = el.style.display; // Salva o display original
+                el.dataset.originalDisplay = window.getComputedStyle(el).display;
                 el.style.display = 'none';
             });
 
-            // Tira os contornos pontilhados de edição
             var editables = document.querySelectorAll('[contenteditable="true"]');
             editables.forEach(function(el) { el.style.outline = 'none'; });
 
-            // Configuração do PDF
             var element = document.getElementById('document-content');
+            
             var opt = {
-                margin:       [15, 10, 15, 10], // Margens: topo, direita, baixo, esquerda
+                margin:       [10, 10, 10, 10], // Margens uniformes
                 filename:     'Relatorio_Investigativo_CFTV.pdf',
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
-                // A configuração mode: ['css', 'legacy'] é o que faz o page-break-inside: avoid funcionar
+                // windowWidth: 800 obriga o gerador a usar exatamente a largura do contêiner, evitando cortes laterais
+                html2canvas:  { scale: 2, useCORS: true, windowWidth: 800 },
                 pagebreak:    { mode: ['css', 'legacy'] }, 
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            // Gera e depois devolve os botões para a tela
             html2pdf().set(opt).from(element).save().then(function() {
                 noPrintElements.forEach(function(el) {
-                    // Restaura os uploads APENAS se a imagem não estiver sendo mostrada
                     if (el.classList.contains('upload-area')) {
                         var imgId = el.id.replace('upload-area', 'img');
                         var imgElement = document.getElementById(imgId);
@@ -409,7 +406,6 @@
                             el.style.display = 'block';
                         }
                     } else {
-                        // Restaura botões padrão
                         el.style.display = el.dataset.originalDisplay || 'block';
                     }
                 });
