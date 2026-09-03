@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório Investigativo - Editável</title>
+    <!-- Biblioteca para gerar PDF a partir do HTML -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .btn-download {
+            background-color: #2D3277;
+            color: #fff;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: background 0.3s;
+        }
+        .btn-download:hover {
+            background-color: #1a1e4d;
+        }
+        #document-content {
+            background-color: #fff;
+            width: 100%;
+            max-width: 800px;
+            padding: 40px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        
+        /* ---------------------------------------------------
+           CORREÇÃO DE QUEBRA DE PÁGINA (NÃO CORTA MAIS ITENS) 
+           --------------------------------------------------- */
+        .timeline-item, .conclusion-box, .obs-box, .section-title, .info-table {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        /* Estilos do Documento */
+        .doc-header {
+            border-bottom: 3px solid #FFE600;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .doc-header .logo-container img {
+            max-height: 50px;
+        }
+        .doc-header .title-container {
+            flex: 1;
+            text-align: right;
+            padding-left: 20px;
+        }
+        .doc-title {
+            color: #2D3277;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0;
+            text-transform: uppercase;
+        }
+        .section-title {
+            background-color: #FFE600;
+            color: #2D3277;
+            padding: 8px 12px;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-radius: 3px;
+        }
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        .info-table td {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+            vertical-align: top;
+        }
+        .info-table td strong {
+            color: #2D3277;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #eee;
+        }
+        .image-container {
+            margin: 10px 0 10px 0;
+            text-align: center;
+        }
+        .upload-area {
+            border: 2px dashed #ccc;
+            background-color: #f9f9f9;
+            padding: 30px;
+            border-radius: 5px;
+            color: #777;
+        }
+        .upload-area input {
+            margin-top: 10px;
+        }
+        img.report-img {
+            max-width: 100%;
+            height: auto;
+            display: none;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 0 auto;
+        }
+        .conclusion-box {
+            background-color: #f0f4f8;
+            border-left: 4px solid #2D3277;
+            padding: 15px;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .obs-box {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffecb5;
+            padding: 15px;
+            font-size: 14px;
+            color: #856404;
+        }
+
+        /* Botões de Ação na Linha do Tempo */
+        .btn-add-item {
+            background-color: #f4f4f4;
+            color: #333;
+            border: 1px dashed #999;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+        .btn-add-item:hover {
+            background-color: #e2e2e2;
+        }
+        .btn-remove {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            font-size: 12px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .btn-remove:hover {
+            background-color: #cc0000;
+        }
+
+        /* Hover Editável */
+        [contenteditable="true"]:hover {
+            background-color: #f0f8ff;
+            outline: 1px dashed #2D3277;
+            cursor: text;
+        }
+    </style>
+</head>
+<body>
+
+    <button class="btn-download no-print" onclick="generatePDF()">Baixar Relatório em PDF</button>
+
+    <div id="document-content">
+        
+        <div class="doc-header">
+            <div class="logo-container">
+                <img src="https://upload.wikimedia.org/wikipedia/pt/0/04/Logotipo_MercadoLivre.png" alt="Logo Mercado Livre">
+            </div>
+            <div class="title-container">
+                <h1 class="doc-title" contenteditable="true">Relatório de Análise Investigativa de CFTV</h1>
+                <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;" contenteditable="true">Departamento de Segurança e Monitoramento</p>
+            </div>
+        </div>
+
+        <div class="section-title" contenteditable="true">1. Dados da Operação</div>
+        <table class="info-table">
+            <tr>
+                <td><strong>Empresa:</strong> <span contenteditable="true">Mercado Livre</span></td>
+                <td><strong>Unidade:</strong> <span contenteditable="true">SSC1</span></td>
+            </tr>
+            <tr>
+                <td><strong>Endereço:</strong> <span contenteditable="true">BR-101, km 47 - Joinville, SC</span></td>
+                <td><strong>Segmento / Setor:</strong> <span contenteditable="true">Retail – E Commerce</span></td>
+            </tr>
+            <tr>
+                <td colspan="2"><strong>Cliente(s):</strong> <span contenteditable="true">MERCADO LIVRE</span></td>
+            </tr>
+        </table>
+
+        <div class="section-title" contenteditable="true">2. Dados do Levantamento</div>
+        <table class="info-table">
+            <tr>
+                <td colspan="2"><strong>Objetivo:</strong> <span contenteditable="true">Localizar Pacote ID 47875178454</span></td>
+            </tr>
+            <tr>
+                <td><strong>Valor da Mercadoria:</strong> <span contenteditable="true">R$ 18.648,66</span></td>
+                <td><strong>Data da Análise:</strong> <span contenteditable="true">03/08/2026</span></td>
+            </tr>
+            <tr>
+                <td><strong>Responsável:</strong> <span contenteditable="true">Herik Yago Da Silva</span></td>
+                <td><strong>Função:</strong> <span contenteditable="true">OP2</span></td>
+            </tr>
+        </table>
+
+        <div class="section-title" contenteditable="true">3. Evidências Visuais (Linha do Tempo)</div>
+        
+        <div id="timeline-container">
+            <!-- Imagem 1 -->
+            <div class="timeline-item">
+                <button class="btn-remove no-print" onclick="removeTimelineItem(this)">Excluir</button>
+                <p><strong><span class="evidence-num">3.1.</span> <span contenteditable="true">Recebimento</span></strong></p>
+                <p style="font-size: 13px; color: #555;" contenteditable="true">Pacote sendo recebido.</p>
+                <div class="image-container">
+                    <div class="upload-area no-print" id="upload-area-1">
+                        Selecione a imagem<br>
+                        <input type="file" accept="image/*" onchange="previewImage(event, 'img-1', 'upload-area-1')">
+                    </div>
+                    <img id="img-1" class="report-img" src="" alt="Evidência 1">
+                </div>
+            </div>
+
+            <!-- Imagem 2 -->
+            <div class="timeline-item">
+                <button class="btn-remove no-print" onclick="removeTimelineItem(this)">Excluir</button>
+                <p><strong><span class="evidence-num">3.2.</span> <span contenteditable="true">Movimentação Interna</span></strong></p>
+                <p style="font-size: 13px; color: #555;" contenteditable="true">Pacote sendo incluído em outra gaiola.</p>
+                <div class="image-container">
+                    <div class="upload-area no-print" id="upload-area-2">
+                        Selecione a imagem<br>
+                        <input type="file" accept="image/*" onchange="previewImage(event, 'img-2', 'upload-area-2')">
+                    </div>
+                    <img id="img-2" class="report-img" src="" alt="Evidência 2">
+                </div>
+            </div>
+
+            <!-- Imagem 3 -->
+            <div class="timeline-item">
+                <button class="btn-remove no-print" onclick="removeTimelineItem(this)">Excluir</button>
+                <p><strong><span class="evidence-num">3.3.</span> <span contenteditable="true">Status de Aduana</span></strong></p>
+                <p style="font-size: 13px; color: #555;" contenteditable="true">Pacote sendo bipado em aduana como "a mais".</p>
+                <div class="image-container">
+                    <div class="upload-area no-print" id="upload-area-3">
+                        Selecione a imagem<br>
+                        <input type="file" accept="image/*" onchange="previewImage(event, 'img-3', 'upload-area-3')">
+                    </div>
+                    <img id="img-3" class="report-img" src="" alt="Evidência 3">
+                </div>
+            </div>
+
+            <!-- Imagem 4 -->
+            <div class="timeline-item">
+                <button class="btn-remove no-print" onclick="removeTimelineItem(this)">Excluir</button>
+                <p><strong><span class="evidence-num">3.4.</span> <span contenteditable="true">Correção de Rota</span></strong></p>
+                <p style="font-size: 13px; color: #555;" contenteditable="true">Pacote sendo movimentado para a vaga correta e Registros de Sistema.</p>
+                <div class="image-container">
+                    <div class="upload-area no-print" id="upload-area-4">
+                        Selecione a imagem<br>
+                        <input type="file" accept="image/*" onchange="previewImage(event, 'img-4', 'upload-area-4')">
+                    </div>
+                    <img id="img-4" class="report-img" src="" alt="Evidência 4">
+                </div>
+            </div>
+        </div>
+        
+        <button id="btn-add-timeline" class="btn-add-item no-print" onclick="addTimelineItem()">+ Adicionar Nova Evidência</button>
+
+        <div class="section-title" contenteditable="true">4. Conclusão da Investigação</div>
+        <div class="conclusion-box" contenteditable="true">
+            <ul style="margin:0; padding-left: 20px;">
+                <li>O pacote foi recebido no dia 27/08 às 11:29 hrs.</li>
+                <li>A gaiola foi movimentada para a expedição às 11:46 hrs, chegando às 11:48 hrs.</li>
+                <li>O pacote foi retirado da gaiola de atrelamento às 12:53 hrs e incluído em outra gaiola de carregamento.</li>
+                <li>A gaiola foi movimentada para a vaga às 13:08 hrs.</li>
+                <li>O motorista chegou às 13:15 hrs.</li>
+                <li>O pacote foi bipado como "A MAIS" na rota C1_PM1 (rota errada) às 13:23 hrs.</li>
+                <li>O pacote foi retirado da gaiola incorreta e incluído na gaiola correta.</li>
+                <li>A gaiola foi retirada às 13:27 hrs e movimentada para a vaga correta.</li>
+                <li>Por fim, o pacote foi carregado sem aduana na rota A1_PM1 às 13:32 hrs.</li>
+            </ul>
+        </div>
+
+        <div class="section-title" contenteditable="true">5. Observações</div>
+        <div class="obs-box" contenteditable="true">
+            <strong>Atenção:</strong> Durante o carregamento, o sistema CFTV apresentou corte de imagens e travamento.
+        </div>
+
+    </div>
+
+    <script>
+        // Variável de ID único para as imagens (para não duplicar ids ao criar/excluir)
+        let uniqueImageId = 5;
+
+        // Atualiza a numeração de todas as evidências (3.1, 3.2, etc)
+        function updateTimelineNumbers() {
+            const items = document.querySelectorAll('.timeline-item');
+            items.forEach((item, index) => {
+                const numSpan = item.querySelector('.evidence-num');
+                if (numSpan) {
+                    numSpan.innerText = `3.${index + 1}. `;
+                }
+            });
+        }
+
+        // Função para adicionar uma nova seção
+        function addTimelineItem() {
+            const timelineContainer = document.getElementById('timeline-container');
+            const newItem = document.createElement('div');
+            newItem.className = 'timeline-item';
+            
+            newItem.innerHTML = `
+                <button class="btn-remove no-print" onclick="removeTimelineItem(this)">Excluir</button>
+                <p><strong><span class="evidence-num"></span> <span contenteditable="true">Nova Evidência</span></strong></p>
+                <p style="font-size: 13px; color: #555;" contenteditable="true">Descreva o evento aqui...</p>
+                <div class="image-container">
+                    <div class="upload-area no-print" id="upload-area-${uniqueImageId}">
+                        Selecione a imagem<br>
+                        <input type="file" accept="image/*" onchange="previewImage(event, 'img-${uniqueImageId}', 'upload-area-${uniqueImageId}')">
+                    </div>
+                    <img id="img-${uniqueImageId}" class="report-img" src="" alt="Evidência ${uniqueImageId}">
+                </div>
+            `;
+            
+            timelineContainer.appendChild(newItem);
+            uniqueImageId++;
+            updateTimelineNumbers(); // Arruma os números após adicionar
+        }
+
+        // Função para remover uma evidência
+        function removeTimelineItem(button) {
+            if(confirm("Tem certeza que deseja excluir esta evidência?")) {
+                button.closest('.timeline-item').remove();
+                updateTimelineNumbers(); // Recalcula a numeração para não pular números
+            }
+        }
+
+        // Carrega a imagem e esconde botão upload
+        function previewImage(event, imgId, uploadAreaId) {
+            var reader = new FileReader();
+            reader.onload = function() {
+                var output = document.getElementById(imgId);
+                output.src = reader.result;
+                output.style.display = 'block'; 
+                document.getElementById(uploadAreaId).style.display = 'none'; 
+            }
+            if(event.target.files[0]) {
+                reader.readAsDataURL(event.target.files[0]);
+            }
+        }
+
+        // Função para gerar PDF sem cortes e escondendo botões
+        function generatePDF() {
+            // Esconde todos os elementos que tem a classe 'no-print' (botões, uploads vazios, etc)
+            var noPrintElements = document.querySelectorAll('.no-print');
+            noPrintElements.forEach(function(el) {
+                el.dataset.originalDisplay = el.style.display; // Salva o display original
+                el.style.display = 'none';
+            });
+
+            // Tira os contornos pontilhados de edição
+            var editables = document.querySelectorAll('[contenteditable="true"]');
+            editables.forEach(function(el) { el.style.outline = 'none'; });
+
+            // Configuração do PDF
+            var element = document.getElementById('document-content');
+            var opt = {
+                margin:       [15, 10, 15, 10], // Margens: topo, direita, baixo, esquerda
+                filename:     'Relatorio_Investigativo_CFTV.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                // A configuração mode: ['css', 'legacy'] é o que faz o page-break-inside: avoid funcionar
+                pagebreak:    { mode: ['css', 'legacy'] }, 
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Gera e depois devolve os botões para a tela
+            html2pdf().set(opt).from(element).save().then(function() {
+                noPrintElements.forEach(function(el) {
+                    // Restaura os uploads APENAS se a imagem não estiver sendo mostrada
+                    if (el.classList.contains('upload-area')) {
+                        var imgId = el.id.replace('upload-area', 'img');
+                        var imgElement = document.getElementById(imgId);
+                        if(imgElement && imgElement.style.display !== 'block') {
+                            el.style.display = 'block';
+                        }
+                    } else {
+                        // Restaura botões padrão
+                        el.style.display = el.dataset.originalDisplay || 'block';
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>
