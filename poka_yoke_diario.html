@@ -50,14 +50,12 @@
         /* FILTROS E KPI ROW */
         .top-row { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex: 0 0 auto; }
         
-        /* ALINHAMENTO CORRIGIDO (flex-start trava no topo) */
         .kpi-wrapper { display: flex; background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 8px; padding: 15px 30px; gap: 40px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); align-items: flex-start; }
         .kpi-item { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; }
         .kpi-title { font-size: 0.9rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 5px; }
         .kpi-value { font-size: 2.6rem; font-weight: 900; color: #2D3277; line-height: 1; }
         .kpi-subtitle { font-size: 0.85rem; color: var(--alert-red); font-weight: 800; margin-top: 6px; }
 
-        /* KPI CICLOS (TURNO) - ALINHAMENTO CORRIGIDO */
         .kpi-cycles-wrapper { display: flex; gap: 20px; background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 8px; padding: 15px 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); align-items: flex-start; }
         .kpi-cycle-box { display: flex; flex-direction: column; align-items: center; border-right: 1px solid var(--border-card); padding-right: 20px; min-width: 100px;}
         .kpi-cycle-box:last-child { border-right: none; padding-right: 0; }
@@ -65,13 +63,12 @@
         .cy-val { font-size: 1.6rem; font-weight: 900; color: #3483FA; line-height: 1;}
         .cy-err { font-size: 0.8rem; color: var(--alert-red); font-weight: 800; margin-top: 6px;}
 
-        .filter-wrapper { display: flex; background: transparent; gap: 10px; align-items: center; }
-        .filter-select { padding: 10px 15px; border-radius: 6px; border: 1px solid var(--border-card); background: var(--bg-card); color: var(--text-main); font-weight: 600; font-size: 0.9rem; outline: none; cursor: pointer; min-width: 150px; box-shadow: 0 2px 4px rgba(0,0,0,0.03);}
+        .filter-wrapper { display: flex; background: transparent; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: flex-end;}
+        .filter-select { padding: 10px 15px; border-radius: 6px; border: 1px solid var(--border-card); background: var(--bg-card); color: var(--text-main); font-weight: 600; font-size: 0.9rem; outline: none; cursor: pointer; min-width: 130px; box-shadow: 0 2px 4px rgba(0,0,0,0.03);}
         
         /* LAYOUT PRINCIPAL DAS TABELAS */
         .main-grid { display: grid; grid-template-columns: 380px 1fr; gap: 15px; flex: 1; min-height: 0; }
         
-        /* COLUNA ESQUERDA */
         .left-col { display: flex; flex-direction: column; gap: 15px; min-height: 0; overflow-y: auto; padding-right: 5px;}
         .table-card { background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
         
@@ -86,41 +83,27 @@
         .styled-table td.nome-col { text-align: left; font-weight: 800; padding-left: 15px; }
         .styled-table td.bold-col { font-weight: 900; }
         
-        /* Tabela Resumo Erros (Inferior Esquerda) */
         .err-summary-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; text-align: left; }
         .err-summary-table td { padding: 10px 15px; border-bottom: 1px solid var(--border-card); font-weight: 900; }
         .err-summary-table td:first-child { background: var(--brand-yellow); color: var(--text-on-yellow); width: 65%; border-right: 1px solid var(--border-card); }
         .err-summary-table td:last-child { background: #fff; color: var(--text-main); text-align: center; }
 
-        /* COLUNA DIREITA (Relação Total) */
         .right-col { display: flex; flex-direction: column; min-height: 0; border-radius: 8px; overflow: hidden; background: var(--bg-card); border: 1px solid var(--border-card); box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
         .scroll-wrapper { flex: 1; overflow-y: auto; overflow-x: auto; }
 
-        /* CORES DE ALERTA */
         .bg-red-heavy { background-color: #E74C3C !important; color: white !important; }
         .bg-red-light { background-color: #FADBD8 !important; color: #E74C3C !important; }
         .bg-gray-row { background-color: #F3F4F6; }
 
-        /* EXPORTAÇÃO (Trava perfeita sem cortes) */
+        /* EXPORTAÇÃO */
         body.exporting { 
-            width: 1920px !important; 
-            height: 1080px !important; 
-            position: absolute !important; 
-            top: 0 !important; 
-            left: 0 !important; 
-            background: #F3F4F6 !important; 
-            display: block !important; 
-            overflow: hidden !important;
+            width: 1920px !important; height: 1080px !important; position: absolute !important; top: 0 !important; left: 0 !important; background: #F3F4F6 !important; display: block !important; overflow: hidden !important;
         }
-        body.exporting .main-grid { 
-            height: 800px !important; 
-            display: grid !important; 
-            flex: none !important; 
-        }
-        body.exporting .header-controls, body.exporting .filter-select:last-child, 
+        body.exporting .main-grid { height: 800px !important; display: grid !important; flex: none !important; }
+        body.exporting .header-controls, body.exporting .filter-select:nth-child(n+3), 
         body.exporting #filter-data-inicio, body.exporting #filter-data-fim { display: none !important; }
 
-        /* MODAL POP-UP CUSTOMIZADO */
+        /* MODAL */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 9999; }
         .modal-overlay.active { display: flex; }
         .modal-box { background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 12px; padding: 25px; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); text-align: center; }
@@ -162,7 +145,6 @@
     <!-- LINHA DE KPIs E FILTROS -->
     <div class="top-row">
         <div style="display: flex; gap: 15px;">
-            <!-- KPI GERAL -->
             <div class="kpi-wrapper">
                 <div class="kpi-item">
                     <span class="kpi-title">Bipes</span>
@@ -179,7 +161,6 @@
                 </div>
             </div>
 
-            <!-- KPI POR CICLO (SÓ APARECE SEM FILTRO DE TURNO) -->
             <div class="kpi-cycles-wrapper" id="kpi-cycles-wrapper">
                 <div class="kpi-cycle-box">
                     <span class="cy-title">Ciclo AM</span>
@@ -200,10 +181,13 @@
         </div>
 
         <div class="filter-wrapper">
-            <input type="date" id="filter-data-inicio" class="filter-select" onchange="applyFilter()" title="Data Início">
-            <input type="date" id="filter-data-fim" class="filter-select" onchange="applyFilter()" title="Data Fim">
+            <input type="date" id="filter-data-inicio" class="filter-select" onchange="applyFilter()" title="Data Início (Opcional)">
+            <input type="date" id="filter-data-fim" class="filter-select" onchange="applyFilter()" title="Data Fim (Opcional)">
             
+            <select id="filter-mes" class="filter-select" onchange="applyFilter()"><option value="">Mês (Todos)</option></select>
+            <select id="filter-semana" class="filter-select" onchange="applyFilter()"><option value="">Semana (Todas)</option></select>
             <select id="filter-dia" class="filter-select" onchange="applyFilter()"><option value="">Dia (Todos)</option></select>
+            
             <select id="filter-ciclo" class="filter-select" onchange="applyFilter()">
                 <option value="">CICLO (Todos)</option>
                 <option value="AM">AM</option>
@@ -216,7 +200,6 @@
 
     <!-- MAIN GRID (TABELAS) -->
     <div class="main-grid">
-        <!-- COLUNA ESQUERDA (TOP E RESUMO) -->
         <div class="left-col">
             <div class="table-card" style="flex: 1;">
                 <div class="card-header">⚠️ TOP OFENSORES</div>
@@ -251,7 +234,6 @@
             </div>
         </div>
 
-        <!-- COLUNA DIREITA (RELAÇÃO TOTAL) -->
         <div class="right-col">
             <div class="card-header" style="justify-content: flex-start; padding-left: 20px;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
@@ -295,15 +277,15 @@
     </div>
 
     <script>
+        // --- NOVOS NODES (BANCO COMEÇANDO DO ZERO) ---
         const FIREBASE_URL = "https://reportes-bdb0a-default-rtdb.firebaseio.com/";
-        const NODE_USERS = "poka_sorting_users";
-        const NODE_DATA = "poka_sorting_data";
+        const NODE_USERS = "poka_sorting_users_v2"; 
+        const NODE_DATA = "poka_sorting_data_v2";
         
         let mapUsers = {}; 
         let globalData = []; 
         let filteredData = [];
 
-        // Permissões
         const canEdit = window.parent && typeof window.parent.verificarPermissaoUpload === 'function' 
             ? window.parent.verificarPermissaoUpload('poka_yoke.html') : true; 
         if(canEdit) document.getElementById('btnUpload').style.display = 'flex';
@@ -323,7 +305,12 @@
                 
                 if(options.type === 'prompt') {
                     inputArea.style.display = 'block';
-                    input.value = options.defaultValue || '';
+                    let hoje = new Date();
+                    // Sugere a data atual
+                    let d = String(hoje.getDate()).padStart(2, '0');
+                    let m = String(hoje.getMonth() + 1).padStart(2, '0');
+                    let y = hoje.getFullYear();
+                    input.value = options.defaultValue || `${y}-${m}-${d}`;
                     btnCancel.style.display = 'block';
                 } else {
                     inputArea.style.display = 'none';
@@ -340,25 +327,29 @@
         }
 
         const parseCSV = (file) => new Promise(resolve => { Papa.parse(file, { header: true, skipEmptyLines: true, complete: resolve }); });
-
         function getNum(val) { return isNaN(parseFloat(val)) ? 0 : parseFloat(val); }
+        
+        // Calcula a Semana do Ano (ISO) com base numa data YYYY-MM-DD
+        function getWeekNumber(dateStr) {
+            if(!dateStr) return '';
+            let d = new Date(dateStr + "T12:00:00Z"); 
+            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+            let yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+            return Math.ceil(( ( (d - yearStart) / 86400000) + 1)/7);
+        }
 
-        // Converte data DD/MM/YYYY do CSV para YYYY-MM-DD do filtro
         function formatDateISO(dtStr) {
             if (!dtStr) return '';
-            let datePart = dtStr.split(' ')[0]; // Tira a hora se tiver
+            let datePart = dtStr.split(' ')[0];
             if (datePart.includes('/')) {
                 let parts = datePart.split('/');
-                let d = parts[0];
-                let m = parts[1];
-                let y = parts[2];
+                let d = parts[0], m = parts[1], y = parts[2];
                 if (y && y.length === 2) y = '20' + y;
                 return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
             }
             return datePart;
         }
         
-        // --- INICIALIZAÇÃO ---
         window.onload = async function() {
             await loadUsers();
             await loadData();
@@ -378,12 +369,23 @@
                 const db = await r.json();
                 globalData = [];
                 if(db) {
-                    Object.keys(db).forEach(dia => {
-                        let records = db[dia];
+                    Object.keys(db).forEach(diaNode => {
+                        let records = db[diaNode];
+                        let diaString = diaNode.replace('dia_',''); // Ex: 2026-09-04
+                        let mesString = diaString.substring(0, 7);  // Ex: 2026-09
+                        let semanaNum = getWeekNumber(diaString);   // Ex: 36
+
+                        let addRecord = (row) => { 
+                            row.dia = diaString;
+                            row.mes = mesString;
+                            row.semana = semanaNum;
+                            globalData.push(row); 
+                        };
+
                         if(Array.isArray(records)) {
-                            records.forEach(row => { row.dia = dia.replace('dia_',''); globalData.push(row); });
+                            records.forEach(addRecord);
                         } else if (typeof records === 'object') {
-                            Object.values(records).forEach(row => { row.dia = dia.replace('dia_',''); globalData.push(row); });
+                            Object.values(records).forEach(addRecord);
                         }
                     });
                 }
@@ -392,7 +394,6 @@
             } catch(e) { console.log('Erro Data', e); }
         }
 
-        // --- SISTEMA DE UPLOAD ---
         async function processarUploadSmart(inputElement) {
             if (!canEdit) return;
             const files = Array.from(inputElement.files);
@@ -402,10 +403,8 @@
 
             let fileUsers = files.find(f => f.name.toLowerCase().includes('user'));
             let fileData = files.filter(f => !f.name.toLowerCase().includes('user'));
-
             let promises = [];
 
-            // 1. Processa BD de Usuários
             if (fileUsers) {
                 const res = await parseCSV(fileUsers);
                 let newUsers = { ...mapUsers };
@@ -418,11 +417,10 @@
                 mapUsers = newUsers;
             }
 
-            // 2. Processa Dados de Turno
             if (fileData.length > 0) {
                 let inputDia = await showModal({
                     title: 'Sincronizar Poka Yoke',
-                    message: `Identificamos ${fileData.length} planilhas de turnos.<br>De qual <b>DIA</b> são estes dados? (Ex: 2026-09-04)`,
+                    message: `Identificamos ${fileData.length} planilhas de turnos.<br>De qual <b>DIA</b> são estes dados? (Padrão: AAAA-MM-DD)`,
                     type: 'prompt'
                 });
 
@@ -448,6 +446,7 @@
                         if(nameLower.includes('pm')) ciclo = 'PM';
                         if(nameLower.includes('sd')) ciclo = 'SD';
 
+                        // Limpa dados velhos do mesmo ciclo para evitar duplicação
                         newData = newData.filter(r => r.ciclo !== ciclo);
 
                         res.data.forEach(row => {
@@ -484,22 +483,31 @@
 
         // --- FILTROS ---
         function populateFilters() {
+            let meses = new Set();
+            let semanas = new Set();
             let dias = new Set();
             let reps = new Set();
             
             globalData.forEach(r => {
+                if(r.mes) meses.add(r.mes);
+                if(r.semana) semanas.add(r.semana);
                 if(r.dia) dias.add(r.dia);
                 if(r.user) reps.add(mapUsers[r.user] || r.user);
             });
 
-            const fill = (id, setVal, def) => {
+            const fill = (id, setVal, def, reverse = false) => {
                 let sel = document.getElementById(id);
                 sel.innerHTML = `<option value="">${def}</option>`;
-                Array.from(setVal).sort().reverse().forEach(v => { sel.innerHTML += `<option value="${v}">${v}</option>`; });
+                let arr = Array.from(setVal);
+                if(reverse) arr.sort().reverse(); 
+                else arr.sort((a,b)=>a-b);
+                arr.forEach(v => { sel.innerHTML += `<option value="${v}">${v}</option>`; });
             };
 
-            fill('filter-dia', dias, 'Dia (Todos)');
-            fill('filter-rep', reps, "Rep's (Todos)");
+            fill('filter-mes', meses, 'Mês (Todos)', true);
+            fill('filter-semana', semanas, 'Semana (Todas)', false);
+            fill('filter-dia', dias, 'Dia (Todos)', true);
+            fill('filter-rep', reps, "Rep's (Todos)", false);
             
             if(dias.size > 0) {
                 let maxDia = Array.from(dias).sort().reverse()[0];
@@ -508,6 +516,8 @@
         }
 
         function applyFilter() {
+            let m = document.getElementById('filter-mes').value;
+            let s = document.getElementById('filter-semana').value;
             let d = document.getElementById('filter-dia').value;
             let c = document.getElementById('filter-ciclo').value;
             let r = document.getElementById('filter-rep').value;
@@ -515,34 +525,37 @@
             let dtIni = document.getElementById('filter-data-inicio').value;
             let dtFim = document.getElementById('filter-data-fim').value;
 
-            // Controle de Visibilidade do KPI de Ciclos (Turnos)
-            // Só mostra se NÃO houver ciclo selecionado no filtro
             document.getElementById('kpi-cycles-wrapper').style.display = c ? 'none' : 'flex';
 
             filteredData = globalData.filter(row => {
                 let match = true;
-                if(d && row.dia != d) match = false;
+                
+                // Se escolheu DIA, ignora Semana e Mês na lógica pra não conflitar
+                if(d) {
+                    if(row.dia != d) match = false;
+                } else {
+                    if(s && row.semana != s) match = false;
+                    if(m && row.mes != m) match = false;
+                }
+
                 if(c && row.ciclo != c) match = false;
                 if(r && (mapUsers[row.user] || row.user) != r) match = false;
                 
-                if(dtIni && row.data_ref && row.data_ref < dtIni) match = false;
-                if(dtFim && row.data_ref && row.data_ref > dtFim) match = false;
+                if(dtIni && row.dia < dtIni) match = false;
+                if(dtFim && row.dia > dtFim) match = false;
 
                 return match;
             });
             render();
         }
 
-        // --- RENDERIZAÇÃO GERAL ---
+        // --- RENDERIZAÇÃO ---
         function render() {
             let userMap = {};
-            let tBipes = 0, tErros = 0, tCorretos = 0;
+            let tBipes = 0, tErros = 0;
             let tGaiola = 0, tForca = 0, tFalha = 0, tProb = 0, tQrSem = 0;
 
-            // Dados para o quadro de Resumo dos Ciclos (AM, PM, SD)
-            let bipesAM = 0, errAM = 0;
-            let bipesPM = 0, errPM = 0;
-            let bipesSD = 0, errSD = 0;
+            let bipesAM = 0, errAM = 0, bipesPM = 0, errPM = 0, bipesSD = 0, errSD = 0;
 
             filteredData.forEach(r => {
                 let u = mapUsers[r.user] || r.user;
@@ -556,27 +569,33 @@
                 userMap[u].prob += r.prob_qr;
                 userMap[u].qrsem += r.qr_sem;
 
-                tBipes += r.bipes;
-                tErros += r.erros;
-                tCorretos += r.corretos;
-                
-                tGaiola += r.gaiola;
-                tForca += r.forca;
-                tFalha += r.falha_poka;
-                tProb += r.prob_qr;
-                tQrSem += r.qr_sem;
+                tBipes += r.bipes; tErros += r.erros;
+                tGaiola += r.gaiola; tForca += r.forca; tFalha += r.falha_poka; tProb += r.prob_qr; tQrSem += r.qr_sem;
 
-                // Contabilidade por Ciclo
                 if(r.ciclo === 'AM') { bipesAM += r.bipes; errAM += r.erros; }
                 if(r.ciclo === 'PM') { bipesPM += r.bipes; errPM += r.erros; }
                 if(r.ciclo === 'SD') { bipesSD += r.bipes; errSD += r.erros; }
             });
 
-            // Atualiza Título Dinâmico 
-            let dVal = document.getElementById('filter-dia').value || "DATA ATUAL";
-            document.getElementById('main-header-title').innerText = `SORTING - POKA YOKE SSC1 "${dVal}" - TOTAL "${tBipes.toLocaleString('pt-BR')} Bipes" COM ${tErros.toLocaleString('pt-BR')} ERROS`;
+            // Lógica do Título Inteligente
+            let mVal = document.getElementById('filter-mes').value;
+            let sVal = document.getElementById('filter-semana').value;
+            let dVal = document.getElementById('filter-dia').value;
+            let dtIni = document.getElementById('filter-data-inicio').value;
+            let dtFim = document.getElementById('filter-data-fim').value;
 
-            // Atualiza os blocos de Turno
+            let txtPeriodo = "DATA ATUAL";
+            if (dtIni && dtFim) txtPeriodo = `DE ${dtIni} ATÉ ${dtFim}`;
+            else if (dtIni) txtPeriodo = `A PARTIR DE ${dtIni}`;
+            else if (dtFim) txtPeriodo = `ATÉ ${dtFim}`;
+            else if (dVal) txtPeriodo = `${dVal}`;
+            else if (sVal && mVal) txtPeriodo = `MÊS ${mVal} - SEMANA ${sVal}`;
+            else if (sVal) txtPeriodo = `SEMANA ${sVal}`;
+            else if (mVal) txtPeriodo = `MÊS ${mVal}`;
+
+            document.getElementById('main-header-title').innerText = `SORTING - POKA YOKE SSC1 "${txtPeriodo}" - TOTAL "${tBipes.toLocaleString('pt-BR')} Bipes" COM ${tErros.toLocaleString('pt-BR')} ERROS`;
+
+            // KPIs
             document.getElementById('cy-am-bipes').innerText = bipesAM.toLocaleString('pt-BR');
             document.getElementById('cy-am-tot-err').innerText = errAM.toLocaleString('pt-BR');
             document.getElementById('cy-am-err').innerText = (bipesAM > 0 ? (errAM / bipesAM * 100).toFixed(2) : "0.00") + "%";
@@ -589,86 +608,49 @@
             document.getElementById('cy-sd-tot-err').innerText = errSD.toLocaleString('pt-BR');
             document.getElementById('cy-sd-err').innerText = (bipesSD > 0 ? (errSD / bipesSD * 100).toFixed(2) : "0.00") + "%";
 
-            // Atualiza KPIs Principais
             document.getElementById('kpi-bipes').innerText = tBipes.toLocaleString('pt-BR');
             document.getElementById('kpi-erros').innerText = tErros.toLocaleString('pt-BR');
-            let errPct = tBipes > 0 ? (tErros / tBipes * 100).toFixed(2) : "0.00";
-            document.getElementById('kpi-erros-pct').innerText = errPct + "%";
-            let assert = tBipes > 0 ? ((tBipes - tErros) / tBipes * 100).toFixed(2) : "0.00";
-            document.getElementById('kpi-assert').innerText = assert + "%";
+            document.getElementById('kpi-erros-pct').innerText = (tBipes > 0 ? (tErros / tBipes * 100).toFixed(2) : "0.00") + "%";
+            document.getElementById('kpi-assert').innerText = (tBipes > 0 ? ((tBipes - tErros) / tBipes * 100).toFixed(2) : "0.00") + "%";
 
-            // Atualiza Resumo de Erros
             document.getElementById('tot-gaiola').innerText = tGaiola;
             document.getElementById('tot-falha').innerText = tFalha;
             document.getElementById('tot-forca').innerText = tForca;
             document.getElementById('tot-probqr').innerText = tProb;
             document.getElementById('tot-qrsempoka').innerText = tQrSem;
 
-            // Arrays
-            let arrData = Object.values(userMap);
-            arrData.sort((a,b) => b.bipes - a.bipes); // Relação Total (Top Bipes)
+            let arrData = Object.values(userMap).sort((a,b) => b.bipes - a.bipes);
+            let arrOfensores = [...arrData].sort((a,b) => b.erros - a.erros).slice(0, 15); 
 
-            let arrOfensores = [...arrData].sort((a,b) => b.erros - a.erros).slice(0, 15); // Top 15 Ofensores
-
-            // Renderiza TOP OFENSORES
             let htmlTop = '';
             arrOfensores.forEach((x, i) => {
                 let tx = x.bipes > 0 ? (x.erros / x.bipes * 100).toFixed(2) : "0.00";
-                let bgErr = '';
-                if(x.erros > 0) {
-                    if(i === 0) bgErr = 'bg-red-heavy'; 
-                    else if (i < 3) bgErr = 'bg-red-light'; 
-                    else bgErr = 'bg-gray-row';
-                }
-                htmlTop += `<tr>
-                    <td class="nome-col">${x.nome}</td>
-                    <td>${x.bipes}</td>
-                    <td class="${bgErr} bold-col">${x.erros}</td>
-                    <td>${tx}%</td>
-                </tr>`;
+                let bgErr = x.erros > 0 ? (i === 0 ? 'bg-red-heavy' : (i < 3 ? 'bg-red-light' : 'bg-gray-row')) : '';
+                htmlTop += `<tr><td class="nome-col">${x.nome}</td><td>${x.bipes}</td><td class="${bgErr} bold-col">${x.erros}</td><td>${tx}%</td></tr>`;
             });
             document.getElementById('tbody-top').innerHTML = htmlTop || `<tr><td colspan="4" style="padding:15px;">Sem dados</td></tr>`;
 
-            // Renderiza RELAÇÃO TOTAL
             let htmlTot = '';
             arrData.forEach(x => {
-                htmlTot += `<tr>
-                    <td class="nome-col">${x.nome}</td>
-                    <td class="bold-col">${x.bipes}</td>
-                    <td style="color:${x.erros>0 ? 'var(--alert-red)':'inherit'}; font-weight:800;">${x.erros}</td>
-                    <td>${x.gaiola}</td>
-                    <td>${x.forca}</td>
-                    <td>${x.falha}</td>
-                    <td>${x.prob}</td>
-                    <td>${x.qrsem}</td>
-                </tr>`;
+                htmlTot += `<tr><td class="nome-col">${x.nome}</td><td class="bold-col">${x.bipes}</td>
+                <td style="color:${x.erros>0 ? 'var(--alert-red)':'inherit'}; font-weight:800;">${x.erros}</td>
+                <td>${x.gaiola}</td><td>${x.forca}</td><td>${x.falha}</td><td>${x.prob}</td><td>${x.qrsem}</td></tr>`;
             });
             document.getElementById('tbody-total').innerHTML = htmlTot || `<tr><td colspan="8" style="padding:20px;">Sem dados para os filtros selecionados</td></tr>`;
         }
 
-        // --- EXPORTAÇÃO CORRIGIDA (SEM CORTES) ---
         function baixarImagem() {
-            // Adiciona classe que fixa resolução para foto
             document.body.classList.add('exporting');
-            
-            // Timeout maior (500ms) para dar tempo de o CSS "exporting" refazer o layout na tela
             setTimeout(() => {
-                html2canvas(document.body, { 
-                    scale: 2, 
-                    backgroundColor: '#F3F4F6',
-                    useCORS: true,
-                    windowWidth: 1920, 
-                    windowHeight: 1080 
-                }).then(canvas => {
+                html2canvas(document.body, { scale: 2, backgroundColor: '#F3F4F6', useCORS: true, windowWidth: 1920, windowHeight: 1080 })
+                .then(canvas => {
                     document.body.classList.remove('exporting');
                     const link = document.createElement('a');
                     link.download = `PokaYoke_Sorting.png`;
-                    link.href = canvas.toDataURL('image/png'); 
-                    link.click();
+                    link.href = canvas.toDataURL('image/png'); link.click();
                 }).catch(err => {
-                    console.error("Erro ao exportar: ", err);
                     document.body.classList.remove('exporting');
-                    alert("Ocorreu um erro ao exportar a imagem. Tente novamente.");
+                    alert("Ocorreu um erro ao exportar a imagem.");
                 });
             }, 500); 
         }
