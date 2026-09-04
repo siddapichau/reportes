@@ -7,7 +7,6 @@
     <!-- Biblioteca para gerar PDF a partir do HTML -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        /* MUDANÇA AQUI: Removido o flexbox do body para o gerador de PDF não errar as coordenadas */
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f4f4f4;
@@ -25,7 +24,7 @@
             border-radius: 5px;
             cursor: pointer;
             display: block;
-            margin: 0 auto 20px auto; /* Centraliza o botão */
+            margin: 0 auto 20px auto;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
             transition: background 0.3s;
         }
@@ -36,7 +35,7 @@
             background-color: #fff;
             width: 100%;
             max-width: 800px;
-            margin: 0 auto; /* Centraliza o documento de forma segura para o PDF */
+            margin: 0 auto;
             padding: 40px;
             box-sizing: border-box;
             box-shadow: 0 0 15px rgba(0,0,0,0.1);
@@ -48,30 +47,39 @@
             break-inside: avoid;
         }
 
-        /* Estilos do Documento */
-        .doc-header {
-            border-bottom: 3px solid #FFE600;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
+        /* ---------------------------------------------------
+           NOVO ESTILO DO CABEÇALHO
+           --------------------------------------------------- */
+        .doc-header-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 10px;
         }
-        .doc-header .logo-container img {
+        .doc-header-top .logo-container img {
             max-height: 50px;
         }
-        .doc-header .title-container {
-            flex: 1;
+        .doc-header-top .dept-title {
+            color: #666;
+            font-size: 16px;
             text-align: right;
-            padding-left: 20px;
+            margin: 0;
+        }
+        .doc-title-container {
+            border-bottom: 3px solid #FFE600;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            text-align: left;
         }
         .doc-title {
             color: #2D3277;
-            font-size: 22px;
+            font-size: 18px; /* Fonte reduzida para caber textos longos */
             font-weight: bold;
             margin: 0;
             text-transform: uppercase;
+            line-height: 1.3;
         }
+
         .section-title {
             background-color: #FFE600;
             color: #2D3277;
@@ -105,6 +113,7 @@
         .image-container {
             margin: 10px 0;
             text-align: center;
+            position: relative; /* Para posicionar o botão de remover imagem */
         }
         .upload-area {
             border: 2px dashed #ccc;
@@ -117,7 +126,6 @@
             margin-top: 10px;
         }
         
-        /* Limite inteligente para as imagens não causarem quebras bizarras */
         img.report-img {
             max-width: 100%; 
             max-height: 380px; 
@@ -127,6 +135,22 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             margin: 0 auto;
+        }
+
+        /* Botão para limpar/remover a imagem carregada */
+        .btn-clear-image {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            display: none; /* Escondido por padrão */
+            margin: 0 auto 5px auto;
+        }
+        .btn-clear-image:hover {
+            background-color: #cc0000;
         }
         
         .conclusion-box {
@@ -191,14 +215,17 @@
 
     <div id="document-content">
         
-        <div class="doc-header">
+        <!-- CABEÇALHO ATUALIZADO -->
+        <div class="doc-header-top">
             <div class="logo-container">
                 <img src="https://upload.wikimedia.org/wikipedia/pt/0/04/Logotipo_MercadoLivre.png" alt="Logo Mercado Livre" crossorigin="anonymous">
             </div>
-            <div class="title-container">
-                <h1 class="doc-title" contenteditable="true">Relatório de Análise Investigativa de CFTV</h1>
-                <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;" contenteditable="true">Departamento de Segurança e Monitoramento</p>
+            <div class="dept-title">
+                <p contenteditable="true" style="margin:0;">Departamento de Segurança e Monitoramento</p>
             </div>
+        </div>
+        <div class="doc-title-container">
+            <h1 class="doc-title" contenteditable="true">ANÁLISE INVESTIGATIVA ID: 47828339632 BICICLETA SPINNING COM RODA DE INÉRCIA DE 13KG WCT FITNESS COR PRETO PRETO/AMARELO VALOR R$ 1.357,00</h1>
         </div>
 
         <div class="section-title" contenteditable="true">1. Dados da Operação</div>
@@ -235,52 +262,56 @@
         
         <div id="timeline-container">
             <div class="timeline-item">
-                <button class="btn-remove no-print" onclick="removeTimelineItem(this)">Excluir</button>
+                <button class="btn-remove no-print" onclick="removeTimelineItem(this)">Excluir Aba</button>
                 <p style="margin-bottom: 5px;"><strong><span class="evidence-num">3.1.</span> <span contenteditable="true">Recebimento</span></strong></p>
                 <p style="font-size: 13px; color: #555; margin-top: 0;" contenteditable="true">Pacote sendo recebido.</p>
                 <div class="image-container">
+                    <button class="btn-clear-image no-print" id="clear-btn-1" onclick="clearImage('img-1', 'upload-area-1', 'clear-btn-1')">X Remover Imagem</button>
                     <div class="upload-area no-print" id="upload-area-1">
                         Selecione a imagem<br>
-                        <input type="file" accept="image/*" onchange="previewImage(event, 'img-1', 'upload-area-1')">
+                        <input type="file" accept="image/*" id="input-1" onchange="previewImage(event, 'img-1', 'upload-area-1', 'clear-btn-1')">
                     </div>
                     <img id="img-1" class="report-img" src="" alt="Evidência 1">
                 </div>
             </div>
 
             <div class="timeline-item">
-                <button class="btn-remove no-print" onclick="removeTimelineItem(this)">Excluir</button>
+                <button class="btn-remove no-print" onclick="removeTimelineItem(this)">Excluir Aba</button>
                 <p style="margin-bottom: 5px;"><strong><span class="evidence-num">3.2.</span> <span contenteditable="true">Movimentação Interna</span></strong></p>
                 <p style="font-size: 13px; color: #555; margin-top: 0;" contenteditable="true">Pacote sendo incluído em outra gaiola.</p>
                 <div class="image-container">
+                    <button class="btn-clear-image no-print" id="clear-btn-2" onclick="clearImage('img-2', 'upload-area-2', 'clear-btn-2')">X Remover Imagem</button>
                     <div class="upload-area no-print" id="upload-area-2">
                         Selecione a imagem<br>
-                        <input type="file" accept="image/*" onchange="previewImage(event, 'img-2', 'upload-area-2')">
+                        <input type="file" accept="image/*" id="input-2" onchange="previewImage(event, 'img-2', 'upload-area-2', 'clear-btn-2')">
                     </div>
                     <img id="img-2" class="report-img" src="" alt="Evidência 2">
                 </div>
             </div>
 
             <div class="timeline-item">
-                <button class="btn-remove no-print" onclick="removeTimelineItem(this)">Excluir</button>
+                <button class="btn-remove no-print" onclick="removeTimelineItem(this)">Excluir Aba</button>
                 <p style="margin-bottom: 5px;"><strong><span class="evidence-num">3.3.</span> <span contenteditable="true">Status de Aduana</span></strong></p>
                 <p style="font-size: 13px; color: #555; margin-top: 0;" contenteditable="true">Pacote sendo bipado em aduana como "a mais".</p>
                 <div class="image-container">
+                    <button class="btn-clear-image no-print" id="clear-btn-3" onclick="clearImage('img-3', 'upload-area-3', 'clear-btn-3')">X Remover Imagem</button>
                     <div class="upload-area no-print" id="upload-area-3">
                         Selecione a imagem<br>
-                        <input type="file" accept="image/*" onchange="previewImage(event, 'img-3', 'upload-area-3')">
+                        <input type="file" accept="image/*" id="input-3" onchange="previewImage(event, 'img-3', 'upload-area-3', 'clear-btn-3')">
                     </div>
                     <img id="img-3" class="report-img" src="" alt="Evidência 3">
                 </div>
             </div>
 
             <div class="timeline-item">
-                <button class="btn-remove no-print" onclick="removeTimelineItem(this)">Excluir</button>
+                <button class="btn-remove no-print" onclick="removeTimelineItem(this)">Excluir Aba</button>
                 <p style="margin-bottom: 5px;"><strong><span class="evidence-num">3.4.</span> <span contenteditable="true">Correção de Rota</span></strong></p>
                 <p style="font-size: 13px; color: #555; margin-top: 0;" contenteditable="true">Pacote sendo movimentado para a vaga correta e Registros de Sistema.</p>
                 <div class="image-container">
+                    <button class="btn-clear-image no-print" id="clear-btn-4" onclick="clearImage('img-4', 'upload-area-4', 'clear-btn-4')">X Remover Imagem</button>
                     <div class="upload-area no-print" id="upload-area-4">
                         Selecione a imagem<br>
-                        <input type="file" accept="image/*" onchange="previewImage(event, 'img-4', 'upload-area-4')">
+                        <input type="file" accept="image/*" id="input-4" onchange="previewImage(event, 'img-4', 'upload-area-4', 'clear-btn-4')">
                     </div>
                     <img id="img-4" class="report-img" src="" alt="Evidência 4">
                 </div>
@@ -330,13 +361,14 @@
             newItem.className = 'timeline-item';
             
             newItem.innerHTML = `
-                <button class="btn-remove no-print" onclick="removeTimelineItem(this)">Excluir</button>
+                <button class="btn-remove no-print" onclick="removeTimelineItem(this)">Excluir Aba</button>
                 <p style="margin-bottom: 5px;"><strong><span class="evidence-num"></span> <span contenteditable="true">Nova Evidência</span></strong></p>
                 <p style="font-size: 13px; color: #555; margin-top: 0;" contenteditable="true">Descreva o evento aqui...</p>
                 <div class="image-container">
+                    <button class="btn-clear-image no-print" id="clear-btn-${uniqueImageId}" onclick="clearImage('img-${uniqueImageId}', 'upload-area-${uniqueImageId}', 'clear-btn-${uniqueImageId}')">X Remover Imagem</button>
                     <div class="upload-area no-print" id="upload-area-${uniqueImageId}">
                         Selecione a imagem<br>
-                        <input type="file" accept="image/*" onchange="previewImage(event, 'img-${uniqueImageId}', 'upload-area-${uniqueImageId}')">
+                        <input type="file" accept="image/*" id="input-${uniqueImageId}" onchange="previewImage(event, 'img-${uniqueImageId}', 'upload-area-${uniqueImageId}', 'clear-btn-${uniqueImageId}')">
                     </div>
                     <img id="img-${uniqueImageId}" class="report-img" src="" alt="Evidência ${uniqueImageId}">
                 </div>
@@ -348,23 +380,38 @@
         }
 
         function removeTimelineItem(button) {
-            if(confirm("Tem certeza que deseja excluir esta evidência?")) {
+            if(confirm("Tem certeza que deseja excluir esta aba de evidência?")) {
                 button.closest('.timeline-item').remove();
                 updateTimelineNumbers();
             }
         }
 
-        function previewImage(event, imgId, uploadAreaId) {
+        // Função atualizada para mostrar o botão de remover imagem
+        function previewImage(event, imgId, uploadAreaId, clearBtnId) {
             var reader = new FileReader();
             reader.onload = function() {
                 var output = document.getElementById(imgId);
                 output.src = reader.result;
                 output.style.display = 'block'; 
                 document.getElementById(uploadAreaId).style.display = 'none'; 
+                document.getElementById(clearBtnId).style.display = 'block'; // Mostra botão de remover
             }
             if(event.target.files[0]) {
                 reader.readAsDataURL(event.target.files[0]);
             }
+        }
+
+        // Nova função para remover a imagem e voltar a área de upload
+        function clearImage(imgId, uploadAreaId, clearBtnId) {
+            document.getElementById(imgId).src = ""; // Limpa a imagem
+            document.getElementById(imgId).style.display = 'none'; // Esconde a tag img
+            document.getElementById(clearBtnId).style.display = 'none'; // Esconde o botão remover
+            document.getElementById(uploadAreaId).style.display = 'block'; // Mostra o upload novamente
+            
+            // Limpa o valor do input file para permitir subir a mesma imagem se quiser
+            var inputId = uploadAreaId.replace('upload-area', 'input');
+            var fileInput = document.getElementById(inputId);
+            if(fileInput) fileInput.value = "";
         }
 
         function generatePDF() {
@@ -380,10 +427,9 @@
             var element = document.getElementById('document-content');
             
             var opt = {
-                margin:       10, // Margem ajustada e limpa
+                margin:       10, 
                 filename:     'Relatorio_Investigativo_CFTV.pdf',
                 image:        { type: 'jpeg', quality: 0.98 },
-                // Removido o windowWidth que causou o problema da coordenada errada
                 html2canvas:  { scale: 2, useCORS: true },
                 pagebreak:    { mode: ['css', 'legacy'] }, 
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -395,6 +441,12 @@
                         var imgId = el.id.replace('upload-area', 'img');
                         var imgElement = document.getElementById(imgId);
                         if(imgElement && imgElement.style.display !== 'block') {
+                            el.style.display = 'block';
+                        }
+                    } else if (el.classList.contains('btn-clear-image')) {
+                        var imgId = el.id.replace('clear-btn-', 'img-');
+                        var imgElement = document.getElementById(imgId);
+                        if(imgElement && imgElement.style.display === 'block') {
                             el.style.display = 'block';
                         }
                     } else {
