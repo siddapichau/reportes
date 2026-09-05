@@ -70,7 +70,8 @@
         .action-icon.sauron { color: var(--accent-warn); background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.2); }
         .action-icon.check { color: #059669; background: rgba(5,150,105,0.1); border-color: rgba(5,150,105,0.2); font-size: 0.7rem; padding: 4px; }
         
-        .badge { display: inline-flex; align-items: center; justify-content: center; padding: 4px 8px; border-radius: 12px; font-size: .65rem; font-weight: 900; text-transform: uppercase; margin: 2px; }
+        /* Badges menores e mais próximos */
+        .badge { display: inline-flex; align-items: center; justify-content: center; padding: 2px 6px; border-radius: 8px; font-size: .6rem; font-weight: 800; text-transform: uppercase; margin: 1px; letter-spacing: -0.2px; }
         .origem-devolucao { color: #e11d48; border: 1px solid rgba(225,29,72,0.3); background: rgba(225,29,72,0.1); }
         .origem-iddata { color: #2563eb; border: 1px solid rgba(37,99,235,0.3); background: rgba(37,99,235,0.1); }
         .origem-q10 { color: #059669; border: 1px solid rgba(5,150,105,0.3); background: rgba(5,150,105,0.1); }
@@ -78,7 +79,9 @@
         .origem-qonhub { color: #7c3aed; border: 1px solid rgba(124,58,237,0.3); background: rgba(124,58,237,0.1); }
         .origem-cftv { color: #c026d3; border: 1px solid rgba(192,38,211,0.3); background: rgba(192,38,211,0.1); }
         .origem-parado { color: #d97706; border: 1px solid rgba(217,119,6,0.3); background: rgba(217,119,6,0.1); }
+        .origem-bpp { color: #0284c7; border: 1px solid rgba(2,132,199,0.3); background: rgba(2,132,199,0.1); }
         .badge-aging { color: #475569; border: 1px solid rgba(71,85,105,0.3); background: rgba(71,85,105,0.1); }
+        
         .match-exact { border-left: 3px solid var(--accent-green) !important; background: rgba(0,166,80,0.02); }
         .match-partial { border-left: 3px solid var(--accent-warn) !important; }
         
@@ -140,15 +143,16 @@
         <div class="status-pill"><span class="pill-dot" style="background:#059669"></span>Q 10 Dias: <span id="lbl-q10">Carregando...</span></div>
         <div class="status-pill"><span class="pill-dot" style="background:#047857"></span>Q 15 Dias: <span id="lbl-q15">Carregando...</span></div>
         <div class="status-pill"><span class="pill-dot" style="background:#7c3aed"></span>Q OnHub: <span id="lbl-qonhub">Carregando...</span></div>
-        <div class="status-pill"><span class="pill-dot" style="background:#c026d3"></span>Pendências CFTV: <span id="lbl-cftv">Carregando...</span></div>
+        <div class="status-pill"><span class="pill-dot" style="background:#c026d3"></span>CFTV: <span id="lbl-cftv">Carregando...</span></div>
         <div class="status-pill"><span class="pill-dot" style="background:#d97706"></span>Parado Percurso: <span id="lbl-parado">Carregando...</span></div>
+        <div class="status-pill"><span class="pill-dot" style="background:#0284c7"></span>BPP: <span id="lbl-bpp">Carregando...</span></div>
         <div class="status-pill"><span class="pill-dot" style="background:#8b5cf6"></span>🧠 Memória: <span id="lbl-memoria">0</span></div>
     </div>
 
     <div class="resultados-container" id="resultados-container">
         <div class="table-wrapper glass-panel" id="container-vazio">
             <table>
-                <thead><tr><th style="width:18%;">Ação / ID / Rastreio</th><th style="width:18%;">Base(s) & Tempo</th><th style="width:28%;">Descrição do Item</th><th style="width:11%;">Status</th><th style="width:14%;">Substatus / Resolução</th><th style="width:11%;">Valor</th></tr></thead>
+                <thead><tr><th style="width:18%;">Ação / ID / Rastreio</th><th style="width:18%;">Base(s) & Aging</th><th style="width:28%;">Descrição do Item</th><th style="width:11%;">Status</th><th style="width:14%;">Substatus / Resolução</th><th style="width:11%;">Valor</th></tr></thead>
                 <tbody id="tbody-vazio"><tr><td colspan="6" class="center" style="padding:35px; color:var(--text-muted); text-align:center; font-weight:600;">Digite os termos acima para cruzar dados nas bases.</td></tr></tbody>
             </table>
         </div>
@@ -156,7 +160,7 @@
             <div class="section-title title-exatos" id="titulo-exatos">🎯 CORRESPONDÊNCIA EXATA (0)</div>
             <div class="table-wrapper glass-panel" id="scroll-exatos" onscroll="carregarMaisExatos()">
                 <table>
-                    <thead><tr><th style="width:18%;">Ação / ID / Rastreio</th><th style="width:18%;">Base(s) & Tempo</th><th style="width:28%;">Descrição do Item</th><th style="width:11%;">Status</th><th style="width:14%;">Substatus / Resolução</th><th style="width:11%;">Valor</th></tr></thead>
+                    <thead><tr><th style="width:18%;">Ação / ID / Rastreio</th><th style="width:18%;">Base(s) & Aging</th><th style="width:28%;">Descrição do Item</th><th style="width:11%;">Status</th><th style="width:14%;">Substatus / Resolução</th><th style="width:11%;">Valor</th></tr></thead>
                     <tbody id="tbody-exatos"></tbody>
                 </table>
             </div>
@@ -165,7 +169,7 @@
             <div class="section-title title-aproximados" id="titulo-aproximados">💡 RESULTADOS APROXIMADOS (0)</div>
             <div class="table-wrapper glass-panel" id="scroll-aproximados" onscroll="carregarMaisAproximados()">
                 <table>
-                    <thead><tr><th style="width:18%;">Ação / ID / Rastreio</th><th style="width:18%;">Base(s) & Tempo</th><th style="width:28%;">Descrição do Item</th><th style="width:11%;">Status</th><th style="width:14%;">Substatus / Resolução</th><th style="width:11%;">Valor</th></tr></thead>
+                    <thead><tr><th style="width:18%;">Ação / ID / Rastreio</th><th style="width:18%;">Base(s) & Aging</th><th style="width:28%;">Descrição do Item</th><th style="width:11%;">Status</th><th style="width:14%;">Substatus / Resolução</th><th style="width:11%;">Valor</th></tr></thead>
                     <tbody id="tbody-aproximados"></tbody>
                 </table>
             </div>
@@ -284,7 +288,7 @@
     const DB_NODES = {
         'devolucao': 'salvados_devolucao', 'iddata': 'salvados_iddata',
         'q10': 'salvados_q10', 'q15': 'salvados_q15',
-        'qonhub': 'salvados_qonhub', 'cftv': 'salvados_cftv', 'parado': 'salvados_parado'
+        'qonhub': 'salvados_qonhub', 'cftv': 'salvados_cftv', 'parado': 'salvados_parado', 'bpp': 'salvados_bpp'
     };
 
     const STOPWORDS = ['de','para','com','o','a','os','as','em','um','uma','uns','umas','no','na','nos','nas','do','da','dos','das','por','sem'];
@@ -379,7 +383,7 @@
     }
     function fecharModalIA() { document.getElementById('modal-ia').classList.remove('active'); }
 
-    // ====== UPLOAD MÚLTIPLO COM BARRA DE PROGRESSO ======
+    // ====== UPLOAD MÚLTIPLO COM BARRA DE PROGRESSO E RECONHECIMENTO INTELIGENTE ======
     async function processarMultiUpload(inputElement) {
         if (!canEdit) return;
         const files = inputElement.files;
@@ -404,6 +408,7 @@
             else if (name.includes('onhub')) dbKey = 'qonhub';
             else if (name.includes('cftv')) dbKey = 'cftv';
             else if (name.includes('parado')) dbKey = 'parado';
+            else if (name.includes('bpp')) dbKey = 'bpp';
             else { 
                 filesProcessed++; 
                 continue; 
@@ -429,19 +434,53 @@
     function processarArquivoCSV(file, dbKey) {
         return new Promise((resolve) => {
             Papa.parse(file, {
-                header: true, skipEmptyLines: true,
+                skipEmptyLines: true,
+                worker: true, // Habilitado Web Worker p/ melhor processamento sem travar a interface
                 complete: async function(results) {
-                    const dadosLimpos = (results.data || []).map(row => {
-                        const valText = getVal(row, ['valor_real','valor_brl','valor','preco','preço','price','total','vl']);
-                        return { 
-                            ID: extrairID(row), 
-                            Descricao: getVal(row, ['descricao','descrição','descricao_do_produto','produto','item','title','titulo','nome']), 
-                            Status: getVal(row, ['shp_lg_status','status_logistics','status','estado','situacao','situação']), 
-                            Substatus: getVal(row, ['shp_lg_sub_status','substatus_logistics','substatus','resolucao','motivo','detalhe']), 
-                            Valor: valText, ValorNum: parseCurrency(valText), 
-                            Aging: getVal(row, ['aging','dias estocados','parados','dias']) 
-                        };
-                    }).filter(i => i.ID && !['nan','undefined'].includes(i.ID.toLowerCase()));
+                    let rows = results.data;
+                    if (!rows || rows.length === 0) { 
+                        document.getElementById(`lbl-${dbKey}`).innerText = 'Falha ❌'; resolve(); return; 
+                    }
+                    
+                    // Lógica para detectar dinamicamente a linha de cabeçalho
+                    let headerRowIndex = 0;
+                    let headers = [];
+                    for (let i = 0; i < Math.min(10, rows.length); i++) {
+                        let rowLower = rows[i].map(c => String(c).toLowerCase().trim());
+                        if (rowLower.includes('id') || rowLower.includes('id_do_pacote') || rowLower.includes('tracking') || rowLower.includes('id do pacote')) {
+                            headerRowIndex = i;
+                            headers = rows[i].map(c => cleanKey(String(c)));
+                            break;
+                        }
+                    }
+                    
+                    // Se não identificar ID, force a primeira linha como header (padrão)
+                    if (headers.length === 0) {
+                        headers = rows[0].map(c => cleanKey(String(c)));
+                    }
+
+                    const dadosLimpos = [];
+                    for (let i = headerRowIndex + 1; i < rows.length; i++) {
+                        let rowArr = rows[i];
+                        let obj = {};
+                        // Monta o objeto formatado
+                        for (let j = 0; j < headers.length; j++) { obj[headers[j]] = rowArr[j]; }
+                        
+                        // Extrações de campos via mapeamento cruzado (aceitando USD e BRL)
+                        const valText = getVal(obj, ['valor_real', 'valores_real', 'valor', 'preco', 'price', 'total', 'vl', 'valores_usd']);
+                        const idExtracted = getVal(obj, ['id', 'id_do_pacote', 'pacote', 'shipment', 'tracking', 'numero', 'rastreio']);
+                        
+                        if (idExtracted && !['nan','undefined',''].includes(idExtracted.toLowerCase())) {
+                            dadosLimpos.push({ 
+                                ID: idExtracted, 
+                                Descricao: getVal(obj, ['descricao', 'descricao_do_produto', 'produto', 'item', 'title', 'titulo', 'nome']), 
+                                Status: getVal(obj, ['status_atual', 'shp_lg_status', 'status_logistics', 'status', 'estado', 'situacao']), 
+                                Substatus: getVal(obj, ['subs_tatus', 'shp_lg_sub_status', 'substatus_logistics', 'substatus', 'resolucao', 'motivo', 'detalhe']), 
+                                Valor: valText, ValorNum: parseCurrency(valText), 
+                                Aging: getVal(obj, ['aging', 'aging_2', 'aging_dias', 'agin_ult', 'dias_estocados', 'dias_estancados', 'parados', 'dias']) 
+                            });
+                        }
+                    }
 
                     if (!dadosLimpos.length) { document.getElementById(`lbl-${dbKey}`).innerText = 'Falha ❌'; resolve(); return; }
                     
@@ -550,7 +589,7 @@
         } catch(e) { alert("Erro de comunicação."); }
     };
 
-    // ====== PESQUISA NA BARRA (FUNÇÕES RECUPERADAS DA V3) ======
+    // ====== PESQUISA NA BARRA E LÓGICA CORE ======
     function agruparResultados(lista) {
         const mapa = {};
         lista.forEach(item => {
@@ -623,7 +662,7 @@
     }
 
     function getClassOrigem(k) {
-        const m = { devolucao:['Devolução 2.0','origem-devolucao'], iddata:['Toda Gestão','origem-iddata'], q10:['Q 10 Dias','origem-q10'], q15:['Q 15 Dias','origem-q15'], qonhub:['Q OnHub','origem-qonhub'], cftv:['Pendências CFTV','origem-cftv'], parado:['Parado Percurso','origem-parado'] };
+        const m = { devolucao:['Devolução 2.0','origem-devolucao'], iddata:['Toda Gestão','origem-iddata'], q10:['Q 10 Dias','origem-q10'], q15:['Q 15 Dias','origem-q15'], qonhub:['Q OnHub','origem-qonhub'], cftv:['CFTV','origem-cftv'], parado:['Parado Percurso','origem-parado'], bpp:['BPP', 'origem-bpp'] };
         return m[k] || ['Desconhecido',''];
     }
 
@@ -634,9 +673,9 @@
         const id = i.ID || '-'; const idUrl = encodeURIComponent(id);
         const linkHtml = id !== '-' ? `<div style="display:flex;gap:4px;align-items:center;"><button class="action-icon check" onclick="marcarComoEncontrado('${escapeJsAttr(id)}')" title="Marcar como Encontrado">✅</button><a href="https://envios.adminml.com/logistics/package-management/package/${idUrl}" target="_blank" class="action-icon">🔍</a><a href="https://shipping-bo.adminml.com/sauron/shipments/shipment/${idUrl}" target="_blank" class="action-icon sauron">📋</a></div>` : '';
         let badges = (i.OrigensDb||[]).map(o => { const [n,c] = getClassOrigem(o); return `<span class="badge ${c}">${n}</span>`; }).join('');
-        if (i.Aging) badges += `<span class="badge badge-aging">⏳ ${escapeHtml(i.Aging)} Dias</span>`;
+        if (i.Aging) badges += `<span class="badge badge-aging">⏳ ${escapeHtml(i.Aging)}D</span>`;
         const val = Number(i.ValorNum||0);
-        return `<tr class="${ehExato?'match-exact':'match-partial'}"><td class="col-id">${linkHtml}<span>${escapeHtml(id)}</span></td><td><div style="display:flex;flex-wrap:wrap;gap:4px;">${badges}</div></td><td style="font-weight:600;">${escapeHtml(i.Descricao||'-')}</td><td>${escapeHtml(i.Status||'-')}</td><td style="color:var(--text-muted);">${escapeHtml(i.Substatus||'-')}</td><td class="col-val">R$ ${val.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td></tr>`;
+        return `<tr class="${ehExato?'match-exact':'match-partial'}"><td class="col-id">${linkHtml}<span>${escapeHtml(id)}</span></td><td><div style="display:flex;flex-wrap:wrap;gap:2px;">${badges}</div></td><td style="font-weight:600;">${escapeHtml(i.Descricao||'-')}</td><td>${escapeHtml(i.Status||'-')}</td><td style="color:var(--text-muted);">${escapeHtml(i.Substatus||'-')}</td><td class="col-val">R$ ${val.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td></tr>`;
     }
 
     function renderizarPedaçoExatos()      { const s = CUR_PAGE_EXATOS * PAGE_SIZE; document.getElementById('tbody-exatos').insertAdjacentHTML('beforeend', DADOS_EXATOS.slice(s, s+PAGE_SIZE).map(i=>renderizarLinha(i,true)).join('')); }
@@ -661,9 +700,10 @@ DADOS FORNECIDOS:
 ${contextoLink ? contextoLink.slice(0, 5000) : 'Sem texto extraído'}
 
 REGRA CRUCIAL:
-1. Encontre o PREÇO EXATO e REAL do produto no texto extraído (ex: 4100.00) se ele existir. 
+1. Encontre o PREÇO EXATO e REAL do produto no texto (ex: 4100.00). Identifique se o valor é BRL ou USD, mas converta internamente para formato numérico (float).
 2. Vasculhe a leitura da página para achar a Marca, o Modelo, a Cor e as Características do produto.
-3. Retorne APENAS UM JSON VÁLIDO no seguinte formato, sem formatação markdown:
+3. Se houver informações de "Aging" ou "Dias parados" na descrição manual, reconheça como contexto útil.
+4. Retorne APENAS UM JSON VÁLIDO no seguinte formato, sem formatação markdown:
 {
   "termo_base": "Nome do produto completo",
   "marca": "Marca identificada",
@@ -740,7 +780,7 @@ REGRA CRUCIAL:
         resBox.innerHTML = "⏳ <i>A IA está desmembrando sua busca e analisando as bases...</i>";
         
         const promptBusca = `Você é um analista de dados. O usuário digitou o seguinte termo na barra de pesquisa de um estoque: "${query}"
-        Retorne APENAS um JSON válido:
+        Retorne APENAS um JSON válido considerando:
         {
           "termo_base": "Nome limpo do produto",
           "cor": "Cor se informada, senao indefinida",
@@ -879,7 +919,7 @@ REGRA CRUCIAL:
                             <div class="ia-match-prob">🔥 ${Math.min(99, m.aiScore)}% Match</div>
                         </div>
                         <div style="font-size:0.75rem;">${m.Descricao}</div>
-                        <div style="font-size:0.65rem; color:#888;">Bateu: ${m.aiMotivos.join(' / ')}</div>
+                        <div style="font-size:0.65rem; color:#888;">Bateu: ${m.aiMotivos.join(' / ')} | Aging: ${m.Aging ? m.Aging + 'D' : 'N/A'}</div>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
                             <strong style="color:#059669;">R$ ${Number(m.ValorNum||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</strong>
                             <button class="btn" style="padding:4px 10px; font-size:0.7rem; background:#059669; color:#fff;" onclick="marcarComoEncontrado('${m.ID}')">✅ É Este</button>
@@ -920,20 +960,21 @@ REGRA CRUCIAL:
     function removerAcentos(str) { return String(str ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
     function parseCurrency(v) {
         if (!v) return 0;
-        let s = String(v).replace(/R\$/gi,'').replace(/\s/g,'').trim();
+        let s = String(v).replace(/R\$/gi,'').replace(/\$/gi,'').replace(/\s/g,'').trim();
         const lc = s.lastIndexOf(','); const lp = s.lastIndexOf('.');
         if (lc > lp) s = s.replace(/\./g,'').replace(',','.'); else if (lp > lc) s = s.replace(/,/g,'');
         return parseFloat(s) || 0;
     }
-    function cleanKey(k) { return String(k||'').toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+    // Função de tratamento de chave atualizada para lidar com colunas com espaço/caracteres indesejados
+    function cleanKey(k) { return String(k||'').toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g, '_'); }
+    
     function getVal(row, keys) {
         const rk = Object.keys(row || {});
-        for (const pk of keys) { const f = rk.find(k => cleanKey(k) === cleanKey(pk)); if (f && String(row[f]).trim()) return String(row[f]).trim(); }
+        for (const pk of keys) { 
+            const f = rk.find(k => cleanKey(k) === cleanKey(pk)); 
+            if (f && String(row[f]).trim()) return String(row[f]).trim(); 
+        }
         return '';
-    }
-    function extrairID(row) {
-        const v = getVal(row, ['id','id do pacote','pacote','shipment','tracking','numero','rastreio']);
-        if (v) return v; const k = Object.keys(row || {}); return k.length > 0 ? String(row[k[0]]).trim() : '';
     }
 
     // ====== START ======
