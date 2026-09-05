@@ -80,7 +80,6 @@
         .origem-cftv { color: #c026d3; border: 1px solid rgba(192,38,211,0.3); background: rgba(192,38,211,0.1); }
         .origem-parado { color: #d97706; border: 1px solid rgba(217,119,6,0.3); background: rgba(217,119,6,0.1); }
         .origem-bpp { color: #0284c7; border: 1px solid rgba(2,132,199,0.3); background: rgba(2,132,199,0.1); }
-        .badge-aging { color: #475569; border: 1px solid rgba(71,85,105,0.3); background: rgba(71,85,105,0.1); }
         
         .match-exact { border-left: 3px solid var(--accent-green) !important; background: rgba(0,166,80,0.02); }
         .match-partial { border-left: 3px solid var(--accent-warn) !important; }
@@ -129,7 +128,6 @@
             
             <button class="btn-header" id="btn-memoria" onclick="abrirModalMemoria()" title="Ver aprendizado da IA" style="display:none;">🧠 Memória</button>
             
-            <!-- Upload direto e Múltiplo -->
             <input type="file" id="upload-multiplo" multiple accept=".csv" style="display:none;" onchange="processarMultiUpload(this)">
             <button class="btn-header" id="btn-gerenciar" onclick="document.getElementById('upload-multiplo').click()" style="display:none; margin-left:10px;">📂 Subir CSVs</button>
             
@@ -383,7 +381,7 @@
     }
     function fecharModalIA() { document.getElementById('modal-ia').classList.remove('active'); }
 
-    // ====== UPLOAD MÚLTIPLO COM BARRA DE PROGRESSO E RECONHECIMENTO INTELIGENTE ======
+    // ====== UPLOAD MÚLTIPLO ======
     async function processarMultiUpload(inputElement) {
         if (!canEdit) return;
         const files = inputElement.files;
@@ -435,14 +433,13 @@
         return new Promise((resolve) => {
             Papa.parse(file, {
                 skipEmptyLines: true,
-                worker: true, // Habilitado Web Worker p/ melhor processamento sem travar a interface
+                worker: true, 
                 complete: async function(results) {
                     let rows = results.data;
                     if (!rows || rows.length === 0) { 
                         document.getElementById(`lbl-${dbKey}`).innerText = 'Falha ❌'; resolve(); return; 
                     }
                     
-                    // Lógica para detectar dinamicamente a linha de cabeçalho
                     let headerRowIndex = 0;
                     let headers = [];
                     for (let i = 0; i < Math.min(10, rows.length); i++) {
@@ -454,19 +451,14 @@
                         }
                     }
                     
-                    // Se não identificar ID, force a primeira linha como header (padrão)
-                    if (headers.length === 0) {
-                        headers = rows[0].map(c => cleanKey(String(c)));
-                    }
+                    if (headers.length === 0) headers = rows[0].map(c => cleanKey(String(c)));
 
                     const dadosLimpos = [];
                     for (let i = headerRowIndex + 1; i < rows.length; i++) {
                         let rowArr = rows[i];
                         let obj = {};
-                        // Monta o objeto formatado
                         for (let j = 0; j < headers.length; j++) { obj[headers[j]] = rowArr[j]; }
                         
-                        // Extrações de campos via mapeamento cruzado (aceitando USD e BRL)
                         const valText = getVal(obj, ['valor_real', 'valores_real', 'valor', 'preco', 'price', 'total', 'vl', 'valores_usd']);
                         const idExtracted = getVal(obj, ['id', 'id_do_pacote', 'pacote', 'shipment', 'tracking', 'numero', 'rastreio']);
                         
@@ -552,10 +544,8 @@
         try {
             await fetch(`${FIREBASE_URL}salvados_aprendizado/${key}.json`, { method: 'DELETE' });
             await atualizarIndicadorMemoria();
-            abrirModalMemoria(); // Atualiza a modal na hora
-        } catch(e) { 
-            alert("Erro ao remover"); 
-        }
+            abrirModalMemoria(); 
+        } catch(e) { alert("Erro ao remover"); }
     };
 
     window.marcarComoEncontrado = async function(id) {
@@ -576,7 +566,6 @@
             };
             
             await fetch(`${FIREBASE_URL}salvados_aprendizado.json`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(aprendizagem) });
-
             await fetch(`${FIREBASE_URL}salvados_encontrados/${idLimpo}.json`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ data: Date.now(), user: userName }) });
             ITENS_ENCONTRADOS.add(idLimpo);
             
@@ -672,10 +661,38 @@
     function renderizarLinha(i, ehExato) {
         const id = i.ID || '-'; const idUrl = encodeURIComponent(id);
         const linkHtml = id !== '-' ? `<div style="display:flex;gap:4px;align-items:center;"><button class="action-icon check" onclick="marcarComoEncontrado('${escapeJsAttr(id)}')" title="Marcar como Encontrado">✅</button><a href="https://envios.adminml.com/logistics/package-management/package/${idUrl}" target="_blank" class="action-icon">🔍</a><a href="https://shipping-bo.adminml.com/sauron/shipments/shipment/${idUrl}" target="_blank" class="action-icon sauron">📋</a></div>` : '';
+        
         let badges = (i.OrigensDb||[]).map(o => { const [n,c] = getClassOrigem(o); return `<span class="badge ${c}">${n}</span>`; }).join('');
-        if (i.Aging) badges += `<span class="badge badge-aging">⏳ ${escapeHtml(i.Aging)}D</span>`;
+        
+        let agingHtml = '';
+        if (i.Aging && String(i.Aging).trim() !== '') {
+            let agingNum = parseInt(i.Aging) || 0;
+            // Cores dinâmicas para chamar mais atenção dependendo da gravidade do tempo parado
+            let bgClass = agingNum > 15 ? '#e11d48' : (agingNum >= 7 ? '#d97706' : '#2563eb');
+            
+            agingHtml = `
+            <div style="margin-top: 5px;">
+                <span style="background: ${bgClass}; color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 900; box-shadow: 0 2px 4px rgba(0,0,0,0.15); display: inline-flex; align-items: center; gap: 4px; text-transform: uppercase;">
+                    ⏱️ ${escapeHtml(i.Aging)} Dias Parado
+                </span>
+            </div>`;
+        }
+        
         const val = Number(i.ValorNum||0);
-        return `<tr class="${ehExato?'match-exact':'match-partial'}"><td class="col-id">${linkHtml}<span>${escapeHtml(id)}</span></td><td><div style="display:flex;flex-wrap:wrap;gap:2px;">${badges}</div></td><td style="font-weight:600;">${escapeHtml(i.Descricao||'-')}</td><td>${escapeHtml(i.Status||'-')}</td><td style="color:var(--text-muted);">${escapeHtml(i.Substatus||'-')}</td><td class="col-val">R$ ${val.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td></tr>`;
+        return `
+        <tr class="${ehExato?'match-exact':'match-partial'}">
+            <td class="col-id">${linkHtml}<span>${escapeHtml(id)}</span></td>
+            <td>
+                <div style="display:flex; flex-direction:column; align-items:flex-start;">
+                    <div style="display:flex; flex-wrap:wrap; gap:2px;">${badges}</div>
+                    ${agingHtml}
+                </div>
+            </td>
+            <td style="font-weight:600;">${escapeHtml(i.Descricao||'-')}</td>
+            <td>${escapeHtml(i.Status||'-')}</td>
+            <td style="color:var(--text-muted);">${escapeHtml(i.Substatus||'-')}</td>
+            <td class="col-val">R$ ${val.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td>
+        </tr>`;
     }
 
     function renderizarPedaçoExatos()      { const s = CUR_PAGE_EXATOS * PAGE_SIZE; document.getElementById('tbody-exatos').insertAdjacentHTML('beforeend', DADOS_EXATOS.slice(s, s+PAGE_SIZE).map(i=>renderizarLinha(i,true)).join('')); }
@@ -696,7 +713,7 @@ Seu objetivo é analisar o link do Mercado Livre fornecido (e o texto extraído 
 DADOS FORNECIDOS:
 - Link: ${link || 'Não fornecido'}
 - Descrição manual: "${descManual || 'Não fornecida'}"
-- Texto extraído da página (Leia atentamente para extrair Marca, Modelo, Preço, Cor, Voltagem, Características Principais, etc):
+- Texto extraído da página:
 ${contextoLink ? contextoLink.slice(0, 5000) : 'Sem texto extraído'}
 
 REGRA CRUCIAL:
@@ -952,7 +969,6 @@ REGRA CRUCIAL:
         }
         await atualizarIndicadorMemoria();
         
-        // Ativar busca inicial se houver texto
         if (document.getElementById('search-input').value.trim()) executarSmartSearch();
     }
 
@@ -965,7 +981,6 @@ REGRA CRUCIAL:
         if (lc > lp) s = s.replace(/\./g,'').replace(',','.'); else if (lp > lc) s = s.replace(/,/g,'');
         return parseFloat(s) || 0;
     }
-    // Função de tratamento de chave atualizada para lidar com colunas com espaço/caracteres indesejados
     function cleanKey(k) { return String(k||'').toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g, '_'); }
     
     function getVal(row, keys) {
